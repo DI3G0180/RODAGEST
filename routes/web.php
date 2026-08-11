@@ -23,6 +23,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('unidades', UnidadController::class);
     Route::resource('aseos', AseoController::class);
     Route::resource('inspecciones', InspeccionController::class);
+    Route::get('/unidades', [UnidadController::class, 'index'])->name('unidades.index');
+    Route::delete('/unidades/{id}', [UnidadController::class, 'destroy'])->name('unidades.destroy');
+    // Nota: Para editar, podrías usar un modal o una vista separada.
+    Route::get('/unidades/create', [UnidadController::class, 'create'])->name('unidades.create');
+    Route::post('/unidades', [UnidadController::class, 'store'])->name('unidades.store');
 
     // Perfil de Usuario (Breeze)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

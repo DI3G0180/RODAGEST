@@ -22,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role', // <-- ¡Agregado aquí para que acepte el rol de admin u operador!
     ];
 
     /**

@@ -34,14 +34,10 @@
                 </select>
             </div>
 
-            <!-- INTENDENTE -->
+            <!-- INTENDENTE (CAMBIADO A TEXTO MANUAL) -->
             <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1">Intendente Responsable</label>
-                <select name="intendente_responsable" required class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    <option value="">Seleccionar Intendente...</option>
-                    <option value="BECERRIL DELGADO PAUL">1281 - BECERRIL DELGADO PAUL</option>
-                    <option value="ARACELI HERNANDEZ">1042 - ARACELI HERNANDEZ</option>
-                </select>
+                <input type="text" name="intendente_responsable" required placeholder="Ej. JUAN PÉREZ" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
             </div>
 
             <!-- ÁREA / TERMINAL -->
@@ -62,7 +58,7 @@
                 <input type="text" name="comentarios" placeholder="LIMPIEZA REALIZADA" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
             </div>
 
-            <!-- BOTONES CON COLOR AZUL OFICIAL (Sin clases brand invisibles) -->
+            <!-- BOTONES CON COLOR AZUL OFICIAL -->
             <div class="md:col-span-3 flex justify-end gap-2 mt-2 pt-2 border-t border-slate-100">
                 <button type="reset" class="px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition">Cancelar</button>
                 <button type="submit" class="px-5 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition shadow-md shadow-blue-500/20 flex items-center gap-2" style="background-color: #2563eb !important; color: #ffffff !important;">

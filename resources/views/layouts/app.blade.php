@@ -24,22 +24,28 @@
         <!-- SIDEBAR / MENÚ LATERAL OSCURO (FORZADO) -->
         <aside class="w-64 bg-slate-900 text-white flex flex-col justify-between shrink-0 shadow-xl border-r border-slate-800" style="background-color: #0f172a !important;">
             <div>
-                <!-- LOGO Y TÍTULO DE LA APP -->
-                <div class="p-5 border-b border-slate-800 flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/30 text-white font-bold text-xl">
-                        <i class="ri-bus-fill"></i>
-                    </div>
-                    <div>
-                        <h1 class="font-bold text-lg tracking-wide text-white" style="color: #ffffff !important;">RodaGest</h1>
-                        <p class="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">Equipo Rodante</p>
-                    </div>
+                <!-- LOGO COMPLETO -->
+                <div class="p-5 border-b border-slate-800 flex justify-center items-center">
+                    <img src="{{ asset('images/LOGO_RODAGEST-removebg-preview.png') }}" 
+                         alt="RodaGest Logo" 
+                         class="w-full max-w-[170px] h-auto object-contain">
                 </div>
 
-                <!-- NAVEGACIÓN PRINCIPAL -->
+                <!-- NAVEGACIÓN PRINCIPAL CON PERMISOS POR ROL -->
                 <nav class="p-4 space-y-1.5 text-sm font-medium">
                     <div class="px-3 py-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Menú Principal</div>
 
-                    <!-- BOTÓN ASEOS -->
+                    <!-- 1. BOTÓN INSPECCIÓN DE DAÑOS (Solo Admin e Inspector) -->
+                    @can('isInspector')
+                    <a href="{{ route('inspecciones.index') }}"
+                       class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('inspecciones.*') ? 'bg-blue-600 text-white font-semibold shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}"
+                       style="{{ request()->routeIs('inspecciones.*') ? 'background-color: #2563eb !important; color: #ffffff !important;' : 'color: #cbd5e1 !important;' }}">
+                        <i class="ri-shield-cross-line text-lg"></i>
+                        <span>Inspección de Daños</span>
+                    </a>
+                    @endcan
+
+                    <!-- 2. BOTÓN ASEOS (Visible para Todos: Admin, Inspector y Operador) -->
                     <a href="{{ route('aseos.index') }}"
                        class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('aseos.*') ? 'bg-blue-600 text-white font-semibold shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}"
                        style="{{ request()->routeIs('aseos.*') ? 'background-color: #2563eb !important; color: #ffffff !important;' : 'color: #cbd5e1 !important;' }}">
@@ -47,35 +53,26 @@
                         <span>Aseo de Unidades</span>
                     </a>
 
-                    <!-- BOTÓN INSPECCIÓN DE DAÑOS -->
-                    <a href="{{ route('inspecciones.index') }}"
-                       class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('inspecciones.*') ? 'bg-blue-600 text-white font-semibold shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}"
-                       style="{{ request()->routeIs('inspecciones.*') ? 'background-color: #2563eb !important; color: #ffffff !important;' : 'color: #cbd5e1 !important;' }}">
-                        <i class="ri-shield-cross-line text-lg"></i>
-                        <span>Inspección de Daños</span>
-                    </a>
-
-                    <!-- BOTÓN CATÁLOGO DE UNIDADES -->
+                    <!-- 3. BOTÓN CATÁLOGO DE UNIDADES (Solo Admin e Inspector) -->
+                    @can('isInspector')
                     <a href="{{ route('unidades.index') }}"
                        class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('unidades.*') ? 'bg-blue-600 text-white font-semibold shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}"
                        style="{{ request()->routeIs('unidades.*') ? 'background-color: #2563eb !important; color: #ffffff !important;' : 'color: #cbd5e1 !important;' }}">
                         <i class="ri-bus-2-line text-lg"></i>
                         <span>Catálogo de Unidades</span>
                     </a>
-                </nav>
-            </div>
+                    @endcan
 
-            <!-- FOOTER DEL SIDEBAR / SOLO INFO, SIN CLIC -->
-            <div class="p-3 border-t border-slate-800 bg-slate-950 flex items-center gap-2">
-                <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center font-bold text-xs text-white shrink-0">
-                    {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 2)) }}
-                </div>
-                <div class="min-w-0">
-                    <p class="text-xs font-semibold text-white truncate" style="color: #ffffff !important;">{{ Auth::user()->name ?? 'Usuario' }}</p>
-                    <p class="text-[9px] text-blue-400 uppercase font-bold tracking-wider truncate">
-                        {{ Auth::user()->role ?? 'operador' }}
-                    </p>
-                </div>
+                    <!-- 4. SECCIÓN ADMINISTRACIÓN (Exclusivo Admin) -->
+                    @can('isAdmin')
+                    <div class="pt-4 px-3 py-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Administración</div>
+                    <a href="#"
+                       class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition">
+                        <i class="ri-user-settings-line text-lg"></i>
+                        <span>Gestión de Usuarios</span>
+                    </a>
+                    @endcan
+                </nav>
             </div>
         </aside>
 

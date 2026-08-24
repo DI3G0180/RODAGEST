@@ -28,7 +28,7 @@
             border: 1px solid #334155;
             border-radius: 1rem;
             width: 100%;
-            max-width: 380px; /* Ancho fijo para que NO se estire */
+            max-width: 420px; /* Ampliado para dar más espacio visual al logo */
             padding: 2.5rem 2rem;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             box-sizing: border-box;
@@ -111,18 +111,13 @@
             background-color: #1d4ed8;
         }
 
-        .brand-logo {
-            width: 3rem;
-            height: 3rem;
-            background-color: #2563eb;
-            border-radius: 0.75rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 0.75rem auto;
-            color: white;
-            font-size: 1.5rem;
-            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
+        /* Estilo optimizado para destacar el Logo */
+        .brand-logo-img {
+            max-width: 270px; /* Aumentado de 180px a 270px */
+            width: 100%;
+            height: auto;
+            margin: 0 auto 0.5rem auto;
+            display: block;
         }
     </style>
 </head>
@@ -131,11 +126,8 @@
     <div class="login-card">
         
         <!-- LOGO Y TÍTULO -->
-        <div style="text-align: center; margin-bottom: 2rem;">
-            <div class="brand-logo">
-                <i class="ri-bus-fill"></i>
-            </div>
-            <h1 style="color: #ffffff; font-size: 1.5rem; font-weight: 800; margin: 0; tracking-wide: 0.025em;">RodaGest</h1>
+        <div style="text-align: center; margin-bottom: 1.75rem;">
+            <img src="{{ asset('images/LOGO_RODAGEST-removebg-preview.png') }}" alt="RodaGest Logo" class="brand-logo-img">
             <p style="color: #64748b; font-size: 0.75rem; margin-top: 0.25rem; font-weight: 500;">Control Operativo</p>
         </div>
 

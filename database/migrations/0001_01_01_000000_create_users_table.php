@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            // Campo de roles para RodaGest
+            $table->enum('role', ['admin', 'inspector', 'operador'])->default('operador');
             $table->rememberToken();
             $table->timestamps();
         });

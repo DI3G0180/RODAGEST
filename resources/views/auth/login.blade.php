@@ -127,7 +127,7 @@
         
         <!-- LOGO Y TÍTULO -->
         <div style="text-align: center; margin-bottom: 1.75rem;">
-            <img src="{{ asset('images/LOGO_RODAGEST-removebg-preview.png') }}" alt="RodaGest Logo" class="brand-logo-img">
+            <img src="{{ asset('images/LOGO RodaGestt.jpg') }}" alt="RodaGest Logo" class="brand-logo-img">
             <p style="color: #64748b; font-size: 0.75rem; margin-top: 0.25rem; font-weight: 500;">Control Operativo</p>
         </div>
 

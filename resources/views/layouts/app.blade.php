@@ -26,7 +26,7 @@
             <div>
                 <!-- LOGO COMPLETO -->
                 <div class="p-5 border-b border-slate-800 flex justify-center items-center">
-                    <img src="{{ asset('images/LOGO_RODAGEST-removebg-preview.png') }}" 
+                    <img src="{{ asset('images/LOGO RodaGestt.jpg') }}" 
                          alt="RodaGest Logo" 
                          class="w-full max-w-[170px] h-auto object-contain">
                 </div>

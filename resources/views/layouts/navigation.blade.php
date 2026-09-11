@@ -15,6 +15,18 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+
+                    <x-nav-link :href="route('aseos.index')" :active="request()->routeIs('aseos.*')">
+                        {{ __('Control de Aseo') }}
+                    </x-nav-link>
+
+                    <x-nav-link :href="route('inspecciones.index')" :active="request()->routeIs('inspecciones.*')">
+                        {{ __('Inspección y Daños') }}
+                    </x-nav-link>
+
+                    <x-nav-link :href="route('unidades.index')" :active="request()->routeIs('unidades.*')">
+                        {{ __('Unidades') }}
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -69,6 +81,18 @@
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('aseos.index')" :active="request()->routeIs('aseos.*')">
+                {{ __('Control de Aseo') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('inspecciones.index')" :active="request()->routeIs('inspecciones.*')">
+                {{ __('Inspección y Daños') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('unidades.index')" :active="request()->routeIs('unidades.*')">
+                {{ __('Unidades') }}
             </x-responsive-nav-link>
         </div>
 

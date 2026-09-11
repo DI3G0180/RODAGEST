@@ -12,29 +12,39 @@
         </div>
     @endif
 
-    <!-- FORMULARIO SUPERIOR RESTRUCTURADO -->
+    @if($errors->any())
+        <div class="p-4 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-sm font-medium">
+            <ul class="list-disc list-inside">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <!-- FORMULARIO SUPERIOR (SOLO VISIBLE SI NO ES OPERADOR) -->
+    @if(auth()->check() && auth()->user()->role !== 'operador')
     <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
         <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
             <i class="ri-add-circle-line text-blue-600 text-lg"></i>
             Nuevo Registro de Aseo
         </h3>
 
-        <!-- Grid de 3 columnas para que los inputs respiren bien -->
         <form action="{{ route('aseos.store') }}" method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-4">
             @csrf
             
-            <!-- UNIDAD -->
+            <!-- UNIDAD (CARGADA DE LA DB) -->
             <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1">Unidad / Económico</label>
                 <select name="unidad_id" required class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     <option value="">Seleccionar Unidad...</option>
-                    @for ($i = 1; $i <= 50; $i++)
-                        <option value="{{ $i }}">Unidad #{{ $i }}</option>
-                    @endfor
+                    @foreach($unidades as $unidad)
+                        <option value="{{ $unidad->id }}">Unidad #{{ $unidad->numero ?? $unidad->id }}</option>
+                    @endforeach
                 </select>
             </div>
 
-            <!-- INTENDENTE (CAMBIADO A TEXTO MANUAL) -->
+            <!-- INTENDENTE -->
             <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1">Intendente Responsable</label>
                 <input type="text" name="intendente_responsable" required placeholder="Ej. JUAN PÉREZ" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
@@ -52,13 +62,13 @@
                 <input type="datetime-local" name="fecha_hora" required class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
             </div>
 
-            <!-- COMENTARIOS (Abarca 2 columnas para no apretar el botón) -->
+            <!-- COMENTARIOS -->
             <div class="md:col-span-2">
                 <label class="block text-xs font-semibold text-slate-600 mb-1">Comentarios</label>
                 <input type="text" name="comentarios" placeholder="LIMPIEZA REALIZADA" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
             </div>
 
-            <!-- BOTONES CON COLOR AZUL OFICIAL -->
+            <!-- BOTONES -->
             <div class="md:col-span-3 flex justify-end gap-2 mt-2 pt-2 border-t border-slate-100">
                 <button type="reset" class="px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition">Cancelar</button>
                 <button type="submit" class="px-5 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition shadow-md shadow-blue-500/20 flex items-center gap-2" style="background-color: #2563eb !important; color: #ffffff !important;">
@@ -67,8 +77,9 @@
             </div>
         </form>
     </div>
+    @endif
 
-    <!-- TABLA HISTORIAL -->
+    <!-- TABLA HISTORIAL (VISIBLE PARA TODOS) -->
     <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
             <h3 class="font-bold text-slate-800">Historial de Bitácoras</h3>
@@ -90,7 +101,7 @@
                     <tr class="hover:bg-slate-50/50 transition">
                         <td class="px-6 py-4 font-bold text-slate-800">{{ $aseo->id }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ \Carbon\Carbon::parse($aseo->fecha_hora)->format('d-m-Y H:i') }}</td>
-                        <td class="px-6 py-4 font-semibold text-blue-600">Unidad #{{ $aseo->unidad_id }}</td>
+                        <td class="px-6 py-4 font-semibold text-blue-600">Unidad #{{ $aseo->unidad->numero ?? $aseo->unidad_id }}</td>
                         <td class="px-6 py-4 font-medium text-slate-900">{{ $aseo->intendente_responsable }}</td>
                         <td class="px-6 py-4">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">

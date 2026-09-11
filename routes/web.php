@@ -28,18 +28,10 @@ Route::middleware(['auth'])->group(function () {
     })->name('dashboard');
 
     // 1. ACCESO GENERAL (Admin, Inspector y Operador)
+    // Se permite que todos vean los recursos, la restricción de crear/guardar se maneja en el controlador/vista
     Route::resource('aseos', AseoController::class);
-
-    // 2. ACCESO SOLO INSPECTORES Y ADMINS
-    Route::middleware(['can:isInspector'])->group(function () {
-        Route::resource('inspecciones', InspeccionController::class);
-        Route::resource('unidades', UnidadController::class);
-    });
-
-    // 3. ACCESO EXCLUSIVO ADMINISTRADOR
-    Route::middleware(['can:isAdmin'])->group(function () {
-        // Reservado para futuras rutas administrativas
-    });
+    Route::resource('inspecciones', InspeccionController::class);
+    Route::resource('unidades', UnidadController::class);
 
     // PERFIL DE USUARIO
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

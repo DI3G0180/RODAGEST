@@ -5,6 +5,7 @@
 @section('content')
 <div class="space-y-6">
 
+    <!-- ALERTAS DE ÉXITO Y ERROR -->
     @if(session('success'))
         <div class="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-sm font-medium flex items-center gap-2">
             <i class="ri-checkbox-circle-fill text-emerald-500 text-lg"></i>
@@ -12,7 +13,25 @@
         </div>
     @endif
 
-    <!-- FORMULARIO SUPERIOR DE REGISTRO DE DAÑO -->
+    @if(session('error'))
+        <div class="p-4 bg-red-50 border border-red-200 text-red-800 rounded-xl text-sm font-medium flex items-center gap-2">
+            <i class="ri-error-warning-fill text-red-500 text-lg"></i>
+            {{ session('error') }}
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div class="p-4 bg-red-50 border border-red-200 text-red-800 rounded-xl text-sm font-medium">
+            <ul class="list-disc list-inside">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <!-- FORMULARIO SUPERIOR DE REGISTRO DE DAÑO (OCULTO PARA OPERADOR) -->
+    @if(auth()->check() && auth()->user()->role !== 'operador')
     <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
         <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
             <i class="ri-error-warning-line text-red-500 text-lg"></i>
@@ -22,14 +41,16 @@
         <form action="{{ route('inspecciones.store') }}" method="POST" class="grid grid-cols-1 md:grid-cols-4 gap-4">
             @csrf
 
-            <!-- UNIDAD SELECT (1 AL 50) -->
+            <!-- UNIDAD SELECT (OBTENIDO DESDE LA BASE DE DATOS) -->
             <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1">Unidad / Económico</label>
                 <select name="unidad_id" required class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
                     <option value="">Seleccionar Unidad...</option>
-                    @for ($i = 1; $i <= 50; $i++)
-                        <option value="{{ $i }}">Unidad #{{ $i }}</option>
-                    @endfor
+                    @foreach($unidades as $unidad)
+                        <option value="{{ $unidad->id }}">
+                            Unidad #{{ $unidad->numero ?? $unidad->numero_unidad ?? $unidad->id }}
+                        </option>
+                    @endforeach
                 </select>
             </div>
 
@@ -78,14 +99,15 @@
 
             <div class="md:col-span-4 flex justify-end gap-2 mt-2">
                 <button type="reset" class="px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition">Cancelar</button>
-                <button type="submit" class="px-5 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition shadow-md shadow-red-500/20 flex items-center gap-2">
+                <button type="submit" class="px-5 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition shadow-md shadow-red-500/20 flex items-center gap-2" style="background-color: #dc2626 !important; color: #ffffff !important;">
                     <i class="ri-alert-line"></i> Guardar Reporte
                 </button>
             </div>
         </form>
     </div>
+    @endif
 
-    <!-- TABLA DE HISTORIAL DE INSPECCIONES -->
+    <!-- TABLA DE HISTORIAL DE INSPECCIONES (VISIBLE PARA TODOS LOS ROLES) -->
     <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
             <h3 class="font-bold text-slate-800">Historial de Reportes de Daños</h3>
@@ -109,7 +131,9 @@
                     <tr class="hover:bg-slate-50/50 transition">
                         <td class="px-6 py-4 font-bold text-slate-800">{{ $inspeccion->id }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ \Carbon\Carbon::parse($inspeccion->fecha_reporte)->format('d-m-Y H:i') }}</td>
-                        <td class="px-6 py-4 font-semibold text-brand-600">Unidad #{{ $inspeccion->unidad_id }}</td>
+                        <td class="px-6 py-4 font-semibold text-brand-600">
+                            Unidad #{{ $inspeccion->unidad->numero ?? $inspeccion->unidad_id }}
+                        </td>
                         <td class="px-6 py-4 font-medium text-slate-900">{{ $inspeccion->inspector_responsable }}</td>
                         <td class="px-6 py-4">{{ $inspeccion->tipo_dano }}</td>
                         <td class="px-6 py-4">

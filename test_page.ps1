@@ -1,0 +1,1 @@
+powershell -Command "Invoke-RestMethod -Uri 'http://127.0.0.1:8000/login' -Method Get" 2>&1 | head -20

@@ -2,15 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Evidencia extends Model
 {
-    use HasFactory;
-
     protected $table = 'evidencias';
-    protected $fillable = ['inspeccion_id', 'ruta_archivo'];
+
+    protected $fillable = ['inspeccion_id', 'ruta_archivo', 'tipo_media', 'nombre_original'];
 
     public function inspeccion()
     {

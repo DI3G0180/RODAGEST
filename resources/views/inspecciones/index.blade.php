@@ -1,108 +1,64 @@
-                                        </a>
+@extends('layouts.app')
+@section('title', 'Inspección diaria · RODAGEST')
+@section('content')
+@php($role = auth()->user()->role)
+<div class="mx-auto w-full max-w-7xl space-y-5 px-4 py-5 sm:px-6 sm:py-8">
+    <header class="flex flex-wrap items-end justify-between gap-3">
+        <div><p class="text-xs font-bold uppercase tracking-[.16em] text-[#018FC7]">{{ $role === 'admin' ? 'Supervisión · Administración' : 'Operación · Inspector' }}</p><h1 class="mt-1 text-2xl font-extrabold sm:text-3xl">Inspección diaria</h1><p class="mt-1 text-sm text-slate-600">Registra daños, fallas, ubicación y evidencia fotográfica o en video.</p></div>
+        <a href="{{ route('dashboard', [], false) }}" class="inline-flex min-h-11 items-center rounded-xl border border-[#B1D0E2] bg-white px-4 font-semibold text-[#018FC7]">Volver al panel</a>
+    </header>
+    @if(session('success'))<div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-800">{{ session('success') }}</div>@endif
+    @if($errors->any())<div class="rounded-xl border border-red-200 bg-red-50 p-4 text-red-800"><ul class="list-disc pl-5">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
 
-                                        <form action="{{ route('inspecciones.destroy', $inspeccion->id) }}"
-                                              method="POST" class="inline"
-                                              onsubmit="return confirm('¿Eliminar reporte #{{ $inspeccion->id }}? Esta acción no se puede deshacer.')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-400 hover:text-red-600" title="Eliminar">
-                                                <i class="ri-delete-bin-line"></i>
-                                            </button>
-                                        </form>
-                                    @endif
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="8" class="px-6 py-8 text-center text-slate-400">
-                                <i class="ri-file-text-line text-4xl block mb-3"></i>
-                                No hay reportes de daños registrados.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
-        @if(method_exists($inspecciones, 'links'))
-            <div class="px-6 py-4">{{ $inspecciones->links() }}</div>
-        @endif
+    <section class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        @foreach(['hoy'=>'Inspecciones de hoy','pendientes'=>'Pendientes','criticas'=>'Fallas críticas abiertas'] as $key=>$label)<article class="rounded-2xl border border-[#B1D0E2] bg-white p-4 shadow-sm"><p class="text-sm text-slate-500">{{ $label }}</p><p class="mt-1 text-3xl font-extrabold text-[#018FC7]">{{ $estadisticas[$key] }}</p></article>@endforeach
     </section>
 
-    {{-- Modal de detalle --}}
-    <div x-cloak x-show="detalleAbierto" x-transition
-         @keydown.escape.window="detalleAbierto = false"
-         @click.self="detalleAbierto = false"
-         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-        <div class="bg-white rounded-xl w-full max-w-2xl p-6 md:p-8 shadow-xl max-h-[90vh] overflow-y-auto">
-            <div class="flex items-start justify-between mb-6">
-                <h3 class="text-xl md:text-2xl font-bold text-primary-800">Reporte #<span x-text="detalle.id"></span></h3>
-                <button type="button" @click="detalleAbierto = false" class="text-slate-400 hover:text-slate-700 text-xl">
-                    <i class="ri-close-line"></i>
-                </button>
-            </div>
+    <section class="rounded-2xl border border-[#B1D0E2] bg-white p-5 shadow-sm sm:p-6">
+        <h2 class="text-lg font-bold">Nueva inspección</h2>
+        <form action="{{ route('inspecciones.store', [], false) }}" method="POST" enctype="multipart/form-data" class="mt-4 grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3">@csrf
+            <label class="form-label">Económico / ECO<select name="unidad_id" id="inspection-unit" required class="inspection-field"><option value="">Selecciona unidad</option>@foreach($unidades as $unidad)<option value="{{ $unidad->id }}" data-operator="{{ $unidad->operador_id }}">{{ $unidad->economico }}</option>@endforeach</select></label>
+            <label class="form-label">Operador<select name="operador_id" id="inspection-operator" class="inspection-field"><option value="">Sin operador asignado</option>@foreach($operadores as $operador)<option value="{{ $operador->id }}">{{ $operador->name }}</option>@endforeach</select></label>
+            <label class="form-label">Fecha y hora<input type="datetime-local" name="fecha_reporte" required value="{{ now()->format('Y-m-d\TH:i') }}" class="inspection-field"></label>
+            <label class="form-label">Persona que reporta<input name="persona_reporta" maxlength="150" placeholder="Nombre de quien detectó la falla" class="inspection-field"></label>
+            <label class="form-label">Daño o falla<select name="tipo_dano" required class="inspection-field"><option value="">Selecciona</option>@foreach(['Mecánica','Carrocería','Eléctrica','Neumáticos','Vandalismo','Limpieza','Otro'] as $tipo)<option>{{ $tipo }}</option>@endforeach</select></label>
+            <label class="form-label">Categoría del evento<select name="categoria_evento" class="inspection-field"><option value="">Selecciona</option>@foreach(['Falla mecánica','Accidente','Vandalismo','Daño a usuario','Incidencia operativa','Otro'] as $categoria)<option>{{ $categoria }}</option>@endforeach</select></label>
+            <label class="form-label">Ubicación del daño<input name="ubicacion_dano" maxlength="180" placeholder="Ej. puerta trasera, eje delantero" class="inspection-field"></label>
+            <label class="form-label">Municipio<input name="municipio" maxlength="120" class="inspection-field" placeholder="Municipio"></label>
+            <label class="form-label">Dirección / lugar<input name="direccion" maxlength="255" class="inspection-field" placeholder="Calle, terminal o referencia"></label>
+            <label class="form-label">Prioridad<select name="prioridad" required class="inspection-field"><option value="baja">Baja</option><option value="media" selected>Media</option><option value="alta">Alta</option><option value="critica">Crítica</option></select></label>
+            <label class="form-label">Dictamen operativo<select name="dictamen" required class="inspection-field"><option value="operativa">Puede operar</option><option value="en_taller">Enviar a taller</option><option value="fuera_servicio">Fuera de servicio</option></select></label>
+            <fieldset class="rounded-xl border border-[#DBE7F3] p-3 sm:col-span-2 lg:col-span-3"><legend class="px-1 text-sm font-bold">Inspección del vehículo</legend><div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">@foreach(['frenos'=>'Frenos','neumaticos'=>'Neumáticos','luces'=>'Luces','niveles'=>'Niveles','puertas'=>'Puertas articuladas','documentacion'=>'Documentación'] as $key=>$label)<label class="form-label">{{ $label }}<select name="checklist[{{ $key }}]" required class="inspection-field mt-1"><option value="1">Correcto</option><option value="0">Requiere atención</option></select></label>@endforeach</div></fieldset>
+            <label class="form-label sm:col-span-2 lg:col-span-3">Descripción<textarea name="descripcion" required maxlength="500" rows="4" placeholder="Describe con claridad qué ocurrió y qué necesita atención." class="inspection-field"></textarea></label>
+            <label class="form-label sm:col-span-2">Fotos<input name="fotos[]" type="file" accept="image/*" capture="environment" multiple class="inspection-field"><span class="mt-1 block text-xs font-normal text-slate-500">Hasta 8 imágenes de 10 MB cada una.</span></label>
+            <label class="form-label sm:col-span-2 lg:col-span-1">Videos<input name="videos[]" type="file" accept="video/mp4,video/quicktime,video/webm" capture="environment" multiple class="inspection-field"><span class="mt-1 block text-xs font-normal text-slate-500">MP4, MOV o WEBM; máximo 2 videos de 20 MB.</span></label>
+            <button class="min-h-12 rounded-xl bg-[#018FC7] px-5 font-bold text-white hover:bg-sky-700 sm:col-span-2 lg:col-span-3">Guardar inspección</button>
+        </form>
+    </section>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div>
-                    <p class="text-slate-500 text-sm mb-1">Unidad</p>
-                    <p class="text-primary-600 font-bold" x-text="detalle.unidad"></p>
-                    <p class="text-slate-400 text-sm" x-text="detalle.tipo_unidad"></p>
+    <section class="space-y-3">
+        <div class="flex flex-wrap items-end justify-between gap-3"><div><h2 class="text-xl font-extrabold">Historial de inspecciones</h2><p class="text-sm text-slate-600">Filtra fallas o revisa las evidencias registradas.</p></div><form action="{{ route('inspecciones.index', [], false) }}" method="GET" class="grid w-full gap-2 sm:w-auto sm:grid-cols-[minmax(0,1fr)_auto]"><select name="tipo_dano" class="inspection-field"><option value="">Todos los tipos de falla</option>@foreach(['Mecánica','Carrocería','Eléctrica','Neumáticos','Vandalismo','Limpieza','Otro'] as $tipo)<option value="{{ $tipo }}" @selected(request('tipo_dano')===$tipo)>{{ $tipo }}</option>@endforeach</select><button class="min-h-11 rounded-xl border border-[#B1D0E2] px-4 font-bold text-[#018FC7]">Filtrar</button></form></div>
+        @forelse($inspecciones as $inspeccion)
+            <article class="min-w-0 rounded-2xl border border-[#B1D0E2] bg-white p-4 shadow-sm sm:p-5">
+                <div class="flex flex-wrap items-start justify-between gap-3"><div class="min-w-0"><div class="flex flex-wrap items-center gap-2"><h3 class="text-lg font-extrabold">{{ $inspeccion->unidad?->economico ?? 'Unidad no disponible' }}</h3><span class="rounded-full bg-[#DBE7F3] px-3 py-1 text-xs font-bold text-[#176B91]">{{ $inspeccion->tipo_dano }}</span><span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-900">{{ str_replace('_',' ', $inspeccion->estado) }}</span></div><p class="mt-1 break-words text-sm text-slate-600">{{ $inspeccion->fecha_reporte?->format('d/m/Y H:i') }} · Inspector {{ $inspeccion->inspector_responsable }} · Prioridad {{ $inspeccion->prioridad }}</p><p class="mt-1 break-words text-sm text-slate-600">{{ $inspeccion->categoria_evento ?: 'Inspección diaria' }} · {{ $inspeccion->municipio ?: 'Ubicación no indicada' }} · {{ $inspeccion->direccion ?: '—' }}</p></div>
+                    <form action="{{ route('inspecciones.actualizar-estado', [$inspeccion->id], false) }}" method="POST" class="flex max-w-full flex-wrap items-center gap-2">@csrf<select name="estado" class="inspection-field min-w-36"><option value="pendiente" @selected($inspeccion->estado==='pendiente')>Pendiente</option><option value="en_proceso" @selected($inspeccion->estado==='en_proceso')>En proceso</option><option value="resuelto" @selected($inspeccion->estado==='resuelto')>Resuelto</option></select><button class="min-h-10 rounded-lg bg-[#DBE7F3] px-3 text-sm font-bold text-[#018FC7]">Actualizar</button></form>
                 </div>
-                <div>
-                    <p class="text-slate-500 text-sm mb-1">Inspector</p>
-                    <p class="font-semibold text-slate-800" x-text="detalle.inspector"></p>
-                </div>
-                <div>
-                    <p class="text-slate-500 text-sm mb-1">Tipo de daño</p>
-                    <p class="font-semibold text-slate-800" x-text="detalle.tipo_dano"></p>
-                </div>
-                <div>
-                    <p class="text-slate-500 text-sm mb-1">Prioridad</p>
-                    <p class="font-semibold text-slate-800" x-text="detalle.prioridad"></p>
-                </div>
-                <div>
-                    <p class="text-slate-500 text-sm mb-1">Estado</p>
-                    <p class="font-semibold text-slate-800" x-text="detalle.estado"></p>
-                </div>
-                <div>
-                    <p class="text-slate-500 text-sm mb-1">Fecha del reporte</p>
-                    <p class="text-slate-700" x-text="detalle.fecha"></p>
-                </div>
-                <div class="md:col-span-2">
-                    <p class="text-slate-500 text-sm mb-1">Descripción</p>
-                    <p class="text-slate-700 whitespace-pre-wrap break-words" x-text="detalle.descripcion"></p>
-                </div>
-                @if(auth()->user()->role === 'admin')
-                    <div class="md:col-span-2">
-                        <p class="text-slate-500 text-sm mb-1">Intendente responsable</p>
-                        <p class="text-slate-700" x-text="detalle.intendente"></p>
-                    </div>
-                @endif
-            </div>
-
-            <div class="flex justify-end gap-3 mt-8">
-                <button type="button" @click="detalleAbierto = false"
-                        class="px-4 py-2 rounded-lg text-sm font-medium bg-slate-200 text-slate-700 hover:bg-slate-300">
-                    Cerrar
-                </button>
-            </div>
-        </div>
-    </div>
+                @php($legacyEvidenceOnly = $inspeccion->evidencia_foto && $inspeccion->evidencias->isEmpty())
+                <details class="mt-3 rounded-xl bg-[#FBF1E5] p-3"><summary class="cursor-pointer text-sm font-bold text-[#018FC7]">Ver reporte y evidencias ({{ $inspeccion->evidencias->count() + (int) $legacyEvidenceOnly }})</summary><div class="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3"><p class="whitespace-pre-line break-words text-sm sm:col-span-2 lg:col-span-3">{{ $inspeccion->descripcion }}</p><p class="text-sm"><b>Reportó:</b> {{ $inspeccion->persona_reporta ?: '—' }} · <b>Operador:</b> {{ $inspeccion->operador?->name ?? '—' }}</p><p class="text-sm"><b>Ubicación del daño:</b> {{ $inspeccion->ubicacion_dano ?: '—' }} · <b>Dictamen:</b> {{ str_replace('_',' ', $inspeccion->dictamen) }}</p><div class="grid gap-3 sm:col-span-2 lg:col-span-3 sm:grid-cols-2 lg:grid-cols-3">@if($legacyEvidenceOnly)<img src="{{ '/storage/' . $inspeccion->evidencia_foto }}" alt="Evidencia de inspección" loading="lazy" class="max-h-56 w-full rounded-lg border border-[#B1D0E2] bg-white object-contain">@endif @foreach($inspeccion->evidencias as $evidencia)<div class="min-w-0 rounded-lg border border-[#B1D0E2] bg-white p-2">@if($evidencia->tipo_media==='video')<video controls preload="metadata" class="w-full rounded-lg"><source src="{{ '/storage/' . $evidencia->ruta_archivo }}"></video>@else<img src="{{ '/storage/' . $evidencia->ruta_archivo }}" alt="Evidencia de inspección" loading="lazy" class="max-h-56 w-full rounded-lg object-contain">@endif<p class="mt-1 truncate text-xs text-slate-500">{{ $evidencia->nombre_original }}</p></div>@endforeach</div></div></details>
+                <div class="mt-3 flex justify-end"><form action="{{ route('inspecciones.destroy', [$inspeccion->id], false) }}" method="POST">@csrf @method('DELETE')<button class="min-h-10 px-3 text-sm font-semibold text-red-600" onclick="return confirm('¿Eliminar la inspección y sus evidencias?')">Eliminar</button></form></div>
+            </article>
+        @empty
+            <div class="rounded-2xl border border-dashed border-[#B1D0E2] bg-white p-8 text-center text-slate-500">Aún no hay inspecciones.</div>
+        @endforelse
+        <div class="rounded-xl bg-white p-3">{{ $inspecciones->links() }}</div>
+    </section>
 </div>
-@endsection
-
-@push('scripts')
+<style>.form-label{display:block;min-width:0;font-size:.875rem;font-weight:650;color:#334155}.inspection-field{display:block;width:100%;min-width:0;margin-top:.4rem;border:1px solid #B1D0E2;border-radius:.8rem;background:#fff;padding:.75rem .85rem;font-size:1rem;font-weight:400;outline:none}.inspection-field:focus{border-color:#018FC7;box-shadow:0 0 0 3px #018FC733}</style>
 <script>
-    function inspeccionesPage() {
-        return {
-            detalleAbierto: false,
-            detalle: {},
-            abrirDetalle(datos) {
-                this.detalle = datos;
-                this.detalleAbierto = true;
-            }
-        };
-    }
+    document.getElementById('inspection-unit')?.addEventListener('change', event => {
+        const operator = document.getElementById('inspection-operator');
+        const assigned = event.target.selectedOptions[0]?.dataset.operator || '';
+        if (assigned) operator.value = assigned;
+    });
 </script>
-@endpushsi
+@endsection

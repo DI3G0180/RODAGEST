@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\Unidad;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -23,6 +24,7 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Administrador RodaGest',
                 'password' => Hash::make('password123'),
                 'role' => 'admin',
+                'activo' => true,
             ]
         );
 
@@ -33,6 +35,7 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Inspector de Patio',
                 'password' => Hash::make('password123'),
                 'role' => 'inspector',
+                'activo' => true,
             ]
         );
 
@@ -43,8 +46,22 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Operador / Chofer',
                 'password' => Hash::make('password123'),
                 'role' => 'operador',
+                'activo' => true,
             ]
         );
+
+        $operador = User::where('email', 'operador@rodagest.com')->first();
+        foreach (['ECO-104', 'ECO-108', 'ECO-112', 'ECO-115'] as $index => $economico) {
+            Unidad::updateOrCreate(
+                ['economico' => $economico],
+                [
+                    'tipo_unidad' => 'Autobús',
+                    'area' => 'Flota',
+                    'estado' => 'operativa',
+                    'operador_id' => $index === 0 ? $operador?->id : null,
+                ]
+            );
+        }
 
         // 4. Usuario Limpieza
         User::updateOrCreate(
@@ -53,6 +70,7 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Personal de Limpieza',
                 'password' => Hash::make('password123'),
                 'role' => 'limpieza',
+                'activo' => true,
             ]
         );
     }

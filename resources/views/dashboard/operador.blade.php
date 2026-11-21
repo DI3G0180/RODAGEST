@@ -19,8 +19,6 @@
                 <p class="text-2xl font-bold text-[#018FC7]" id="num-economico">UN-004</p>
             </div>
             <div>
-                <p class="text-sm text-slate-500">Placa</p>
-                <p class="text-2xl font-bold text-[#018FC7]" id="placa">ABC-1234</p>
             </div>
             <div>
                 <p class="text-sm text-slate-500">Ruta Asignada</p>

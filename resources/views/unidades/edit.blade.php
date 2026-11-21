@@ -1,58 +1,23 @@
 @extends('layouts.app')
-
+@section('title', 'Editar unidad ' . $unidad->economico)
 @section('content')
-<div class="container mx-auto p-6 max-w-2xl">
-    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 animate-fade-in-up">
-        <h1 class="text-2xl font-bold primary mb-6 flex items-center gap-2">
-            <i class="ri-edit-line text-primary-500 text-lg"></i>
-            Editar Unidad: {{ $unidad->economico }}
-        </h1>
-
-        <form action="{{ route('unidades.update', $unidad->id) }}" method="POST" class="space-y-4">
-            @csrf
-            @method('PUT')
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-2">Número Económico (Eco)</label>
-                    <input type="text" name="economico" value="{{ old('economico', $unidad->economico) }}" required 
-                           class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none bg-cream transition-colors"
-                           autocomplete="off">
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-2">Tipo de Unidad</label>
-                    <input type="text" name="tipo_unidad" value="{{ old('tipo_unidad', $unidad->tipo_unidad) }}" 
-                           class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none bg-cream transition-colors">
-                </div>
-            </div>
-            
-            <div>
-                <label class="block text-sm font-medium text-slate-700 mb-2">Placa</label>
-                <input type="text" name="placa" value="{{ old('placa', $unidad->placa) }}" 
-                       class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none bg-cream transition-colors">
-            </div>
-            
-            <div>
-                <label class="block text-sm font-medium text-slate-700 mb-2">Área</label>
-                <select name="area" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none bg-slate-50">
-                    <option value="">Seleccionar área</option>
-                    <option value="Plataforma" {{ $unidad->area === 'Plataforma' ? 'selected' : '' }}>Plataforma</option>
-                    <option value="Terminal" {{ $unidad->area === 'Terminal' ? 'selected' : '' }}>Terminal</option>
-                    <option value="Almacén" {{ $unidad->area === 'Almacén' ? 'selected' : '' }}>Almacén</option>
-                    <option value="Oficina" {{ $unidad->area === 'Oficina' ? 'selected' : '' }}>Oficina</option>
-                </select>
-            </div>
-        </div>
-        
-        <div class="flex justify-end gap-3 mt-6">
-            <a href="{{ route('unidades.index') }}" class="px-4 py-2 rounded-lg text-sm font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all duration-300 ease-in-out">Cancelar</a>
-            <button type="submit" class="px-4 py-2 rounded-lg text-sm font-medium bg-primary text-white hover:bg-secondary transition-all duration-300 ease-in-out">
-                <i class="ri-save-line text-sm mr-2 align-middle"></i>
-                Actualizar
-            </button>
-        </div>
-        </form>
-    </div>
-</div>
+<div class="mx-auto w-full max-w-3xl px-4 py-5 sm:px-6 sm:py-8"><section class="rounded-3xl border border-[#B1D0E2] bg-white p-5 shadow-sm sm:p-7">
+    <p class="text-xs font-bold uppercase tracking-[.16em] text-[#018FC7]">Administración de flota</p><h1 class="mt-1 break-words text-2xl font-extrabold sm:text-3xl">Editar unidad {{ $unidad->economico }}</h1>
+    @if(session('error'))<div class="mt-4 rounded-xl bg-red-50 p-3 text-red-700">{{ session('error') }}</div>@endif
+    @if($errors->any())<div class="mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800"><ul class="list-disc space-y-1 pl-5">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
+    <form action="{{ route('unidades.update', [$unidad->id], false) }}" method="POST" class="mt-5 grid min-w-0 gap-4 sm:grid-cols-2">@csrf @method('PUT')
+        <label class="field-label">Número económico<input name="economico" required value="{{ old('economico', $unidad->economico) }}" class="field"></label>
+        <label class="field-label">Modelo<input name="modelo" value="{{ old('modelo', $unidad->modelo) }}" class="field"></label>
+        <label class="field-label">Área<input name="area" value="{{ old('area', $unidad->area) }}" class="field"></label>
+        <label class="field-label">Estado<select name="estado" class="field">@foreach(['operativa'=>'Operativa','en_taller'=>'En taller','en_limpieza'=>'En limpieza','fuera_servicio'=>'Fuera de servicio'] as $value=>$label)<option value="{{ $value }}" @selected(old('estado',$unidad->estado)===$value)>{{ $label }}</option>@endforeach</select></label>
+        <label class="field-label sm:col-span-2">Operador asignado<select name="operador_id" class="field"><option value="">Sin operador asignado</option>@foreach($operadores as $operador)<option value="{{ $operador->id }}" @selected((string)old('operador_id',$unidad->operador_id)===(string)$operador->id)>{{ $operador->name }}</option>@endforeach</select></label>
+        <fieldset class="grid min-w-0 gap-4 rounded-2xl border border-[#DBE7F3] bg-[#FBF1E5] p-4 sm:col-span-2 sm:grid-cols-2 sm:p-5">
+            <legend class="px-2 font-bold">Mantenimiento preventivo</legend>
+            <label class="field-label">Próxima fecha<input name="proximo_mantenimiento_fecha" type="date" value="{{ old('proximo_mantenimiento_fecha', $unidad->proximo_mantenimiento_fecha?->format('Y-m-d')) }}" class="field bg-white"></label>
+            <p class="text-xs leading-5 text-slate-600 sm:col-span-2">El odómetro actual se actualiza automáticamente al iniciar y cerrar turnos.</p>
+        </fieldset>
+        <div class="flex flex-col-reverse gap-2 pt-1 sm:col-span-2 sm:flex-row sm:justify-between"><a href="{{ route('unidades.show', [$unidad->id], false) }}" class="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#B1D0E2] px-5 font-semibold text-[#018FC7]">Ver ficha</a><div class="flex flex-col-reverse gap-2 sm:flex-row"><a href="{{ route('unidades.index', [], false) }}" class="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#B1D0E2] px-5 font-semibold text-[#018FC7]">Cancelar</a><button class="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#018FC7] px-5 font-bold text-white">Guardar cambios</button></div></div>
+    </form>
+</section></div>
+<style>.field-label{display:block;min-width:0;font-size:.875rem;font-weight:600;color:#334155}.field{display:block;width:100%;min-width:0;margin-top:.4rem;border:1px solid #B1D0E2;border-radius:.75rem;background:#fff;padding:.75rem .85rem;font-weight:400;outline:none}.field:focus{border-color:#018FC7;box-shadow:0 0 0 3px #018FC733}</style>
 @endsection

@@ -61,7 +61,7 @@
             </div>
         @endif
 
-        <form method="post" action="{{ route('password.update') }}" class="space-y-4 max-w-xl">
+        <form method="post" action="{{ route('password.update', [], false) }}" class="space-y-4 max-w-xl">
             @csrf
             @method('put')
 

@@ -16,9 +16,13 @@ class UnidadStoreRequest extends BaseFormRequest
     {
         return [
             'economico' => ['required', 'string', 'max:20', 'unique:unidades,economico'],
-            'placa' => ['nullable', 'string', 'max:10'],
-            'tipo_unidad' => ['nullable', 'string', 'max:50'],
+            'modelo' => ['nullable', 'string', 'max:100'],
             'area' => ['nullable', 'string', 'max:50'],
+            'operador_id' => ['nullable', 'exists:users,id,role,operador'],
+            'odometro' => ['nullable', 'integer', 'min:0'],
+            'estado' => ['nullable', 'in:operativa,en_taller,en_limpieza,fuera_servicio,activo,mantenimiento'],
+            'proximo_mantenimiento_fecha' => ['nullable', 'date'],
+            'proximo_mantenimiento_odometro' => ['nullable', 'integer', 'min:0'],
         ];
     }
 
@@ -33,8 +37,6 @@ class UnidadStoreRequest extends BaseFormRequest
             'economico.required' => 'El número económico es obligatorio.',
             'economico.unique' => 'Ya existe una unidad con este número económico.',
             'economico.max' => 'El número económico no puede tener más de 20 caracteres.',
-            'placa.max' => 'La placa no puede tener más de 10 caracteres.',
-            'tipo_unidad.max' => 'El tipo de unidad no puede tener más de 50 caracteres.',
             'area.max' => 'El área no puede tener más de 50 caracteres.',
         ];
     }

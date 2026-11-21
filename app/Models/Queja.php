@@ -18,6 +18,16 @@ class Queja extends Model
         'estado',
         'descripcion',
         'comentarios',
+        'urgencia',
+        'evidencia_foto',
+        'nombre_reportante',
+        'telefono_reportante',
+        'medio_reporte',
+        'area_reportada',
+        'ruta_reportada',
+        'codigo_seguimiento',
+        'accion_atencion',
+        'evidencia_atencion',
     ];
 
     public function unidad()

@@ -39,7 +39,7 @@ class ProfileController extends Controller
             // Aquí podrían añadirse actualizaciones adicionales para admin
         }
 
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        return Redirect::to(route('profile.edit', [], false))->with('status', 'profile-updated');
     }
 
     /**

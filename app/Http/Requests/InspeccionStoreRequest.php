@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class InspeccionStoreRequest extends BaseFormRequest
 {
@@ -15,13 +16,30 @@ class InspeccionStoreRequest extends BaseFormRequest
     {
         return [
             'unidad_id' => ['required', 'exists:unidades,id'],
-            'inspector_responsable' => ['required', 'string', 'max:100'],
+            'operador_id' => ['nullable', Rule::exists('users', 'id')->where('role', 'operador')],
+            'inspector_responsable' => ['nullable', 'string', 'max:100'],
+            'persona_reporta' => ['nullable', 'string', 'max:150'],
+            'ubicacion_dano' => ['nullable', 'string', 'max:180'],
+            'municipio' => ['nullable', 'string', 'max:120'],
+            'direccion' => ['nullable', 'string', 'max:255'],
+            'categoria_evento' => ['nullable', 'string', 'max:80'],
             'tipo_dano' => ['required', 'string', 'max:50'],
             'prioridad' => ['required', 'in:baja,media,alta,critica'],
-            'estado' => ['required', 'in:pendiente,en_proceso,resuelto'],
             'descripcion' => ['required', 'string', 'max:500'],
             'fecha_reporte' => ['required', 'date'],
-            'intendente_responsable' => ['nullable', 'string', 'max:100'],
+            'evidencia_foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'fotos' => ['nullable', 'array', 'max:8'],
+            'fotos.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
+            'videos' => ['nullable', 'array', 'max:2'],
+            'videos.*' => ['file', 'mimetypes:video/mp4,video/quicktime,video/webm', 'mimes:mp4,mov,webm', 'max:51200'],
+            'checklist' => ['required', 'array'],
+            'checklist.frenos' => ['required', 'boolean'],
+            'checklist.neumaticos' => ['required', 'boolean'],
+            'checklist.luces' => ['required', 'boolean'],
+            'checklist.niveles' => ['required', 'boolean'],
+            'checklist.puertas' => ['required', 'boolean'],
+            'checklist.documentacion' => ['required', 'boolean'],
+            'dictamen' => ['required', 'in:operativa,en_taller,fuera_servicio'],
         ];
     }
 

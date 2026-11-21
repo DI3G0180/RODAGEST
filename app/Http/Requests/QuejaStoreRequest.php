@@ -17,8 +17,9 @@ class QuejaStoreRequest extends BaseFormRequest
             'unidad_id' => ['required', 'exists:unidades,id'],
             'tipo_queja' => ['required', 'string', 'max:50'],
             'descripcion' => ['required', 'string', 'max:500'],
-            'estado' => ['required', 'in:pendiente,en_proceso,resuelto'],
-            'operador_id' => ['nullable', 'exists:users,id'],
+            'urgencia' => ['required', 'in:normal,alta,critica'],
+            'evidencia_foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'operador_id' => ['prohibited'],
         ];
     }
 

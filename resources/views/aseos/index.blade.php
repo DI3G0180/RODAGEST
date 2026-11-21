@@ -1,128 +1,49 @@
 @extends('layouts.app')
-
-@section('title', 'Control de Aseo de Unidades')
-
+@section('title', 'Aseo de unidades · RODAGEST')
 @section('content')
-<div class="space-y-6">
+<div class="mx-auto w-full max-w-7xl space-y-5 px-4 py-5 sm:px-6 sm:py-8">
+    <header class="flex flex-wrap items-end justify-between gap-3"><div><p class="text-xs font-bold uppercase tracking-[.16em] text-[#018FC7]">Operación · Limpieza</p><h1 class="mt-1 text-2xl font-extrabold sm:text-3xl">Aseo de unidades</h1><p class="mt-1 text-sm text-slate-600">Registra lavados, desinfecciones, etapas y evidencia.</p></div><a href="{{ route('dashboard', [], false) }}" class="inline-flex min-h-11 items-center rounded-xl border border-[#B1D0E2] bg-white px-4 font-semibold text-[#018FC7]">Volver al panel</a></header>
+    @if(session('success'))<div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-800">{{ session('success') }}</div>@endif
+    @if($errors->any())<div class="rounded-xl border border-red-200 bg-red-50 p-4 text-red-800"><ul class="list-disc pl-5">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
 
-    <!-- Alertas -->
-    @if(session('success'))
-        <div class="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-sm font-medium flex items-center gap-2">
-            <i class="ri-checkbox-circle-fill text-emerald-500 text-lg"></i>
-            {{ session('success') }}
-        </div>
-    @endif
+    <section class="rounded-2xl border border-[#B1D0E2] bg-white p-5 shadow-sm sm:p-6"><h2 class="text-lg font-bold">Registrar aseo</h2><form action="{{ route('aseos.store', [], false) }}" method="POST" enctype="multipart/form-data" class="mt-4 grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3">@csrf
+        <label class="form-label">Unidad / ECO<select name="unidad_id" required class="aseo-field"><option value="">Selecciona unidad</option>@foreach($unidades as $unidad)<option value="{{ $unidad->id }}" @selected(old('unidad_id')==$unidad->id)>{{ $unidad->economico }}</option>@endforeach</select></label>
+        <label class="form-label">Tipo de limpieza<select name="tipo_limpieza" required class="aseo-field"><option value="">Selecciona</option>@foreach(['Lavado','Desinfección','Lavado y desinfección','Limpieza profunda','Otro'] as $tipo)<option @selected(old('tipo_limpieza')===$tipo)>{{ $tipo }}</option>@endforeach</select></label>
+        <label class="form-label">Fecha y hora<input name="fecha_hora" type="datetime-local" required value="{{ old('fecha_hora', now()->format('Y-m-d\TH:i')) }}" class="aseo-field"></label>
+        <label class="form-label">Intendente responsable<input name="intendente_responsable" required maxlength="150" value="{{ old('intendente_responsable', auth()->user()->name) }}" class="aseo-field"></label>
+        <label class="form-label">Área o terminal<input name="area_terminal" maxlength="150" placeholder="Patio, terminal o zona" class="aseo-field"></label>
+        <label class="form-label">Producto utilizado<input name="producto_desinfectante" required maxlength="150" placeholder="Producto desinfectante" class="aseo-field"></label>
+        <fieldset class="rounded-xl border border-[#DBE7F3] p-3 sm:col-span-2 lg:col-span-3"><legend class="px-1 text-sm font-bold">Etapas realizadas</legend><div class="grid grid-cols-2 gap-2 lg:grid-cols-4">@foreach(['barrido'=>'Barrido','pasamanos_asientos'=>'Pasamanos y asientos','cabina_exterior'=>'Cabina y exterior','nebulizacion'=>'Nebulización'] as $key=>$label)<label class="flex min-h-11 items-center gap-2 rounded-lg bg-[#DBE7F3] p-3 text-sm"><input type="checkbox" name="etapas[{{ $key }}]" value="1" @checked(old('etapas.'.$key))>{{ $label }}</label>@endforeach</div></fieldset>
+        <label class="form-label">Foto de evidencia<input name="evidencia_foto" type="file" accept="image/*" capture="environment" class="aseo-field"><span class="mt-1 block text-xs font-normal text-slate-500">JPG, PNG o imagen del teléfono; hasta 5 MB.</span></label>
+        <label class="form-label sm:col-span-2">Observaciones<textarea name="observaciones" maxlength="2000" rows="3" placeholder="Comentario sobre el trabajo realizado" class="aseo-field">{{ old('observaciones') }}</textarea></label>
+        <label class="flex min-h-12 items-center gap-2 rounded-xl bg-[#FBF1E5] p-3 text-sm font-semibold sm:col-span-2 lg:col-span-3"><input type="checkbox" name="lista_ruta" value="1" @checked(old('lista_ruta'))>Liberar la unidad para ruta al guardar (solo si las 4 etapas están completas)</label>
+        <button class="min-h-12 rounded-xl bg-[#018FC7] px-5 font-bold text-white hover:bg-sky-700 sm:col-span-2 lg:col-span-3">Guardar proceso de aseo</button>
+    </form></section>
 
-    @if($errors->any())
-        <div class="p-4 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-sm font-medium">
-            <ul class="list-disc list-inside">
-                @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
-    <!-- FORMULARIO DE REGISTRO - SEGÚN ROL -->
-    @if(auth()->check() && auth()->user()->role !== 'operador')
-    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-        <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
-            <i class="ri-add-circle-line text-blue-600 text-lg"></i>
-            Nuevo Registro de Aseo
-        </h3>
-
-        <form action="{{ route('aseos.store') }}" method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            @csrf
-            
-            <!-- UNIDAD (CARGADA DE LA DB) -->
-            <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">Unidad / Económico</label>
-                <select name="unidad_id" required class="w-full bg-cream border-tertiary rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary focus:outline-none">
-                    <option value="">Seleccionar Unidad...</option>
-                    @foreach($unidades as $unidad)
-                        <option value="{{ $unidad->id }}" {{ request('unidad_id') == $unidad->id ? 'selected' : '' }}>
-                            Eco: {{ $unidad->economico }} - {{ $unidad->tipo_unidad ?? 'N/A' }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
-            <!-- INTENDENTE -->
-            <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">Intendente Responsable</label>
-                <input type="text" name="intendente_responsable" required placeholder="Ej. JUAN PÉREZ" class="w-full bg-cream border-tertiary rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary focus:outline-none">
-            </div>
-
-            <!-- ÁREA / TERMINAL -->
-            <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">Área / Terminal</label>
-                <input type="text" name="area_terminal" required placeholder="Ej. PLATAFORMA PANTITLAN" class="w-full bg-cream border-tertiary rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary focus:outline-none">
-            </div>
-
-            <!-- FECHA Y HORA -->
-            <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">Fecha y Hora</label>
-                <input type="datetime-local" name="fecha_hora" required class="w-full bg-cream border-tertiary rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary focus:outline-none">
-            </div>
-
-            <!-- COMENTARIOS -->
-            <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">Comentarios</label>
-                <input type="text" name="comentarios" placeholder="LIMPIEZA REALIZADA" class="w-full bg-cream border-tertiary rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary focus:outline-none">
-            </div>
-
-            <!-- BOTONES -->
-            <div class="md:col-span-3 flex justify-end gap-2 mt-2 pt-2 border-t border-slate-100">
-                <button type="reset" class="px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition">Cancelar</button>
-                <button type="submit" class="px-5 py-2 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-secondary transition shadow-md shadow-primary/20 flex items-center gap-2">
-                    <i class="ri-save-line text-base"></i> Guardar Bitácora
-                </button>
-            </div>
+    <section class="space-y-3"><div><h2 class="text-xl font-extrabold">Bitácora de aseos</h2><p class="text-sm text-slate-600">Busca por ECO, responsable, área o rango de fechas.</p></div>
+        <form action="{{ route('aseos.index', [], false) }}" method="GET" class="grid min-w-0 gap-2 rounded-2xl border border-[#B1D0E2] bg-white p-4 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_170px_170px_auto_auto]">
+            <input name="q" value="{{ request('q') }}" placeholder="ECO, responsable o área" class="aseo-field">
+            <label class="form-label">Desde<input type="date" name="desde" value="{{ request('desde') }}" class="aseo-field"></label><label class="form-label">Hasta<input type="date" name="hasta" value="{{ request('hasta') }}" class="aseo-field"></label>
+            <button class="min-h-11 rounded-xl bg-[#018FC7] px-4 font-bold text-white">Buscar</button><a href="{{ route('aseos.index', [], false) }}" class="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#B1D0E2] px-4 font-semibold text-[#018FC7]">Limpiar</a>
         </form>
-    </div>
-    @endif
-
-    <!-- TABLA HISTORIAL -->
-    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-            <h3 class="font-bold text-slate-800">Historial de Bitácoras</h3>
-        </div>
-
-        <table class="w-full text-left text-sm text-slate-600">
-            <thead class="bg-slate-50 text-xs text-slate-500 uppercase tracking-wider border-b border-slate-100">
-                <tr>
-                    <th class="px-6 py-3 font-semibold">#</th>
-                    <th class="px-6 py-3 font-semibold">Fecha y Hora</th>
-                    <th class="px-6 py-3 font-semibold">Unidad</th>
-                    <th class="px-6 py-3 font-semibold">Intendente</th>
-                    <th class="px-6 py-3 font-semibold">Área / Terminal</th>
-                    <th class="px-6 py-3 font-semibold">Comentarios</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-                @forelse($aseos as $aseo)
-                    <tr class="hover:bg-slate-50/50 transition">
-                        <td class="px-6 py-4 font-bold text-slate-800">{{ $aseo->id }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ \Carbon\Carbon::parse($aseo->fecha_hora)->format('d-m-Y H:i') }}</td>
-                        <td class="px-6 py-4 font-semibold text-primary">Eco: {{ $aseo->unidad->economico }} - {{ $aseo->unidad->tipo_unidad ?? 'N/A' }}</td>
-                        <td class="px-6 py-4 font-medium text-slate-900">{{ $aseo->intendente_responsable }}</td>
-                        <td class="px-6 py-4">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary text-primary border border-tertiary">
-                                {{ $aseo->area_terminal }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 text-slate-500">{{ $aseo->comentarios ?? 'N/A' }}</td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="6" class="px-6 py-8 text-center text-slate-400 text-sm">
-                            No hay registros de aseo cargados en la base de datos.
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-
+        @forelse($aseos as $aseo)
+            <article class="min-w-0 rounded-2xl border border-[#B1D0E2] bg-white p-4 shadow-sm sm:p-5">
+                <div class="flex flex-wrap items-start justify-between gap-3"><div class="min-w-0"><div class="flex flex-wrap items-center gap-2"><h3 class="text-lg font-extrabold">{{ $aseo->unidad?->economico ?? 'Unidad no disponible' }}</h3><span class="rounded-full bg-[#DBE7F3] px-3 py-1 text-xs font-bold text-[#176B91]">{{ $aseo->tipo_limpieza }}</span><span class="rounded-full {{ $aseo->estado==='completado' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-900' }} px-3 py-1 text-xs font-bold">{{ str_replace('_',' ', $aseo->estado ?? 'completado') }}</span></div><p class="mt-1 text-sm text-slate-600">{{ $aseo->fecha_hora?->format('d/m/Y H:i') }} · {{ $aseo->intendente_responsable }} · {{ $aseo->area_terminal ?: 'Área no indicada' }}</p><p class="mt-1 text-sm text-slate-600">{{ collect($aseo->etapas ?? [])->filter()->count() }}/4 etapas completas · Producto: {{ $aseo->producto_desinfectante ?: '—' }}</p></div>
+                    @if($aseo->evidencia_foto)<a href="{{ '/storage/' . $aseo->evidencia_foto }}" target="_blank" rel="noopener"><img src="{{ '/storage/' . $aseo->evidencia_foto }}" alt="Evidencia del aseo" loading="lazy" class="h-24 w-32 rounded-xl border border-[#DBE7F3] object-cover"></a>@endif
+                </div>
+                @if($aseo->observaciones || $aseo->comentarios)<p class="mt-3 whitespace-pre-line break-words rounded-xl bg-[#FBF1E5] p-3 text-sm text-slate-700">{{ $aseo->observaciones ?: $aseo->comentarios }}</p>@endif
+                <div class="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-[#DBE7F3] pt-3">
+                    <form action="{{ route('aseos.actualizar-estado', [$aseo->id], false) }}" method="POST" class="flex flex-wrap items-center gap-2">@csrf<select name="estado" class="aseo-field min-w-36"><option value="en_proceso" @selected($aseo->estado==='en_proceso')>En proceso</option><option value="completado" @selected($aseo->estado==='completado')>Completado</option></select><button class="min-h-10 rounded-lg bg-[#DBE7F3] px-3 text-sm font-bold text-[#018FC7]">Actualizar estado</button></form>
+                    <div class="flex flex-wrap gap-2"><details><summary class="min-h-10 cursor-pointer rounded-lg border border-[#B1D0E2] px-3 py-2 text-sm font-semibold text-[#018FC7]">Editar</summary><form action="{{ route('aseos.update', [$aseo->id], false) }}" method="POST" enctype="multipart/form-data" class="mt-2 grid w-[min(88vw,760px)] gap-2 rounded-xl border border-[#B1D0E2] bg-white p-3 shadow-lg sm:grid-cols-2 lg:grid-cols-3">@csrf @method('PATCH')
+                            <select name="tipo_limpieza" required class="aseo-field">@foreach(['Lavado','Desinfección','Lavado y desinfección','Limpieza profunda','Otro'] as $tipo)<option value="{{ $tipo }}" @selected($aseo->tipo_limpieza===$tipo)>{{ $tipo }}</option>@endforeach</select><input name="intendente_responsable" required value="{{ $aseo->intendente_responsable }}" class="aseo-field" aria-label="Responsable"><input name="area_terminal" required value="{{ $aseo->area_terminal }}" class="aseo-field" aria-label="Área"><input type="datetime-local" name="fecha_hora" required value="{{ $aseo->fecha_hora?->format('Y-m-d\TH:i') }}" class="aseo-field"><input name="producto_desinfectante" value="{{ $aseo->producto_desinfectante }}" class="aseo-field" placeholder="Producto"><input type="file" name="evidencia_foto" accept="image/*" class="aseo-field"><textarea name="observaciones" maxlength="2000" class="aseo-field sm:col-span-2 lg:col-span-3" placeholder="Observaciones">{{ $aseo->observaciones ?: $aseo->comentarios }}</textarea><button class="min-h-11 rounded-lg bg-[#018FC7] px-4 font-bold text-white sm:col-span-2 lg:col-span-3">Guardar cambios</button>
+                        </form></details>
+                        <form action="{{ route('aseos.destroy', [$aseo->id], false) }}" method="POST">@csrf @method('DELETE')<button class="min-h-10 px-3 text-sm font-semibold text-red-600" onclick="return confirm('¿Eliminar este registro de aseo?')">Eliminar</button></form>
+                    </div>
+                </div>
+            </article>
+        @empty<div class="rounded-2xl border border-dashed border-[#B1D0E2] bg-white p-8 text-center text-slate-500">No hay registros con estos filtros.</div>@endforelse
+        <div class="rounded-xl bg-white p-3">{{ $aseos->links() }}</div>
+    </section>
 </div>
+<style>.form-label{display:block;min-width:0;font-size:.875rem;font-weight:650;color:#334155}.aseo-field{display:block;width:100%;min-width:0;margin-top:.35rem;border:1px solid #B1D0E2;border-radius:.75rem;background:#fff;padding:.7rem .8rem;outline:none}.aseo-field:focus{border-color:#018FC7;box-shadow:0 0 0 3px #018FC733}</style>
 @endsection

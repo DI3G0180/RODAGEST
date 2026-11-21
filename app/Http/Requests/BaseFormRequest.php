@@ -25,7 +25,6 @@ class BaseFormRequest extends LaravelFormRequest
     {
         return [
             'economico' => 'número económico',
-            'placa' => 'placa',
             'tipo_unidad' => 'tipo de unidad',
             'area' => 'área',
         ];

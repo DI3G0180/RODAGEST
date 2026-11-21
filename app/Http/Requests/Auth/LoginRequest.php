@@ -28,8 +28,17 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
-            'password' => ['required', 'string'],
+            'email' => ['required', 'string', 'email', 'max:255'],
+            'password' => ['required', 'string', 'max:255'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'email.required' => 'Ingresa tu correo electrónico.',
+            'email.email' => 'Escribe un correo electrónico válido.',
+            'password.required' => 'Ingresa tu contraseña.',
         ];
     }
 
@@ -46,7 +55,14 @@ class LoginRequest extends FormRequest
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'email' => 'El correo electrónico o la contraseña no son correctos.',
+            ]);
+        }
+
+        if (! Auth::user()?->activo) {
+            Auth::logout();
+            throw ValidationException::withMessages([
+                'email' => 'Esta cuenta está inactiva. Contacta al administrador de RODAGEST.',
             ]);
         }
 
@@ -69,10 +85,7 @@ class LoginRequest extends FormRequest
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
         throw ValidationException::withMessages([
-            'email' => trans('auth.throttle', [
-                'seconds' => $seconds,
-                'minutes' => ceil($seconds / 60),
-            ]),
+            'email' => 'Demasiados intentos. Vuelve a intentarlo en '.$seconds.' segundos.',
         ]);
     }
 

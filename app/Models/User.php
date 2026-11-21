@@ -23,6 +23,12 @@ class User extends Authenticatable
         'email',
         'password',
         'role', // Admin, Inspector, Intendente, Operador
+        'puesto',
+        'fecha_ingreso',
+        'telefono',
+        'foto',
+        'unidad_asignada',
+        'activo',
     ];
 
     /**
@@ -46,6 +52,8 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'role' => 'string',
+            'activo' => 'boolean',
+            'fecha_ingreso' => 'date',
         ];
     }
 
@@ -63,5 +71,20 @@ class User extends Authenticatable
     public function unidadAsignada()
     {
         return $this->hasOne(Unidad::class, 'operador_id');
+    }
+
+    public function unidadesOperadas()
+    {
+        return $this->hasMany(Unidad::class, 'operador_id');
+    }
+
+    public function turnos()
+    {
+        return $this->hasMany(Turno::class, 'operador_id');
+    }
+
+    public function employeeProfile()
+    {
+        return $this->hasOne(EmployeeProfile::class);
     }
 }

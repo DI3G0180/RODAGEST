@@ -14,7 +14,9 @@ return [
     |
     */
 
-    'default' => env('MAIL_MAILER', 'log'),
+    'default' => (env('APP_ENV', 'production') === 'local' && ! env('MAIL_USERNAME') && env('MAIL_MAILER', 'smtp') === 'smtp')
+        ? 'log'
+        : env('MAIL_MAILER', (env('APP_ENV', 'production') === 'local' && ! env('MAIL_USERNAME') ? 'log' : 'smtp')),
 
     /*
     |--------------------------------------------------------------------------
@@ -39,7 +41,7 @@ return [
 
         'smtp' => [
             'transport' => 'smtp',
-            'scheme' => env('MAIL_SCHEME'),
+            'scheme' => env('MAIL_SCHEME', env('MAIL_ENCRYPTION', 'tls')),
             'url' => env('MAIL_URL'),
             'host' => env('MAIL_HOST', '127.0.0.1'),
             'port' => env('MAIL_PORT', 2525),

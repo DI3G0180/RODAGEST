@@ -26,6 +26,7 @@
             ],
         ];
         $menuItems = $itemsByRole[$role] ?? [['label' => 'Panel principal', 'route' => 'dashboard']];
+        $menuItems[] = ['label' => 'Seguridad 2FA', 'route' => '2fa.setup'];
     @endphp
     <nav aria-label="Navegación principal" class="mx-auto grid w-full max-w-7xl grid-cols-2 gap-2 px-4 pb-3 sm:flex sm:flex-wrap sm:px-6">
         @foreach($menuItems as $item)

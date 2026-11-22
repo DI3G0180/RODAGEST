@@ -11,6 +11,7 @@ use App\Http\Controllers\TurnoController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\QuejaPublicaController;
 use App\Http\Controllers\HojaVidaController;
+use App\Http\Controllers\TwoFactorController;
 use Illuminate\Support\Facades\Route;
 
 // Página raíz: siempre muestra el login para probar los 4 usuarios
@@ -25,6 +26,8 @@ Route::get('/reportar', [QuejaPublicaController::class, 'create'])->middleware('
 Route::post('/reportar', [QuejaPublicaController::class, 'store'])->middleware('throttle:5,1')->name('quejas.publica.store');
 Route::get('/seguimiento/{codigo}', [QuejaPublicaController::class, 'seguimiento'])->whereAlphaNumeric('codigo')->middleware('throttle:30,1')->name('quejas.seguimiento');
 Route::get('/seguimiento/{codigo}/evidencia/{tipo}', [QuejaPublicaController::class, 'evidencia'])->whereAlphaNumeric('codigo')->whereIn('tipo', ['reporte', 'atencion'])->middleware('throttle:30,1')->name('quejas.seguimiento.evidencia');
+Route::get('/2fa/verify', [TwoFactorController::class, 'challenge'])->middleware('throttle:10,1')->name('2fa.challenge');
+Route::post('/2fa/verify', [TwoFactorController::class, 'verify'])->middleware('throttle:5,1')->name('2fa.verify');
 
 // RUTAS PROTEGIDAS POR AUTENTICACIÓN
 Route::middleware(['auth', 'active'])->group(function () {
@@ -85,6 +88,9 @@ Route::middleware(['auth', 'active'])->group(function () {
 
     // PERFIL DE USUARIO
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::get('/profile/two-factor', [TwoFactorController::class, 'setup'])->name('2fa.setup');
+    Route::post('/profile/two-factor/enable', [TwoFactorController::class, 'enable'])->middleware('throttle:5,1')->name('2fa.enable');
+    Route::delete('/profile/two-factor', [TwoFactorController::class, 'disable'])->middleware('throttle:5,1')->name('2fa.disable');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });

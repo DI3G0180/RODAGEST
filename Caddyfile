@@ -1,0 +1,10 @@
+{$APP_DOMAIN} {
+    encode zstd gzip
+    handle_path /storage/* {
+        root * /app/storage/app/public
+        file_server
+    }
+    root * /app/public
+    php_fastcgi app:9000
+    file_server
+}

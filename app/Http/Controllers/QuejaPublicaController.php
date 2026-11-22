@@ -10,10 +10,16 @@ use Illuminate\Support\Str;
 
 class QuejaPublicaController extends Controller
 {
-    public function create()
+    public function create(Request $request)
     {
+        $unidadId = $request->query('unidad_id');
+        if ($unidadId !== null && (! ctype_digit((string) $unidadId) || ! Unidad::whereKey($unidadId)->exists())) {
+            abort(404);
+        }
+
         return view('quejas.publica', [
             'unidades' => Unidad::orderBy('economico')->get(['id', 'economico', 'ruta']),
+            'unidadSeleccionada' => $unidadId,
         ]);
     }
 

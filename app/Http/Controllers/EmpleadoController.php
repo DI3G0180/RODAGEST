@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 
 class EmpleadoController extends Controller
 {
@@ -69,7 +70,7 @@ class EmpleadoController extends Controller
             'fecha_ingreso' => ['nullable', 'date'],
             'activo' => ['nullable', 'boolean'],
             'unidad_id' => ['nullable', 'exists:unidades,id'],
-            'password' => [$empleado ? 'nullable' : 'required', 'string', 'min:8'],
+            'password' => [$empleado ? 'nullable' : 'required', 'string', Password::min(8)->mixedCase()->numbers()->symbols()],
             'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
         ]);
     }

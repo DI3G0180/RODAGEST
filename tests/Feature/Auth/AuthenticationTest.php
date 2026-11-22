@@ -30,6 +30,15 @@ class AuthenticationTest extends TestCase
         $response->assertRedirect(route('dashboard', absolute: false));
     }
 
+    public function test_all_four_roles_can_open_the_dashboard(): void
+    {
+        foreach (['admin', 'inspector', 'operador', 'limpieza'] as $role) {
+            $user = User::factory()->create(['role' => $role, 'activo' => true]);
+
+            $this->actingAs($user)->get('/dashboard')->assertOk();
+        }
+    }
+
     public function test_users_can_not_authenticate_with_invalid_password(): void
     {
         $user = User::factory()->create();

@@ -34,19 +34,11 @@
         <button class="submit" type="submit">Iniciar sesión</button>
     </form>
 
-    <div class="divider">Acceso de demostración</div>
-    <div class="demos" aria-label="Usuarios de prueba">
-        <button class="demo" type="button" data-email="admin@rodagest.com">Administrador<small>Supervisión y flota</small></button>
-        <button class="demo" type="button" data-email="inspector@rodagest.com">Inspector<small>Seguridad técnica</small></button>
-        <button class="demo" type="button" data-email="operador@rodagest.com">Operador<small>Bitácora de turno</small></button>
-        <button class="demo" type="button" data-email="limpieza@rodagest.com">Limpieza<small>Sanitización de unidades</small></button>
-    </div>
     <p class="footnote">Sistema Integral de Gestión de Flotas · RODAGEST</p>
 </main>
 <script>
     const password=document.getElementById('password');
     document.getElementById('toggle-password').addEventListener('click',event=>{const showing=password.type==='password';password.type=showing?'text':'password';event.currentTarget.textContent=showing?'Ocultar':'Mostrar';event.currentTarget.setAttribute('aria-label',showing?'Ocultar contraseña':'Mostrar contraseña')});
-    document.querySelectorAll('.demo').forEach(button=>button.addEventListener('click',()=>{document.getElementById('email').value=button.dataset.email;password.value='password123';password.focus()}));
 </script>
 </body>
 </html>

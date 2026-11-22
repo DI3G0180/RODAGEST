@@ -7,7 +7,7 @@
         <div class="p-5 sm:p-7">
             @if($errors->any())<div class="mb-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800"><ul class="list-disc space-y-1 pl-5">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
             <form action="{{ route('quejas.publica.store', [], false) }}" method="POST" enctype="multipart/form-data" class="grid min-w-0 gap-4 sm:grid-cols-2">@csrf
-                <label class="form-label sm:col-span-2">Unidad / ECO<select id="unidad-publica" name="unidad_id" required class="public-field"><option value="">Selecciona el número económico</option>@foreach($unidades as $unidad)<option value="{{ $unidad->id }}" data-route="{{ $unidad->ruta }}" @selected((string)old('unidad_id')===(string)$unidad->id)>{{ $unidad->economico }}</option>@endforeach</select></label>
+                <label class="form-label sm:col-span-2">Unidad / ECO<select id="unidad-publica" name="unidad_id" required class="public-field"><option value="">Selecciona el número económico</option>@foreach($unidades as $unidad)<option value="{{ $unidad->id }}" data-route="{{ $unidad->ruta }}" @selected((string)old('unidad_id', $unidadSeleccionada)===(string)$unidad->id)>{{ $unidad->economico }}</option>@endforeach</select></label>
                 <label class="form-label">Ruta<input id="ruta-reportada" name="ruta_reportada" required maxlength="120" value="{{ old('ruta_reportada') }}" placeholder="Ej. Pantitlán–Chimalhuacán" class="public-field"></label>
                 <label class="form-label">Área<select name="area_reportada" required class="public-field"><option value="">Selecciona el área</option>@foreach(['Equipo rodante','Terminal o patio','Servicio en ruta','Otro'] as $area)<option @selected(old('area_reportada')===$area)>{{ $area }}</option>@endforeach</select></label>
                 <label class="form-label sm:col-span-2">Tipo de queja<select name="tipo_queja" required class="public-field"><option value="">¿Qué necesitas reportar?</option>@foreach(['Limpieza','Falla mecánica','Incidencia en ruta','Daño o seguridad','Otro'] as $tipo)<option @selected(old('tipo_queja')===$tipo)>{{ $tipo }}</option>@endforeach</select></label>
@@ -23,10 +23,13 @@
 </div>
 <style>.form-label{display:block;min-width:0;font-size:.875rem;font-weight:650;color:#334155}.public-field{display:block;width:100%;min-width:0;margin-top:.4rem;border:1px solid #B1D0E2;border-radius:.8rem;background:#fff;padding:.8rem .9rem;font-size:1rem;font-weight:400;outline:none}.public-field:focus{border-color:#018FC7;box-shadow:0 0 0 3px #018FC733}.file-field{font-size:.85rem}.honeypot{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}</style>
 <script>
-    document.getElementById('unidad-publica')?.addEventListener('change', event => {
+    const unitSelector = document.getElementById('unidad-publica');
+    const fillRoute = event => {
         const routeField = document.getElementById('ruta-reportada');
         const selectedRoute = event.target.selectedOptions[0]?.dataset.route || '';
         if (selectedRoute && !routeField.value) routeField.value = selectedRoute;
-    });
+    };
+    unitSelector?.addEventListener('change', fillRoute);
+    if (unitSelector?.value) fillRoute({target: unitSelector});
 </script>
 @endsection

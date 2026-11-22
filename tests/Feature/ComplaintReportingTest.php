@@ -57,7 +57,6 @@ class ComplaintReportingTest extends TestCase
         $this->actingAs($operator)->post('/quejas', [
             'eco' => 'ECO-TEST',
             'area' => 'Eje delantero',
-            'ruta_reportada' => 'Pantitlán',
             'tipo_queja' => 'Falla mecánica',
             'urgencia' => 'alta',
             'descripcion' => 'Se escucha ruido al frenar.',
@@ -68,6 +67,7 @@ class ComplaintReportingTest extends TestCase
             'operador_id' => $operator->id,
             'eco' => 'ECO-TEST',
             'area' => 'Eje delantero',
+            'ruta_reportada' => null,
         ]);
     }
 }

@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Seguimiento de reporte · RODAGEST')
+@section('title', 'Seguimiento de reporte')
 @section('content')
 @php($estadoLabel=['pendiente'=>'Recibido','en_proceso'=>'En atención','resuelto'=>'Atendido'][$queja->estado] ?? ucfirst($queja->estado))
 <div class="mx-auto w-full max-w-2xl space-y-4 px-4 py-6 sm:px-6 sm:py-10">

@@ -43,7 +43,7 @@ Cada usuario puede abrir **Seguridad 2FA** en la navegación, escanear el QR SVG
 - `operador`: unidad asignada, turnos y reportes propios.
 - `limpieza`: aseos y atención de reportes de limpieza.
 
-Solo personal no administrador puede crear reportes internos o externos estando autenticado. El formulario público y el de trabajadores piden ECO y área por escrito; el ECO debe existir en la flota y los operadores solo pueden usar el económico de su unidad asignada. La cuenta `admin` solo consulta reportes y actualiza su estado/seguimiento. La recuperación por correo está bloqueada para `admin`; el administrador puede cambiar las claves de trabajadores desde el módulo Personal.
+Solo personal no administrador puede crear reportes internos o externos estando autenticado. El formulario público y el de trabajadores piden ECO y área por escrito; el ECO debe existir en la flota y los operadores solo pueden usar el económico de su unidad asignada. La cuenta `admin` solo consulta reportes y actualiza su estado/seguimiento. El restablecimiento público por correo está desactivado; los trabajadores solicitan al Administrador un cambio desde el módulo Personal. El formulario del Administrador genera, muestra y permite copiar una contraseña aleatoria segura.
 
 Las rutas web y API declaran roles explícitamente; los administradores no heredan automáticamente otros roles.
 
@@ -81,7 +81,7 @@ MAIL_FROM_ADDRESS=tu-cuenta@gmail.com
 MAIL_FROM_NAME="RODAGEST"
 ```
 
-En local, si `MAIL_USERNAME` está vacío y no se define `MAIL_MAILER`, Laravel usa `log`; consulta `storage/logs/laravel.log` para ver el enlace. Para probar SMTP real corre `docker compose exec -T laravel php artisan optimize:clear` y solicita otro enlace.
+Las notificaciones de alta de trabajador, reporte crítico y cambio de estado usan el mailer configurado. Un fallo de transporte queda registrado como advertencia y no revierte los datos guardados. En `.env.example` deja vacíos `MAIL_USERNAME` y `MAIL_PASSWORD`; coloca credenciales reales solo en el `.env` ignorado por Git. No se envían contraseñas por correo. El restablecimiento de claves se realiza únicamente desde el módulo Personal del administrador.
 
 ## AWS Lightsail sin Cloudflare
 

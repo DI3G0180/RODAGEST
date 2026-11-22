@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Queja;
 use App\Models\Unidad;
+use App\Support\OperationalMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -51,7 +52,7 @@ class QuejaController extends Controller
         $data = $request->validate([
             'eco' => ['required', 'string', 'max:30', Rule::exists('unidades', 'economico')],
             'area' => ['required', 'string', 'max:80'],
-            'ruta_reportada' => ['required', 'string', 'max:120'],
+            'ruta_reportada' => ['nullable', 'string', 'max:120'],
             'tipo_queja' => ['required', 'in:Limpieza,Falla mecánica,Incidencia en ruta,Daño o seguridad,Otro'],
             'urgencia' => ['required', 'in:normal,alta,critica'],
             'descripcion' => ['required', 'string', 'max:1000'],
@@ -65,12 +66,12 @@ class QuejaController extends Controller
 
         $photoPath = $request->file('evidencia_foto')?->store('quejas/internas', 'public');
         try {
-            Queja::create([
+            $queja = Queja::create([
                 'unidad_id' => $unit->id,
                 'eco' => $data['eco'],
                 'area' => $data['area'],
                 'area_reportada' => $data['area'],
-                'ruta_reportada' => $data['ruta_reportada'],
+                'ruta_reportada' => $data['ruta_reportada'] ?? null,
                 'operador_id' => $request->user()->role === 'operador' ? $request->user()->id : null,
                 'tipo_queja' => $data['tipo_queja'],
                 'urgencia' => $data['urgencia'],
@@ -84,6 +85,8 @@ class QuejaController extends Controller
             throw $exception;
         }
 
+        if ($queja->urgencia === 'critica') app(OperationalMail::class)->criticalReport($queja);
+
         return redirect()->to(route('quejas.index', [], false))->with('success', 'Reporte guardado correctamente.');
     }
 
@@ -95,6 +98,7 @@ class QuejaController extends Controller
 
         $queja = Queja::findOrFail($id);
         $queja->update(['estado' => $request->estado]);
+        app(OperationalMail::class)->reportStatusChanged($queja);
 
         return redirect()->to(route('quejas.index', [], false))->with('success', 'Estado de queja actualizado correctamente.');
     }

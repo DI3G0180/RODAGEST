@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Reportar queja · RODAGEST')
+@section('title', 'Reportar queja')
 @section('content')
 <div class="mx-auto w-full max-w-2xl px-4 py-6 sm:px-6 sm:py-10">
     <section class="overflow-hidden rounded-3xl border border-[#B1D0E2] bg-white shadow-sm">

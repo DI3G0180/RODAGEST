@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'QR público de quejas · RODAGEST')
+@section('title', 'QR público de quejas')
 @section('content')
 <div class="mx-auto w-full max-w-3xl px-4 py-6 sm:px-6 sm:py-10">
     <section class="rounded-3xl border border-[#B1D0E2] bg-white p-5 shadow-sm sm:p-8">

@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Reportes operativos · RODAGEST')
+@section('title', 'Reportes operativos')
 @section('content')
 @php($totalRegistros = $inspecciones->count() + $aseos->count() + $incidencias->count())
 <div class="mx-auto w-full max-w-7xl space-y-5 px-4 py-5 sm:px-6 sm:py-8">

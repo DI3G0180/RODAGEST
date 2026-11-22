@@ -2,8 +2,12 @@
 <html lang="es">
 <head>
     <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>RODAGEST · Panel operativo</title>
+    <link rel="icon" type="image/png" href="/favicon.png?v=2">
+    <link rel="shortcut icon" href="/favicon.ico?v=2">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2">
+    <title>RODAGEST — Panel operativo</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="min-h-screen bg-[#FBF1E5] text-slate-800 antialiased">
 @php($user = auth()->user())
@@ -36,22 +40,23 @@
         <section class="grid grid-cols-1 items-start gap-5 lg:grid-cols-12">
             <div class="min-w-0 rounded-2xl border border-[#B1D0E2] bg-white p-5 sm:p-6 lg:col-span-6">
                 <h2 class="text-lg font-bold">Registrar empleado</h2>
-                <form action="{{ route('empleados.store', [], false) }}" method="POST" enctype="multipart/form-data" class="mt-4 grid sm:grid-cols-2 gap-3">@csrf
-                    <input name="name" required placeholder="Nombre completo" class="field"><input name="email" type="email" required placeholder="Correo electrónico" class="field">
-                    <select name="role" required class="field"><option value="">Rol</option><option value="inspector">Inspector</option><option value="operador">Operador</option><option value="limpieza">Limpieza</option></select>
-                    <input name="telefono" placeholder="Teléfono" class="field"><input name="fecha_ingreso" type="date" class="field">
-                    @include('components.password-policy', ['id' => 'dashboard-employee-password', 'required' => true, 'placeholder' => 'Contraseña inicial'])<input name="foto" type="file" accept="image/*" capture="user" class="field sm:col-span-2">
+                <form action="{{ route('empleados.store', [], false) }}" method="POST" enctype="multipart/form-data" class="mt-4 grid min-w-0 gap-3 sm:grid-cols-2">@csrf
+                    <label class="min-w-0 text-sm font-semibold text-slate-700">Nombre completo<input name="name" required placeholder="Nombre completo" class="field mt-1"></label><label class="min-w-0 text-sm font-semibold text-slate-700">Correo electrónico<input name="email" type="email" required placeholder="usuario@rodagest.com" class="field mt-1"></label>
+                    <label class="min-w-0 text-sm font-semibold text-slate-700">Rol<select name="role" required class="field mt-1"><option value="">Selecciona un rol</option><option value="inspector">Inspector</option><option value="operador">Operador</option><option value="limpieza">Limpieza</option></select></label>
+                    <label class="min-w-0 text-sm font-semibold text-slate-700">Teléfono<input name="telefono" placeholder="Teléfono" class="field mt-1"></label><label for="employee-start-date-dashboard" class="min-w-0 text-sm font-semibold text-slate-700">Fecha de alta<input id="employee-start-date-dashboard" name="fecha_ingreso" type="date" min="2026-01-01" class="field mt-1"></label>
+                    @include('components.password-policy', ['id' => 'dashboard-employee-password', 'required' => true, 'placeholder' => 'Contraseña inicial', 'containerClass' => 'sm:col-span-2'])
+                    <label class="min-w-0 text-sm font-semibold text-slate-700 sm:col-span-2">Foto de perfil<input name="foto" type="file" accept="image/*" capture="user" class="field mt-1"></label>
                     <button class="rounded-lg bg-[#018FC7] px-4 py-3 font-bold text-white hover:bg-sky-700 sm:col-span-2">Guardar empleado</button>
                 </form>
                 <div class="mt-5 overflow-x-auto"><table class="w-full min-w-[540px] text-sm"><thead><tr class="border-b text-left text-slate-500"><th class="py-2">Empleado</th><th>Rol</th><th>Antigüedad</th></tr></thead><tbody>
-                @foreach($empleados as $empleado)<tr class="border-b border-slate-100"><td class="py-2"><div class="flex items-center gap-2">@if($empleado->foto)<img src="{{ '/storage/' . ($empleado->foto) }}" class="h-9 w-9 rounded-full object-cover" alt="Foto de {{ $empleado->name }}">@endif<span>{{ $empleado->name }}</span></div></td><td>{{ $empleado->role }}</td><td>@if($empleado->fecha_ingreso){{ \Carbon\Carbon::parse($empleado->fecha_ingreso)->diff(now())->format('%y años %m meses') }}@else—@endif</td></tr>@endforeach
+                @foreach($empleados as $empleado)<tr class="border-b border-slate-100"><td class="py-2"><div class="flex items-center gap-2">@if($empleado->foto)<img src="{{ '/storage/' . ($empleado->foto) }}" class="h-9 w-9 rounded-full object-cover" alt="Foto de {{ $empleado->name }}">@endif<span>{{ $empleado->name }}</span></div></td><td>{{ $empleado->role }}</td><td>@if($empleado->fecha_ingreso){{ $empleado->fecha_ingreso->format('d/m/Y') }} · {{ $empleado->fecha_ingreso->diff(now())->format('%y años %m meses') }}@else—@endif</td></tr>@endforeach
                 </tbody></table></div>
             </div>
             <div class="min-w-0 rounded-2xl border border-[#B1D0E2] bg-white p-5 sm:p-6 lg:col-span-6">
                 <div class="flex items-center justify-between gap-3"><h2 class="text-lg font-bold">Unidades</h2><a class="text-sm font-bold text-[#018FC7]" href="{{ route('unidades.index', [], false) }}">Administrar →</a></div>
-                <form action="{{ route('unidades.store', [], false) }}" method="POST" class="mt-4 grid sm:grid-cols-2 gap-3">@csrf
-                    <input name="economico" required placeholder="ECO-104" class="field"><input name="modelo" placeholder="Modelo" class="field"><input name="area" placeholder="Área" class="field"><select name="estado" class="field"><option value="operativa">Operativa</option><option value="en_taller">En taller</option><option value="en_limpieza">En limpieza</option><option value="fuera_servicio">Fuera de servicio</option></select><label class="text-xs font-semibold text-slate-600">Próximo servicio · fecha<input name="proximo_mantenimiento_fecha" type="date" class="field mt-1"></label>
-                    <select name="operador_id" class="field sm:col-span-2"><option value="">Sin operador asignado</option>@foreach($empleados->where('role','operador') as $operador)<option value="{{ $operador->id }}">{{ $operador->name }}</option>@endforeach</select>
+                <form action="{{ route('unidades.store', [], false) }}" method="POST" class="mt-4 grid min-w-0 gap-3 sm:grid-cols-2">@csrf
+                    <label class="min-w-0 text-sm font-semibold text-slate-700">Número económico<input name="economico" required placeholder="ECO-104" class="field mt-1"></label><label class="min-w-0 text-sm font-semibold text-slate-700">Modelo<input name="modelo" placeholder="Modelo" class="field mt-1"></label><label class="min-w-0 text-sm font-semibold text-slate-700">Área<input name="area" placeholder="Área" class="field mt-1"></label><label class="min-w-0 text-sm font-semibold text-slate-700">Estado<select name="estado" class="field mt-1"><option value="operativa">Operativa</option><option value="en_taller">En taller</option><option value="en_limpieza">En limpieza</option><option value="fuera_servicio">Fuera de servicio</option></select></label><label class="min-w-0 text-sm font-semibold text-slate-700">Próximo servicio · fecha<input name="proximo_mantenimiento_fecha" type="date" class="field mt-1"></label>
+                    <label class="min-w-0 text-sm font-semibold text-slate-700 sm:col-span-2">Operador asignado<select name="operador_id" class="field mt-1"><option value="">Sin operador asignado</option>@foreach($empleados->where('role','operador') as $operador)<option value="{{ $operador->id }}">{{ $operador->name }}</option>@endforeach</select></label>
                     <button class="rounded-lg bg-[#018FC7] px-4 py-3 font-bold text-white sm:col-span-2">Registrar unidad</button>
                 </form>
                 <div class="mt-5 overflow-x-auto"><table class="w-full min-w-[480px] text-sm"><thead><tr class="border-b text-left text-slate-500"><th class="py-2">Económico</th><th>Operador</th><th>Estado</th></tr></thead><tbody>@foreach($unidades as $unidad)<tr class="border-b border-slate-100"><td class="py-2 font-semibold"><a class="text-[#018FC7] hover:underline" href="{{ route('unidades.show', [$unidad->id], false) }}">{{ $unidad->economico }}</a></td><td>{{ $unidad->operador?->name ?? '—' }}</td><td>{{ $unidad->estado ?? 'activo' }}</td></tr>@endforeach</tbody></table></div>

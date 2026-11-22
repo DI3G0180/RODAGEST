@@ -11,6 +11,26 @@ class EmployeeSecurityTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_employee_start_date_must_be_in_2026_or_later_and_is_persisted(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin', 'activo' => true]);
+        $this->actingAs($admin);
+        $payload = [
+            'name' => 'Personal con alta nueva',
+            'email' => 'alta.nueva@example.test',
+            'role' => 'inspector',
+            'password' => 'StrongPass123!',
+            'fecha_ingreso' => '2025-12-31',
+        ];
+
+        $this->post('/empleados', $payload)->assertSessionHasErrors('fecha_ingreso');
+        $this->assertDatabaseMissing('users', ['email' => $payload['email']]);
+
+        $payload['fecha_ingreso'] = '2026-01-01';
+        $this->post('/empleados', $payload)->assertSessionHasNoErrors();
+        $this->assertDatabaseHas('users', ['email' => $payload['email'], 'fecha_ingreso' => '2026-01-01']);
+    }
+
     public function test_admin_cannot_create_a_second_admin_and_employee_password_must_be_strong(): void
     {
         $admin = User::factory()->create(['role' => 'admin', 'activo' => true]);
@@ -35,6 +55,8 @@ class EmployeeSecurityTest extends TestCase
         $this->post('/empleados', $payload)->assertSessionHasNoErrors();
         $this->assertDatabaseHas('users', ['email' => $payload['email'], 'role' => 'inspector']);
         $this->assertTrue(Hash::check('StrongPass123!', User::where('email', $payload['email'])->firstOrFail()->password));
+        $this->post('/logout');
+        $this->post('/login', ['email' => $payload['email'], 'password' => 'StrongPass123!'])->assertRedirect(route('dashboard', absolute: false));
     }
 
     public function test_admin_can_delete_workers_but_not_admin_or_the_current_account(): void

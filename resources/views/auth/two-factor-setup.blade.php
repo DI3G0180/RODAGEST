@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Verificación en dos pasos · RODAGEST')
+@section('title', 'Verificación en dos pasos')
 @section('content')
 <div class="mx-auto max-w-3xl space-y-5 px-4 py-6 sm:px-6">
     <header><p class="text-xs font-bold uppercase tracking-widest text-[#018FC7]">Seguridad de la cuenta</p><h1 class="text-2xl font-extrabold">Verificación en dos pasos</h1><p class="mt-1 text-sm text-slate-600">Vincula Google Authenticator o cualquier aplicación compatible con TOTP.</p></header>

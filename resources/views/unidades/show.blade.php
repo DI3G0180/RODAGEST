@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Ficha ' . $unidad->economico . ' · RODAGEST')
+@section('title', 'Ficha ' . $unidad->economico)
 
 @section('content')
 <div class="mx-auto w-full max-w-6xl space-y-5 px-4 py-5 sm:px-6 sm:py-7">

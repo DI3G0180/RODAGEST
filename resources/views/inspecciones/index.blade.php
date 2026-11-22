@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Inspección diaria · RODAGEST')
+@section('title', 'Inspección diaria')
 @section('content')
 @php($role = auth()->user()->role)
 <div class="mx-auto w-full max-w-7xl space-y-5 px-4 py-5 sm:px-6 sm:py-8">

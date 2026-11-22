@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Unidad;
 use App\Models\User;
+use App\Support\OperationalMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -37,6 +38,7 @@ class EmpleadoController extends Controller
         if ($request->hasFile('foto')) $data['foto'] = $request->file('foto')->store('empleados', 'public');
         $empleado = User::create($data);
         $this->assignUnit($empleado, $unidadId);
+        app(OperationalMail::class)->employeeCreated($empleado);
 
         return redirect()->to(route('empleados.index', [], false))->with('success', 'Empleado registrado correctamente.');
     }
@@ -79,7 +81,7 @@ class EmpleadoController extends Controller
             'role' => [$empleado ? 'sometimes' : 'required', Rule::in(['inspector', 'operador', 'limpieza'])],
             'puesto' => [$empleado ? 'sometimes' : 'nullable', 'nullable', 'string', 'max:150'],
             'telefono' => ['nullable', 'string', 'max:30'],
-            'fecha_ingreso' => ['nullable', 'date'],
+            'fecha_ingreso' => ['nullable', 'date', 'after_or_equal:2026-01-01'],
             'activo' => ['nullable', 'boolean'],
             'unidad_id' => ['nullable', 'exists:unidades,id'],
             'password' => [$empleado ? 'nullable' : 'required', 'string', Password::min(8)->mixedCase()->numbers()->symbols()],

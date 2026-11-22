@@ -4,7 +4,10 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <link rel="icon" type="image/png" href="/favicon.png?v=2">
+        <link rel="shortcut icon" href="/favicon.ico?v=2">
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2">
+        <title>RODAGEST</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

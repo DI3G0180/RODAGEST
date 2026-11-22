@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Quejas e incidencias · RODAGEST')
+@section('title', 'Quejas e incidencias')
 @section('content')
 @php($role = auth()->user()->role)
 <div class="mx-auto w-full max-w-7xl space-y-5 px-4 py-5 sm:px-6 sm:py-8">
@@ -14,7 +14,6 @@
         <form action="{{ route('quejas.store', [], false) }}" method="POST" enctype="multipart/form-data" class="mt-4 grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-12">@csrf
             <label class="form-label lg:col-span-3">Número económico (ECO)<input name="eco" required maxlength="30" value="{{ old('eco', auth()->user()->role === 'operador' ? auth()->user()->unidadAsignada?->economico : '') }}" placeholder="Ej. ECO-104" class="field"></label>
             <label class="form-label lg:col-span-3">Área<input name="area" required maxlength="80" value="{{ old('area') }}" placeholder="Ej. salón, carrocería, terminal" class="field"></label>
-            <label class="form-label lg:col-span-3">Ruta / lugar<input name="ruta_reportada" required maxlength="120" value="{{ old('ruta_reportada') }}" placeholder="Ruta o terminal" class="field"></label>
             <label class="form-label lg:col-span-3">Tipo<select name="tipo_queja" required class="field"><option value="">Selecciona</option>@foreach(['Limpieza','Falla mecánica','Incidencia en ruta','Daño o seguridad','Otro'] as $tipo)<option value="{{ $tipo }}" @selected(old('tipo_queja')===$tipo)>{{ $tipo }}</option>@endforeach</select></label>
             <label class="form-label lg:col-span-3">Urgencia<select name="urgencia" required class="field"><option value="normal">Normal</option><option value="alta" @selected(old('urgencia')==='alta')>Alta</option><option value="critica" @selected(old('urgencia')==='critica')>Crítica</option></select></label>
             <label class="form-label lg:col-span-5">Descripción<textarea name="descripcion" required maxlength="1000" rows="3" class="field" placeholder="Describe qué ocurrió">{{ old('descripcion') }}</textarea></label>
@@ -28,7 +27,7 @@
         @forelse($quejas as $queja)
             <article class="min-w-0 overflow-hidden rounded-2xl border border-[#B1D0E2] bg-white shadow-sm">
                 <div class="flex min-w-0 flex-wrap items-start justify-between gap-3 border-b border-[#DBE7F3] bg-[#FBF1E5] p-4 sm:p-5">
-                    <div class="min-w-0"><div class="flex flex-wrap items-center gap-2"><h2 class="break-words text-lg font-extrabold">{{ $queja->eco ?: ($queja->unidad?->economico ?? 'Unidad no disponible') }}</h2><span class="rounded-full bg-white px-2.5 py-1 text-xs font-bold text-[#018FC7]">{{ strtoupper($queja->medio_reporte ?? 'interno') }}</span><span class="rounded-full px-2.5 py-1 text-xs font-bold {{ $queja->estado === 'resuelto' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-900' }}">{{ str_replace('_',' ',$queja->estado) }}</span></div><p class="mt-1 break-words text-sm text-slate-600">{{ $queja->area ?: ($queja->area_reportada ?: 'Área no indicada') }} · Ruta {{ $queja->ruta_reportada ?: ($queja->unidad?->ruta ?: '—') }}</p></div>
+                    <div class="min-w-0"><div class="flex flex-wrap items-center gap-2"><h2 class="break-words text-lg font-extrabold">{{ $queja->eco ?: ($queja->unidad?->economico ?? 'Unidad no disponible') }}</h2><span class="rounded-full px-2.5 py-1 text-xs font-bold {{ $queja->estado === 'resuelto' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-900' }}">{{ str_replace('_',' ',$queja->estado) }}</span></div></div>
                     <time class="text-xs text-slate-500">{{ $queja->created_at?->format('d/m/Y H:i') }}</time>
                 </div>
                 <div class="space-y-4 p-4 sm:p-5">

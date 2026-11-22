@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Hoja de vida · RODAGEST')
+@section('title', 'Hoja de vida')
 @section('content')
 @php
     $personal = [

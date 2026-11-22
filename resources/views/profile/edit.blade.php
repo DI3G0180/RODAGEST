@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Mi Perfil - RodaGest')
+@section('title', 'Mi perfil')
 
 @section('content')
 <div class="max-w-4xl mx-auto space-y-6">

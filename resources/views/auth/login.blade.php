@@ -4,7 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#FBF1E5">
-    <title>Iniciar sesión · RODAGEST</title>
+    <link rel="icon" type="image/png" href="/favicon.png?v=2">
+    <link rel="shortcut icon" href="/favicon.ico?v=2">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2">
+    <title>RODAGEST — Iniciar sesión</title>
     <style>
         :root{color-scheme:light;--primary:#018FC7;--secondary:#83C0DF;--border:#B1D0E2;--soft:#DBE7F3;--cream:#FBF1E5;--ink:#183647;--muted:#607985}
         *{box-sizing:border-box}html,body{min-height:100%;margin:0}body{min-height:100vh;display:grid;place-items:center;padding:24px 16px;background:var(--cream);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
@@ -30,9 +33,11 @@
         @csrf
         <div class="field"><label for="email">Correo electrónico</label><input id="email" name="email" type="email" value="{{ old('email') }}" required autofocus autocomplete="username" placeholder="usuario@rodagest.com"></div>
         <div class="field"><label for="password">Contraseña</label><div class="password-wrap"><input id="password" name="password" type="password" required autocomplete="current-password" placeholder="Tu contraseña"><button class="toggle" type="button" id="toggle-password" aria-label="Mostrar contraseña">Mostrar</button></div></div>
-        <div class="options"><label class="remember"><input type="checkbox" name="remember"> Recordar sesión</label>@if(Route::has('password.request'))<a href="{{ route('password.request', [], false) }}">¿Olvidaste tu contraseña?</a>@endif</div>
+        <div class="options"><label class="remember"><input type="checkbox" name="remember"> Recordar sesión</label></div>
         <button class="submit" type="submit">Iniciar sesión</button>
     </form>
+
+    <p class="footnote" style="border-top:0;margin-top:14px;padding-top:0">¿Perdiste o bloqueaste tus credenciales? Solicita al Administrador que restablezca tu contraseña.</p>
 
     <p class="footnote">Sistema Integral de Gestión de Flotas · RODAGEST</p>
 </main>

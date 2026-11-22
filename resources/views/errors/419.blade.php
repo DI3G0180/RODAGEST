@@ -4,7 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
-    <title>Sesión vencida · RODAGEST</title>
+    <link rel="icon" type="image/png" href="/favicon.png?v=2">
+    <link rel="shortcut icon" href="/favicon.ico?v=2">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2">
+    <title>RODAGEST — Sesión vencida</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="grid min-h-screen place-items-center bg-[#FBF1E5] px-4 py-8 text-slate-800">

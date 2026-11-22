@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Aseo de unidades · RODAGEST')
+@section('title', 'Aseo de unidades')
 @section('content')
 <div class="mx-auto w-full max-w-7xl space-y-5 px-4 py-5 sm:px-6 sm:py-8">
     <header class="flex flex-wrap items-end justify-between gap-3"><div><p class="text-xs font-bold uppercase tracking-[.16em] text-[#018FC7]">Operación · Limpieza</p><h1 class="mt-1 text-2xl font-extrabold sm:text-3xl">Aseo de unidades</h1><p class="mt-1 text-sm text-slate-600">Registra lavados, desinfecciones, etapas y evidencia.</p></div><a href="{{ route('dashboard', [], false) }}" class="inline-flex min-h-11 items-center rounded-xl border border-[#B1D0E2] bg-white px-4 font-semibold text-[#018FC7]">Volver al panel</a></header>

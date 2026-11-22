@@ -30,6 +30,17 @@ class PasswordResetTest extends TestCase
         Notification::assertSentTo($user, ResetPassword::class);
     }
 
+    public function test_admin_cannot_request_password_recovery_by_email(): void
+    {
+        Notification::fake();
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $this->post('/forgot-password', ['email' => $admin->email])
+            ->assertSessionHasErrors(['email' => 'La cuenta de administrador no admite recuperación por correo por políticas de seguridad.']);
+
+        Notification::assertNothingSent();
+    }
+
     public function test_reset_password_screen_can_be_rendered(): void
     {
         Notification::fake();

@@ -59,6 +59,18 @@ class EmpleadoController extends Controller
         return redirect()->to(route('empleados.index', [], false))->with('success', 'Empleado actualizado correctamente.');
     }
 
+    public function destroy(Request $request, User $empleado)
+    {
+        abort_if($empleado->is($request->user()), 403, 'No puedes eliminar la cuenta con la que iniciaste sesión.');
+        abort_if($empleado->role === 'admin', 403, 'La cuenta administradora está protegida.');
+
+        $photoPath = $empleado->foto;
+        $empleado->delete();
+        if ($photoPath) Storage::disk('public')->delete($photoPath);
+
+        return redirect()->to(route('empleados.index', [], false))->with('success', 'Empleado eliminado correctamente.');
+    }
+
     private function validated(Request $request, ?User $empleado = null): array
     {
         return $request->validate([

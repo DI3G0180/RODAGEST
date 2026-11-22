@@ -84,16 +84,16 @@ class ReporteController extends Controller
             };
 
             fwrite($sheet, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols><col min="1" max="1" width="19" customWidth="1"/><col min="2" max="2" width="20" customWidth="1"/><col min="3" max="8" width="24" customWidth="1"/></cols><sheetData>');
-            $writeRow(['Fecha', 'Tipo de registro', 'Económico', 'Categoría', 'Estado', 'Prioridad', 'Responsable', 'Detalle'], 1, true);
+            $writeRow(['Fecha', 'Tipo de registro', 'Económico', 'Área', 'Categoría', 'Estado', 'Prioridad', 'Responsable', 'Detalle'], 1, true);
             $rowNumber = 2;
             Inspeccion::with('unidad', 'inspector')->whereBetween('fecha_reporte', [$desde, $hasta])->orderBy('fecha_reporte')->chunk(200, function ($items) use ($writeRow, &$rowNumber) {
-                foreach ($items as $item) $writeRow([$item->fecha_reporte?->format('Y-m-d H:i'), 'Inspección', $item->unidad?->economico, $item->tipo_dano, $item->dictamen ?: $item->estado, $item->prioridad, $item->inspector?->name ?: $item->inspector_responsable, $item->descripcion], $rowNumber++);
+                foreach ($items as $item) $writeRow([$item->fecha_reporte?->format('Y-m-d H:i'), 'Inspección', $item->unidad?->economico, $item->municipio ?: $item->direccion, $item->tipo_dano, $item->dictamen ?: $item->estado, $item->prioridad, $item->inspector?->name ?: $item->inspector_responsable, $item->descripcion], $rowNumber++);
             });
             Aseo::with('unidad')->whereBetween('fecha_hora', [$desde, $hasta])->orderBy('fecha_hora')->chunk(200, function ($items) use ($writeRow, &$rowNumber) {
-                foreach ($items as $item) $writeRow([$item->fecha_hora?->format('Y-m-d H:i'), 'Aseo', $item->unidad?->economico, $item->tipo_limpieza, $item->estado, '', $item->intendente_responsable, $item->observaciones ?: $item->producto_desinfectante], $rowNumber++);
+                foreach ($items as $item) $writeRow([$item->fecha_hora?->format('Y-m-d H:i'), 'Aseo', $item->unidad?->economico, $item->area_terminal, $item->tipo_limpieza, $item->estado, '', $item->intendente_responsable, $item->observaciones ?: $item->producto_desinfectante], $rowNumber++);
             });
             Queja::with('unidad', 'operador')->whereBetween('created_at', [$desde, $hasta])->orderBy('created_at')->chunk(200, function ($items) use ($writeRow, &$rowNumber) {
-                foreach ($items as $item) $writeRow([$item->created_at?->format('Y-m-d H:i'), 'Incidencia', $item->unidad?->economico, $item->tipo_queja, $item->estado, $item->urgencia, $item->operador?->name, $item->descripcion], $rowNumber++);
+                foreach ($items as $item) $writeRow([$item->created_at?->format('Y-m-d H:i'), 'Incidencia', $item->eco ?: $item->unidad?->economico, $item->area ?: $item->area_reportada, $item->tipo_queja, $item->estado, $item->urgencia, $item->operador?->name, $item->descripcion], $rowNumber++);
             });
             fwrite($sheet, '</sheetData></worksheet>');
             fclose($sheet);

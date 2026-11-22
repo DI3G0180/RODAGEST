@@ -42,6 +42,7 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/empleados', [EmpleadoController::class, 'index'])->middleware('role:admin')->name('empleados.index');
     Route::post('/empleados', [EmpleadoController::class, 'store'])->middleware('role:admin')->name('empleados.store');
     Route::patch('/empleados/{empleado}', [EmpleadoController::class, 'update'])->middleware('role:admin')->name('empleados.update');
+    Route::delete('/empleados/{empleado}', [EmpleadoController::class, 'destroy'])->middleware('role:admin')->name('empleados.destroy');
     Route::get('/empleados/{empleado}/hoja-de-vida', [HojaVidaController::class, 'showEmployee'])->middleware('role:admin')->name('empleados.hoja-vida');
     Route::patch('/empleados/{empleado}/hoja-de-vida', [HojaVidaController::class, 'update'])->middleware('role:admin')->name('empleados.hoja-vida.update');
     Route::get('/mi-hoja-de-vida', [HojaVidaController::class, 'own'])->middleware('role:operador')->name('empleados.hoja-vida.own');
@@ -64,7 +65,8 @@ Route::middleware(['auth', 'active'])->group(function () {
 
     // 3. MÓDULO DE QUEJAS (Admin, Inspector, Operador)
     Route::get('quejas', [QuejaController::class, 'index'])->middleware('role:admin,inspector,operador,limpieza')->name('quejas.index');
-    Route::resource('quejas', QuejaController::class)->only(['destroy'])->middleware('role:admin,operador')->parameters([
+    Route::post('quejas', [QuejaController::class, 'store'])->middleware('role:inspector,operador,limpieza')->name('quejas.store');
+    Route::resource('quejas', QuejaController::class)->only(['destroy'])->middleware('role:operador')->parameters([
         'quejas' => 'queja'
     ]);
 

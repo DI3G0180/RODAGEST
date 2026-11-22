@@ -37,6 +37,12 @@ class NewPasswordController extends Controller
             'password' => ['required', 'confirmed', PasswordRule::min(8)->mixedCase()->numbers()->symbols()],
         ]);
 
+        if (User::where('email', $request->string('email')->toString())->where('role', 'admin')->exists()) {
+            return back()->withInput($request->only('email'))->withErrors([
+                'email' => 'La cuenta de administrador no admite recuperación por correo por políticas de seguridad.',
+            ]);
+        }
+
         // Here we will attempt to reset the user's password. If it is successful we
         // will update the password on an actual user model and persist it to the
         // database. Otherwise we will parse the error and return the response.

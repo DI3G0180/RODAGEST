@@ -13,6 +13,8 @@ class Queja extends Model
 
     protected $fillable = [
         'unidad_id',
+        'eco',
+        'area',
         'operador_id',
         'tipo_queja',
         'estado',
@@ -21,7 +23,6 @@ class Queja extends Model
         'urgencia',
         'evidencia_foto',
         'nombre_reportante',
-        'telefono_reportante',
         'medio_reporte',
         'area_reportada',
         'ruta_reportada',

@@ -6,6 +6,7 @@ use App\Models\Queja;
 use App\Models\Unidad;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class QuejaController extends Controller
 {
@@ -41,6 +42,49 @@ class QuejaController extends Controller
             : Unidad::orderBy('economico')->get();
 
         return view('quejas.index', compact('quejas', 'unidades'));
+    }
+
+    public function store(Request $request)
+    {
+        abort_if($request->user()->role === 'admin', 403, 'La cuenta administradora solo puede dar seguimiento a reportes.');
+
+        $data = $request->validate([
+            'eco' => ['required', 'string', 'max:30', Rule::exists('unidades', 'economico')],
+            'area' => ['required', 'string', 'max:80'],
+            'ruta_reportada' => ['required', 'string', 'max:120'],
+            'tipo_queja' => ['required', 'in:Limpieza,Falla mecánica,Incidencia en ruta,Daño o seguridad,Otro'],
+            'urgencia' => ['required', 'in:normal,alta,critica'],
+            'descripcion' => ['required', 'string', 'max:1000'],
+            'evidencia_foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+        ]);
+
+        $unit = Unidad::where('economico', $data['eco'])->firstOrFail();
+        if ($request->user()->role === 'operador' && $unit->operador_id !== $request->user()->id) {
+            abort(403, 'Como operador solo puedes reportar sobre tu unidad asignada.');
+        }
+
+        $photoPath = $request->file('evidencia_foto')?->store('quejas/internas', 'public');
+        try {
+            Queja::create([
+                'unidad_id' => $unit->id,
+                'eco' => $data['eco'],
+                'area' => $data['area'],
+                'area_reportada' => $data['area'],
+                'ruta_reportada' => $data['ruta_reportada'],
+                'operador_id' => $request->user()->role === 'operador' ? $request->user()->id : null,
+                'tipo_queja' => $data['tipo_queja'],
+                'urgencia' => $data['urgencia'],
+                'descripcion' => $data['descripcion'],
+                'evidencia_foto' => $photoPath,
+                'estado' => 'pendiente',
+                'medio_reporte' => 'interno',
+            ]);
+        } catch (\Throwable $exception) {
+            if ($photoPath) Storage::disk('public')->delete($photoPath);
+            throw $exception;
+        }
+
+        return redirect()->to(route('quejas.index', [], false))->with('success', 'Reporte guardado correctamente.');
     }
 
     public function updateEstado(Request $request, $id)
@@ -83,7 +127,7 @@ class QuejaController extends Controller
 
     public function destroy(Request $request, Queja $queja)
     {
-        abort_unless($request->user()->role === 'admin' || ($request->user()->role === 'operador' && $queja->operador_id === $request->user()->id), 403);
+        abort_unless($request->user()->role === 'operador' && $queja->operador_id === $request->user()->id, 403);
         if ($queja->evidencia_foto) Storage::disk('public')->delete($queja->evidencia_foto);
         if ($queja->evidencia_atencion) Storage::disk('public')->delete($queja->evidencia_atencion);
         $queja->delete();

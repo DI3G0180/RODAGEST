@@ -14,7 +14,6 @@ return new class extends Migration
 
         Schema::table('quejas', function (Blueprint $table) {
             if (! Schema::hasColumn('quejas', 'nombre_reportante')) $table->string('nombre_reportante', 120)->nullable();
-            if (! Schema::hasColumn('quejas', 'telefono_reportante')) $table->string('telefono_reportante', 30)->nullable();
             if (! Schema::hasColumn('quejas', 'medio_reporte')) $table->string('medio_reporte', 20)->default('interno');
             if (! Schema::hasColumn('quejas', 'area_reportada')) $table->string('area_reportada', 80)->nullable();
             if (! Schema::hasColumn('quejas', 'ruta_reportada')) $table->string('ruta_reportada', 120)->nullable();

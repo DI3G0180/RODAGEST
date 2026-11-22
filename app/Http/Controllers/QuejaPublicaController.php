@@ -12,31 +12,43 @@ class QuejaPublicaController extends Controller
 {
     public function create(Request $request)
     {
+        abort_if($request->user()?->role === 'admin', 403, 'La cuenta administradora no puede crear reportes.');
+
+        $eco = $request->query('eco');
         $unidadId = $request->query('unidad_id');
-        if ($unidadId !== null && (! ctype_digit((string) $unidadId) || ! Unidad::whereKey($unidadId)->exists())) {
+        if ($eco === null && $unidadId !== null) {
+            if (! is_string($unidadId) || ! ctype_digit($unidadId)) {
+                abort(404);
+            }
+            $eco = Unidad::whereKey($unidadId)->value('economico');
+            abort_unless($eco, 404);
+        }
+        if ($eco !== null && (! is_string($eco) || ! Unidad::where('economico', $eco)->exists())) {
             abort(404);
         }
 
         return view('quejas.publica', [
-            'unidades' => Unidad::orderBy('economico')->get(['id', 'economico', 'ruta']),
-            'unidadSeleccionada' => $unidadId,
+            'eco' => $eco,
         ]);
     }
 
     public function store(Request $request)
     {
+        abort_if($request->user()?->role === 'admin', 403, 'La cuenta administradora no puede crear reportes.');
+
         $data = $request->validate([
-            'unidad_id' => ['required', 'exists:unidades,id'],
+            'eco' => ['required', 'string', 'max:30', 'exists:unidades,economico'],
             'ruta_reportada' => ['required', 'string', 'max:120'],
-            'area_reportada' => ['required', 'in:Equipo rodante,Terminal o patio,Servicio en ruta,Otro'],
+            'area' => ['required', 'string', 'max:80'],
             'tipo_queja' => ['required', 'in:Limpieza,Falla mecánica,Incidencia en ruta,Daño o seguridad,Otro'],
             'descripcion' => ['required', 'string', 'max:1000'],
             'nombre_reportante' => ['nullable', 'string', 'max:120'],
-            'telefono_reportante' => ['nullable', 'string', 'max:30', 'regex:/^[+0-9()\s.-]+$/'],
             'evidencia_foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
             'sitio_web' => ['prohibited'],
         ], [
-            'unidad_id.required' => 'Selecciona el económico de la unidad.',
+            'eco.required' => 'Escribe el número económico de la unidad.',
+            'eco.exists' => 'El número económico no corresponde a una unidad registrada.',
+            'area.required' => 'Indica el área del reporte.',
             'ruta_reportada.required' => 'Indica la ruta o terminal donde ocurrió.',
             'tipo_queja.required' => 'Selecciona el tipo de queja.',
             'descripcion.required' => 'Describe brevemente lo ocurrido.',
@@ -44,6 +56,9 @@ class QuejaPublicaController extends Controller
             'evidencia_foto.max' => 'La foto debe pesar menos de 5 MB.',
         ]);
         unset($data['sitio_web']);
+        $unit = Unidad::where('economico', $data['eco'])->firstOrFail();
+        $data['unidad_id'] = $unit->id;
+        $data['area_reportada'] = $data['area'];
 
         $photoPath = $request->hasFile('evidencia_foto')
             ? $request->file('evidencia_foto')->store('quejas/publicas', 'public')

@@ -8,11 +8,27 @@
     @if(session('success'))<div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-800">{{ session('success') }}</div>@endif
     @if($errors->any())<div class="rounded-xl border border-red-200 bg-red-50 p-4 text-red-800"><ul class="list-disc space-y-1 pl-5">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
 
+    @if($role !== 'admin')
+    <section class="rounded-2xl border border-[#B1D0E2] bg-white p-4 shadow-sm sm:p-6">
+        <h2 class="text-lg font-extrabold">Registrar reporte interno</h2>
+        <form action="{{ route('quejas.store', [], false) }}" method="POST" enctype="multipart/form-data" class="mt-4 grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-12">@csrf
+            <label class="form-label lg:col-span-3">Número económico (ECO)<input name="eco" required maxlength="30" value="{{ old('eco', auth()->user()->role === 'operador' ? auth()->user()->unidadAsignada?->economico : '') }}" placeholder="Ej. ECO-104" class="field"></label>
+            <label class="form-label lg:col-span-3">Área<input name="area" required maxlength="80" value="{{ old('area') }}" placeholder="Ej. salón, carrocería, terminal" class="field"></label>
+            <label class="form-label lg:col-span-3">Ruta / lugar<input name="ruta_reportada" required maxlength="120" value="{{ old('ruta_reportada') }}" placeholder="Ruta o terminal" class="field"></label>
+            <label class="form-label lg:col-span-3">Tipo<select name="tipo_queja" required class="field"><option value="">Selecciona</option>@foreach(['Limpieza','Falla mecánica','Incidencia en ruta','Daño o seguridad','Otro'] as $tipo)<option value="{{ $tipo }}" @selected(old('tipo_queja')===$tipo)>{{ $tipo }}</option>@endforeach</select></label>
+            <label class="form-label lg:col-span-3">Urgencia<select name="urgencia" required class="field"><option value="normal">Normal</option><option value="alta" @selected(old('urgencia')==='alta')>Alta</option><option value="critica" @selected(old('urgencia')==='critica')>Crítica</option></select></label>
+            <label class="form-label lg:col-span-5">Descripción<textarea name="descripcion" required maxlength="1000" rows="3" class="field" placeholder="Describe qué ocurrió">{{ old('descripcion') }}</textarea></label>
+            <label class="form-label lg:col-span-4">Foto (opcional)<input name="evidencia_foto" type="file" accept="image/*" capture="environment" class="field"></label>
+            <button class="min-h-11 self-end rounded-xl bg-[#018FC7] px-4 font-bold text-white lg:col-span-12">Guardar reporte</button>
+        </form>
+    </section>
+    @endif
+
     <section class="grid min-w-0 gap-3 lg:grid-cols-2">
         @forelse($quejas as $queja)
             <article class="min-w-0 overflow-hidden rounded-2xl border border-[#B1D0E2] bg-white shadow-sm">
                 <div class="flex min-w-0 flex-wrap items-start justify-between gap-3 border-b border-[#DBE7F3] bg-[#FBF1E5] p-4 sm:p-5">
-                    <div class="min-w-0"><div class="flex flex-wrap items-center gap-2"><h2 class="break-words text-lg font-extrabold">{{ $queja->unidad?->economico ?? 'Unidad no disponible' }}</h2><span class="rounded-full bg-white px-2.5 py-1 text-xs font-bold text-[#018FC7]">{{ strtoupper($queja->medio_reporte ?? 'interno') }}</span><span class="rounded-full px-2.5 py-1 text-xs font-bold {{ $queja->estado === 'resuelto' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-900' }}">{{ str_replace('_',' ',$queja->estado) }}</span></div><p class="mt-1 break-words text-sm text-slate-600">{{ $queja->area_reportada ?: 'Equipo rodante' }} · Ruta {{ $queja->ruta_reportada ?: ($queja->unidad?->ruta ?: '—') }}</p></div>
+                    <div class="min-w-0"><div class="flex flex-wrap items-center gap-2"><h2 class="break-words text-lg font-extrabold">{{ $queja->eco ?: ($queja->unidad?->economico ?? 'Unidad no disponible') }}</h2><span class="rounded-full bg-white px-2.5 py-1 text-xs font-bold text-[#018FC7]">{{ strtoupper($queja->medio_reporte ?? 'interno') }}</span><span class="rounded-full px-2.5 py-1 text-xs font-bold {{ $queja->estado === 'resuelto' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-900' }}">{{ str_replace('_',' ',$queja->estado) }}</span></div><p class="mt-1 break-words text-sm text-slate-600">{{ $queja->area ?: ($queja->area_reportada ?: 'Área no indicada') }} · Ruta {{ $queja->ruta_reportada ?: ($queja->unidad?->ruta ?: '—') }}</p></div>
                     <time class="text-xs text-slate-500">{{ $queja->created_at?->format('d/m/Y H:i') }}</time>
                 </div>
                 <div class="space-y-4 p-4 sm:p-5">
@@ -20,12 +36,7 @@
                         <div class="min-w-0">
                             <p class="text-xs font-bold uppercase tracking-wide text-[#018FC7]">{{ $queja->tipo_queja }} · {{ $queja->urgencia ?: 'normal' }}</p>
                             <p class="mt-2 whitespace-pre-line break-words text-sm text-slate-700">{{ $queja->descripcion }}</p>
-                            @if($queja->nombre_reportante || $queja->telefono_reportante)
-                                <p class="mt-2 text-xs text-slate-500">
-                                    Reportó: {{ $queja->nombre_reportante ?: 'Anónimo' }}
-                                    @if($queja->telefono_reportante) · {{ $queja->telefono_reportante }} @endif
-                                </p>
-                            @endif
+                            @if($queja->nombre_reportante)<p class="mt-2 text-xs text-slate-500">Reportó: {{ $queja->nombre_reportante }}</p>@endif
                             @if($queja->operador)
                                 <p class="mt-2 text-xs text-slate-500">Operador: {{ $queja->operador->name }}</p>
                             @endif
@@ -42,7 +53,7 @@
                     <div class="flex flex-wrap items-center justify-between gap-2 border-t border-[#DBE7F3] pt-3">
                         @if($queja->codigo_seguimiento)<a href="{{ route('quejas.seguimiento', [$queja->codigo_seguimiento], false) }}" target="_blank" rel="noopener" class="inline-flex min-h-10 items-center font-semibold text-[#018FC7]">Abrir seguimiento externo →</a>@else<span></span>@endif
                         @if(in_array($role, ['admin','inspector']))<form action="{{ route('quejas.actualizar-estado', [$queja->id], false) }}" method="POST" class="flex max-w-full items-center gap-2">@csrf @method('PUT')<select name="estado" class="min-w-0 rounded-lg border border-[#B1D0E2] bg-white px-2 py-2 text-sm"><option value="pendiente" @selected($queja->estado==='pendiente')>Pendiente</option><option value="en_proceso" @selected($queja->estado==='en_proceso')>En proceso</option><option value="resuelto" @selected($queja->estado==='resuelto')>Resuelto</option></select><button class="min-h-10 rounded-lg px-2 text-sm font-bold text-[#018FC7]">Actualizar</button></form>@endif
-                        @if($role === 'admin' || ($role === 'operador' && $queja->operador_id === auth()->id()))<form action="{{ route('quejas.destroy', [$queja->id], false) }}" method="POST">@csrf @method('DELETE')<button class="min-h-10 px-2 text-sm font-semibold text-red-600" onclick="return confirm('¿Eliminar reporte?')">Eliminar</button></form>@endif
+                        @if($role === 'operador' && $queja->operador_id === auth()->id())<form action="{{ route('quejas.destroy', [$queja->id], false) }}" method="POST">@csrf @method('DELETE')<button class="min-h-10 px-2 text-sm font-semibold text-red-600" onclick="return confirm('¿Eliminar reporte?')">Eliminar</button></form>@endif
                     </div>
                 </div>
             </article>

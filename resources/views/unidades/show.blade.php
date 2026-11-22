@@ -20,7 +20,7 @@
                 <p class="mt-2 text-sm text-slate-600">Historial operativo e información actual de la unidad.</p>
             </div>
             <div id="qr-print-card" class="qr-print flex items-center gap-4 rounded-2xl bg-[#FBF1E5] p-4 lg:flex-col lg:gap-2 lg:text-center">
-                <div id="unit-qr" data-qr-url="{{ rtrim(config('app.public_url'), '/') . route('quejas.publica', ['unidad_id' => $unidad->id], false) }}" class="flex h-24 w-24 shrink-0 items-center justify-center rounded-xl border border-[#B1D0E2] bg-white p-2" aria-label="Código QR para reportar sobre {{ $unidad->economico }}"></div>
+                <div id="unit-qr" data-qr-url="{{ rtrim(config('app.public_url'), '/') . route('quejas.publica', ['eco' => $unidad->economico], false) }}" class="flex h-24 w-24 shrink-0 items-center justify-center rounded-xl border border-[#B1D0E2] bg-white p-2" aria-label="Código QR para reportar sobre {{ $unidad->economico }}"></div>
                 <div class="min-w-0"><p class="text-sm font-bold text-slate-800">QR para reportar esta unidad</p><p class="mt-1 text-xs text-slate-600">Al escanearlo, el formulario ya identifica el {{ $unidad->economico }}.</p><button type="button" onclick="window.print()" class="mt-2 inline-flex min-h-10 items-center rounded-lg border border-[#B1D0E2] bg-white px-3 text-xs font-bold text-[#018FC7] print:hidden">Imprimir QR</button></div>
             </div>
         </div>

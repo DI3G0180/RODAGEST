@@ -27,7 +27,7 @@ Base URL: `/api/v1`. Enviar `Accept: application/json`; para fotos usar `multipa
 | POST | `/logout` | Bearer | Revoca el token actual. |
 | GET | `/unidades` | Admin, inspector, operador, limpieza | Lista paginada; los operadores solo ven sus unidades. |
 | POST | `/inspecciones` | Inspector | Registra inspección, checklist y foto (`foto`, JPG/PNG/WebP hasta 5 MB). |
-| GET/POST | `/reportes` | Operador | Lista los propios reportes / crea reporte para su ECO asignado con foto opcional. |
+| GET/POST | `/reportes` | Operador | Lista los propios reportes / crea reporte con `eco`, `area`, `ruta_reportada`, tipo, urgencia, descripción y foto opcional; el ECO debe ser su unidad asignada. |
 | GET/POST | `/aseos` | Limpieza | Lista paginada / registra proceso inicial con foto opcional. |
 
 Enviar el token en `Authorization: Bearer <token>`. Los tokens vencen a los 30 días; el cliente móvil debe guardarlo en almacenamiento seguro del sistema operativo y revocarlo al cerrar sesión. Los endpoints de escritura aplican validación y restricciones por rol.
@@ -42,6 +42,8 @@ Cada usuario puede abrir **Seguridad 2FA** en la navegación, escanear el QR SVG
 - `inspector`: inspecciones y seguimiento de incidencias.
 - `operador`: unidad asignada, turnos y reportes propios.
 - `limpieza`: aseos y atención de reportes de limpieza.
+
+Solo personal no administrador puede crear reportes internos o externos estando autenticado. El formulario público y el de trabajadores piden ECO y área por escrito; el ECO debe existir en la flota y los operadores solo pueden usar el económico de su unidad asignada. La cuenta `admin` solo consulta reportes y actualiza su estado/seguimiento. La recuperación por correo está bloqueada para `admin`; el administrador puede cambiar las claves de trabajadores desde el módulo Personal.
 
 Las rutas web y API declaran roles explícitamente; los administradores no heredan automáticamente otros roles.
 
@@ -83,7 +85,7 @@ En local, si `MAIL_USERNAME` está vacío y no se define `MAIL_MAILER`, Laravel 
 
 ## AWS Lightsail sin Cloudflare
 
-El QR público y los QR individuales de ECO deben imprimirse después de desplegar el sistema con su URL pública definitiva. El QR de cada unidad abre `/reportar?unidad_id=<id>` y precarga su número ECO; los reportes y evidencias de seguimiento usan el dominio público de la aplicación.
+El QR público y los QR individuales de ECO deben imprimirse después de desplegar el sistema con su URL pública definitiva. El QR de cada unidad abre `/reportar?eco=<ECO>` y precarga su número económico; los reportes y evidencias de seguimiento usan el dominio público de la aplicación.
 
 Para producción se usa `docker-compose.prod.yml`, no el compose local de desarrollo. Se recomienda asociar una IP estática de Lightsail y apuntar un dominio propio con un registro DNS `A` a esa IP. En el firewall de Lightsail se permiten TCP 80 y 443 para el sitio; SSH se restringe a la IP del administrador, y no se abre MySQL (3306) a Internet. Caddy sirve HTTPS directamente, sin proxy de Cloudflare. Si se configura solo la IP pública, Caddy no puede emitir un certificado público de confianza para navegadores comunes; usar HTTP para un QR de quejas con fotos o datos de contacto no es adecuado para producción. Configura dominio y DNS antes de imprimir los QR.
 

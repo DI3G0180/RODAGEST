@@ -47,11 +47,20 @@ class MobileOperationsController extends Controller
     public function storeReport(Request $request)
     {
         $user = $request->user();
-        $data = $request->validate(['tipo_queja'=>['required','string','max:50'],'descripcion'=>['required','string','max:500'],'urgencia'=>['required','in:normal,alta,critica'],'foto'=>['nullable','image','mimes:jpg,jpeg,png,webp','max:5120']]);
+        $data = $request->validate([
+            'eco' => ['required', 'string', 'max:30'],
+            'area' => ['required', 'string', 'max:80'],
+            'ruta_reportada' => ['required', 'string', 'max:120'],
+            'tipo_queja' => ['required', 'in:Limpieza,Falla mecánica,Incidencia en ruta,Daño o seguridad,Otro'],
+            'descripcion' => ['required', 'string', 'max:500'],
+            'urgencia' => ['required', 'in:normal,alta,critica'],
+            'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+        ]);
         $unit = $user->unidadAsignada;
         if (! $unit) return response()->json(['message'=>'No tienes una unidad asignada.'],422);
+        if ($data['eco'] !== $unit->economico) return response()->json(['message'=>'El ECO debe coincidir con tu unidad asignada.'],422);
         $path = $request->file('foto')?->store('quejas','public');
-        $report = Queja::create(['unidad_id'=>$unit->id,'operador_id'=>$user->id,'tipo_queja'=>$data['tipo_queja'],'descripcion'=>$data['descripcion'],'urgencia'=>$data['urgencia'],'evidencia_foto'=>$path,'estado'=>'pendiente','medio_reporte'=>'app']);
+        $report = Queja::create(['unidad_id'=>$unit->id,'eco'=>$data['eco'],'area'=>$data['area'],'area_reportada'=>$data['area'],'ruta_reportada'=>$data['ruta_reportada'],'operador_id'=>$user->id,'tipo_queja'=>$data['tipo_queja'],'descripcion'=>$data['descripcion'],'urgencia'=>$data['urgencia'],'evidencia_foto'=>$path,'estado'=>'pendiente','medio_reporte'=>'app']);
         return response()->json(['data'=>$report,'message'=>'Reporte guardado.'],201);
     }
 

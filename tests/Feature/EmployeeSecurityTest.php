@@ -36,4 +36,17 @@ class EmployeeSecurityTest extends TestCase
         $this->assertDatabaseHas('users', ['email' => $payload['email'], 'role' => 'inspector']);
         $this->assertTrue(Hash::check('StrongPass123!', User::where('email', $payload['email'])->firstOrFail()->password));
     }
+
+    public function test_admin_can_delete_workers_but_not_admin_or_the_current_account(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin', 'activo' => true]);
+        $worker = User::factory()->create(['role' => 'inspector', 'activo' => true]);
+        $this->actingAs($admin);
+
+        $this->delete(route('empleados.destroy', $worker, absolute: false))->assertRedirect(route('empleados.index', absolute: false));
+        $this->assertDatabaseMissing('users', ['id' => $worker->id]);
+
+        $this->delete(route('empleados.destroy', $admin, absolute: false))->assertForbidden();
+        $this->assertDatabaseHas('users', ['id' => $admin->id]);
+    }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use App\Models\User;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -29,6 +30,12 @@ class PasswordResetLinkController extends Controller
         $request->validate([
             'email' => ['required', 'email', 'max:255'],
         ]);
+
+        if (User::where('email', $request->string('email')->toString())->where('role', 'admin')->exists()) {
+            return back()->withInput($request->only('email'))->withErrors([
+                'email' => 'La cuenta de administrador no admite recuperación por correo por políticas de seguridad.',
+            ]);
+        }
 
         // We will send the password reset link to this user. Once we have attempted
         // to send the link, we will examine the response then see the message we

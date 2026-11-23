@@ -4,14 +4,28 @@ namespace App\Http\Controllers;
 
 use App\Models\Unidad;
 use App\Models\User;
+use Illuminate\Http\Request;
 
 class PapeleraController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $filters = $request->validate(['q' => ['nullable', 'string', 'max:100']]);
+        $term = trim($filters['q'] ?? '');
+        $unidades = Unidad::onlyTrashed()->with(['operador'])->latest('deleted_at');
+        $empleados = User::onlyTrashed()->where('role', '!=', 'admin')->latest('deleted_at');
+
+        if ($term !== '') {
+            $unidades->where(fn ($query) => $query->where('economico', 'like', "%{$term}%")
+                ->orWhere('motivo_baja', 'like', "%{$term}%"));
+            $empleados->where(fn ($query) => $query->where('name', 'like', "%{$term}%")
+                ->orWhere('email', 'like', "%{$term}%")
+                ->orWhere('motivo_baja', 'like', "%{$term}%"));
+        }
+
         return view('papelera.index', [
-            'unidades' => Unidad::onlyTrashed()->with(['operador'])->latest('deleted_at')->paginate(10, ['*'], 'unidades'),
-            'empleados' => User::onlyTrashed()->where('role', '!=', 'admin')->latest('deleted_at')->paginate(10, ['*'], 'empleados'),
+            'unidades' => $unidades->paginate(10, ['*'], 'unidades')->withQueryString(),
+            'empleados' => $empleados->paginate(10, ['*'], 'empleados')->withQueryString(),
         ]);
     }
 

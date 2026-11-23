@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Verificación en dos pasos')
 @section('content')
-<div class="mx-auto max-w-3xl space-y-5 px-4 py-6 sm:px-6">
+<div class="mx-auto w-full max-w-xl space-y-5 px-4 py-6 sm:px-6">
     <header><p class="text-xs font-bold uppercase tracking-widest text-[#018FC7]">Seguridad de la cuenta</p><h1 class="text-2xl font-extrabold">Verificación en dos pasos</h1><p class="mt-1 text-sm text-slate-600">Vincula Google Authenticator o cualquier aplicación compatible con TOTP.</p></header>
     @if(session('status') === 'two-factor-enabled')<p class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-800">La verificación en dos pasos está activada.</p>@endif
     @if(session('status') === 'two-factor-disabled')<p class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-amber-800">La verificación en dos pasos fue desactivada.</p>@endif

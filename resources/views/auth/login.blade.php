@@ -4,9 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#FBF1E5">
-    <link rel="icon" type="image/png" href="/favicon.png?v=2">
-    <link rel="shortcut icon" href="/favicon.ico?v=2">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2">
+    <link rel="icon" type="image/png" href="/favicon.png?v=3">
+    <link rel="shortcut icon" href="/favicon.ico?v=3">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
     <title>RODAGEST — Iniciar sesión</title>
     <style>
         :root{color-scheme:light;--primary:#018FC7;--secondary:#83C0DF;--border:#B1D0E2;--soft:#DBE7F3;--cream:#FBF1E5;--ink:#183647;--muted:#607985}

@@ -14,7 +14,15 @@ class InspeccionController extends Controller
 {
     public function index(Request $request)
     {
+        $request->validate([
+            'unidad_id' => ['nullable', 'integer', 'exists:unidades,id'],
+            'desde' => ['nullable', 'date'],
+            'hasta' => ['nullable', 'date', 'after_or_equal:desde'],
+        ]);
         $query = Inspeccion::with(['unidad.operador', 'operador', 'evidencias'])->latest();
+        if ($request->filled('unidad_id')) $query->where('unidad_id', $request->integer('unidad_id'));
+        if ($request->filled('desde')) $query->whereDate('fecha_reporte', '>=', $request->date('desde'));
+        if ($request->filled('hasta')) $query->whereDate('fecha_reporte', '<=', $request->date('hasta'));
         if ($request->filled('estado')) $query->where('estado', $request->input('estado'));
         if ($request->filled('tipo_dano')) $query->where('tipo_dano', $request->input('tipo_dano'));
         $inspecciones = $query->paginate(12)->withQueryString();

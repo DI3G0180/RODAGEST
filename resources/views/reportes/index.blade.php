@@ -34,7 +34,7 @@
             </article>
         @endforeach
         <article class="min-w-0 rounded-2xl border border-[#B1D0E2] bg-white p-5 shadow-sm"><h2 class="font-extrabold">Estado actual de la flota</h2>
-            @php($labelsEstado=['operativa'=>'Operativas','activo'=>'Operativas','en_taller'=>'En taller','mantenimiento'=>'En taller','en_limpieza'=>'En limpieza','fuera_servicio'=>'Fuera de servicio'])
+            @php($labelsEstado=['operativa'=>'Operativas','activo'=>'Operativas','en_taller'=>'En taller','mantenimiento'=>'En taller','en_limpieza'=>'En limpieza','fuera_servicio'=>'Fuera de servicio','fuera_de_servicio'=>'Fuera de servicio'])
             @if($estadosFlota->isEmpty())<p class="mt-4 text-sm text-slate-500">No hay unidades registradas.</p>@else<div class="mt-4 grid grid-cols-2 gap-3">@foreach($estadosFlota as $estado=>$total)<div class="rounded-xl bg-[#DBE7F3] p-3"><p class="text-xs text-slate-600">{{ $labelsEstado[$estado] ?? ucfirst(str_replace('_',' ',$estado)) }}</p><p class="mt-1 text-2xl font-extrabold text-[#018FC7]">{{ $total }}</p></div>@endforeach</div>@endif
         </article>
     </section>
@@ -44,7 +44,9 @@
             <article class="min-w-0 rounded-2xl border border-[#B1D0E2] bg-white p-5 shadow-sm"><h2 class="font-extrabold">{{ $title }}</h2><div class="mt-3 space-y-2">
                 @forelse($items as $item)
                     @php($date=$type==='Inspección' ? $item->fecha_reporte : ($type==='Aseo' ? $item->fecha_hora : $item->created_at))
-                    <div class="min-w-0 rounded-xl bg-[#FBF1E5] p-3"><div class="flex min-w-0 items-start justify-between gap-2"><b class="break-words text-sm">{{ $type==='Inspección' ? $item->tipo_dano : ($type==='Aseo' ? ($item->tipo_limpieza ?: 'Limpieza') : $item->tipo_queja) }}</b><span class="shrink-0 rounded-full bg-white px-2 py-1 text-[11px] font-semibold">{{ str_replace('_',' ',$type==='Inspección' ? ($item->dictamen ?: $item->estado) : $item->estado) }}</span></div><p class="mt-1 text-xs text-slate-600">{{ $item->unidad?->etiqueta_economico ?? 'Sin unidad' }} · {{ $date?->format('d/m/Y H:i') }}</p></div>
+                    @php($statusValue=$type==='Inspección' ? ($item->dictamen ?: $item->estado) : $item->estado)
+                    @php($statusLabels=['pendiente'=>'Pendiente','en_proceso'=>'En proceso','resuelto'=>'Atendido','operativa'=>'Operativa','activo'=>'Operativa','en_taller'=>'En taller','mantenimiento'=>'En taller','en_limpieza'=>'En limpieza','fuera_servicio'=>'Fuera de servicio','fuera_de_servicio'=>'Fuera de servicio','completado'=>'Completado'])
+                    <div class="min-w-0 rounded-xl bg-[#FBF1E5] p-3"><div class="flex min-w-0 items-start justify-between gap-2"><b class="break-words text-sm">{{ $type==='Inspección' ? $item->tipo_dano : ($type==='Aseo' ? ($item->tipo_limpieza ?: 'Limpieza') : $item->tipo_queja) }}</b><span class="shrink-0 rounded-full bg-white px-2 py-1 text-[11px] font-semibold">{{ $statusLabels[$statusValue] ?? ucfirst(str_replace('_',' ',$statusValue)) }}</span></div><p class="mt-1 text-xs text-slate-600">{{ $item->unidad?->etiqueta_economico ?? 'Sin unidad' }} · {{ $date?->format('d/m/Y H:i') }}</p></div>
                 @empty<p class="rounded-xl bg-[#FBF1E5] p-3 text-sm text-slate-600">Sin registros en el periodo.</p>@endforelse
             </div></article>
         @endforeach

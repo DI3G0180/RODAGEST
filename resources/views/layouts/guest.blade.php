@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RODAGEST — @yield('title', 'Acceso')</title>
-    <link rel="icon" type="image/png" href="/favicon.png?v=3">
-    <link rel="shortcut icon" href="/favicon.ico?v=3">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
+    <link rel="icon" type="image/png" href="/favicon.png?v=4">
+    <link rel="shortcut icon" href="/favicon.ico?v=4">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=4">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>

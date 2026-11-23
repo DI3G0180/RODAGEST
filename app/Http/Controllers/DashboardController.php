@@ -86,7 +86,8 @@ class DashboardController extends Controller
         }
 
         if ($user->role === 'operador' && $unidadAsignada && ! in_array($unidadAsignada->estado, ['operativa', 'activo'], true)) {
-            $alertas[] = ['nivel' => 'danger', 'titulo' => 'Tu unidad no está liberada', 'detalle' => 'Estado actual: ' . str_replace('_', ' ', $unidadAsignada->estado), 'ruta' => route('unidades.show', [$unidadAsignada->id], false)];
+            $estadoActual = ['en_taller' => 'En taller', 'en_limpieza' => 'En limpieza', 'fuera_servicio' => 'Fuera de servicio', 'fuera_de_servicio' => 'Fuera de servicio'][$unidadAsignada->estado] ?? ucfirst(str_replace('_', ' ', $unidadAsignada->estado));
+            $alertas[] = ['nivel' => 'danger', 'titulo' => 'Tu unidad no está liberada', 'detalle' => 'Estado actual: ' . $estadoActual, 'ruta' => route('unidades.show', [$unidadAsignada->id], false)];
         }
 
         return view('dashboard', [
@@ -112,6 +113,8 @@ class DashboardController extends Controller
                 'reportesAbiertos' => Queja::whereIn('estado', ['pendiente', 'en_proceso'])->count(),
                 'reportesOperador' => Queja::where('operador_id', $user->id)->count(),
                 'reportesPendientesOperador' => Queja::where('operador_id', $user->id)->whereIn('estado', ['pendiente', 'en_proceso'])->count(),
+                'recorridosHoy' => Turno::where('operador_id', $user->id)->whereDate('inicio', today())->count(),
+                'reportesLimpiezaPendientes' => $quejasLimpiezaPendientes,
             ],
         ]);
     }

@@ -45,7 +45,7 @@
                     <div class="flex min-w-0 gap-3">
                         <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#DBE7F3] text-xs font-extrabold text-[#018FC7]">{{ mb_substr($evento['tipo'], 0, 2) }}</span>
                         <div class="min-w-0 flex-1">
-                            <div class="flex flex-wrap items-center gap-2"><span class="text-xs font-bold uppercase tracking-wide text-[#018FC7]">{{ $evento['tipo'] }}</span><span class="rounded-full bg-[#FBF1E5] px-2.5 py-1 text-xs font-semibold text-slate-700">{{ str_replace('_', ' ', $evento['estado'] ?: 'Registrado') }}</span></div>
+                            <div class="flex flex-wrap items-center gap-2"><span class="text-xs font-bold uppercase tracking-wide text-[#018FC7]">{{ $evento['tipo'] }}</span><span class="rounded-full bg-[#FBF1E5] px-2.5 py-1 text-xs font-semibold text-slate-700">{{ ['pendiente'=>'Pendiente','en_proceso'=>'En proceso','resuelto'=>'Atendido','completado'=>'Completado','operativa'=>'Operativa','en_taller'=>'En taller','en_limpieza'=>'En limpieza','fuera_servicio'=>'Fuera de servicio','fuera_de_servicio'=>'Fuera de servicio'][$evento['estado']] ?? ucfirst(str_replace('_', ' ', $evento['estado'] ?: 'Registrado')) }}</span></div>
                             <h3 class="mt-1 break-words font-bold text-slate-800">{{ $evento['titulo'] }}</h3>
                             @if($evento['detalle'])<p class="mt-1 whitespace-pre-line break-words text-sm text-slate-600">{{ $evento['detalle'] }}</p>@endif
                             @if($evento['responsable'])<p class="mt-2 text-xs text-slate-500">Responsable: {{ $evento['responsable'] }}</p>@endif

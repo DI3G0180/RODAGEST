@@ -7,12 +7,13 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -32,6 +33,8 @@ class User extends Authenticatable
         'activo',
         'google2fa_secret',
         'two_factor_enabled',
+        'must_change_password',
+        'motivo_baja',
     ];
 
     /**
@@ -60,6 +63,7 @@ class User extends Authenticatable
             'fecha_ingreso' => 'date',
             'google2fa_secret' => 'encrypted',
             'two_factor_enabled' => 'boolean',
+            'must_change_password' => 'boolean',
         ];
     }
 

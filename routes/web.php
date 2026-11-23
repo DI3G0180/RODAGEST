@@ -12,6 +12,8 @@ use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\QuejaPublicaController;
 use App\Http\Controllers\HojaVidaController;
 use App\Http\Controllers\TwoFactorController;
+use App\Http\Controllers\TemporaryPasswordController;
+use App\Http\Controllers\PapeleraController;
 use Illuminate\Support\Facades\Route;
 
 // Página raíz: siempre muestra el login para probar los 4 usuarios
@@ -28,6 +30,10 @@ Route::get('/seguimiento/{codigo}', [QuejaPublicaController::class, 'seguimiento
 Route::get('/seguimiento/{codigo}/evidencia/{tipo}', [QuejaPublicaController::class, 'evidencia'])->whereAlphaNumeric('codigo')->whereIn('tipo', ['reporte', 'atencion'])->middleware('throttle:30,1')->name('quejas.seguimiento.evidencia');
 Route::get('/2fa/verify', [TwoFactorController::class, 'challenge'])->middleware('throttle:10,1')->name('2fa.challenge');
 Route::post('/2fa/verify', [TwoFactorController::class, 'verify'])->middleware('throttle:5,1')->name('2fa.verify');
+Route::middleware(['auth', 'active'])->group(function () {
+    Route::get('/password/temporary', [TemporaryPasswordController::class, 'edit'])->name('password.temporary.edit');
+    Route::put('/password/temporary', [TemporaryPasswordController::class, 'update'])->middleware('throttle:5,1')->name('password.temporary.update');
+});
 
 // RUTAS PROTEGIDAS POR AUTENTICACIÓN
 Route::middleware(['auth', 'active'])->group(function () {
@@ -37,6 +43,9 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/quejas/qr-publico', [QuejaPublicaController::class, 'qr'])->middleware('role:admin')->name('quejas.qr-publico');
     Route::get('/reportes', [ReporteController::class, 'index'])->middleware('role:admin')->name('reportes.index');
     Route::get('/reportes/exportar', [ReporteController::class, 'export'])->middleware('role:admin')->name('reportes.export');
+    Route::get('/papelera', [PapeleraController::class, 'index'])->middleware('role:admin')->name('papelera.index');
+    Route::post('/papelera/unidades/{id}/restaurar', [PapeleraController::class, 'restoreUnit'])->middleware('role:admin')->whereNumber('id')->name('papelera.unidades.restore');
+    Route::post('/papelera/empleados/{id}/restaurar', [PapeleraController::class, 'restoreEmployee'])->middleware('role:admin')->whereNumber('id')->name('papelera.empleados.restore');
     Route::get('/unidades/{unidad}', [UnidadController::class, 'show'])
         ->whereNumber('unidad')->middleware('role:admin,inspector,operador,limpieza')->name('unidades.show');
     Route::get('/empleados', [EmpleadoController::class, 'index'])->middleware('role:admin')->name('empleados.index');

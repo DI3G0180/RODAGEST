@@ -9,9 +9,16 @@ use Illuminate\Http\Request;
 
 class UnidadController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $unidades = Unidad::with('operador')->latest()->paginate(10);
+        $filters = $request->validate([
+            'q' => ['nullable', 'string', 'max:100'],
+            'estado' => ['nullable', 'string', 'max:40'],
+        ]);
+        $unidades = Unidad::with('operador')
+            ->when($filters['q'] ?? null, fn ($query, $term) => $query->where(fn ($sub) => $sub->where('economico', 'like', "%{$term}%")->orWhere('area', 'like', "%{$term}%")))
+            ->when($filters['estado'] ?? null, fn ($query, $status) => $query->where('estado', $status))
+            ->latest()->paginate(10)->withQueryString();
         return view('unidades.index', compact('unidades'));
     }
 
@@ -98,31 +105,22 @@ class UnidadController extends Controller
     {
         $unidad = Unidad::findOrFail($id);
         $validated = $request->validated();
-        // Evitar cambiar el económico a uno que ya exista (excluyendo el actual)
-        if (isset($validated['economico'])) {
-            $exists = Unidad::where('economico', $validated['economico'])
-                ->where('id', '!=', $unidad->id)
-                ->exists();
-            
-            if ($exists) {
-                return back()->with('error', 'Ya existe otra unidad con este número económico.');
-            }
-        }
-
         $unidad->update($validated);
 
         return redirect()->to(route('unidades.index', [], false))->with('success', 'Unidad actualizada correctamente');
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         // Validación de seguridad estricta para evitar que un operador elimine registros
         if (auth()->user()->role !== 'admin') {
             return redirect()->to(route('unidades.index', [], false))->with('error', 'No tienes permisos de administrador para eliminar unidades.');
         }
 
+        $data = $request->validate(['motivo_baja' => ['required', 'string', 'max:1000']]);
         $unidad = Unidad::findOrFail($id);
+        $unidad->update(['motivo_baja' => $data['motivo_baja'], 'operador_id' => null]);
         $unidad->delete();
-        return redirect()->to(route('unidades.index', [], false))->with('success', 'Unidad eliminada correctamente');
+        return redirect()->to(route('papelera.index', [], false))->with('success', 'Unidad enviada a Papelera. Su historial se conservó.');
     }
 }

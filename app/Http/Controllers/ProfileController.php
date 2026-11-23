@@ -52,6 +52,9 @@ class ProfileController extends Controller
         ]);
 
         $user = $request->user();
+        abort_if($user->role === 'admin', 403, 'La cuenta administradora no se puede eliminar desde el perfil.');
+        $user->forceFill(['activo' => false, 'motivo_baja' => 'Baja solicitada por el usuario'])->save();
+        \App\Models\Unidad::where('operador_id', $user->id)->update(['operador_id' => null]);
 
         Auth::logout();
 

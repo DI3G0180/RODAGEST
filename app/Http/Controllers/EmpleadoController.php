@@ -15,7 +15,11 @@ class EmpleadoController extends Controller
 {
     public function index(Request $request)
     {
-        $request->validate(['q' => ['nullable', 'string', 'max:150']]);
+        $filters = $request->validate([
+            'q' => ['nullable', 'string', 'max:150'],
+            'role' => ['nullable', 'in:inspector,operador,limpieza'],
+            'activo' => ['nullable', 'in:1,0'],
+        ]);
         $term = trim($request->string('q')->toString());
         $empleados = User::with('unidadAsignada')->when($term !== '', function ($query) use ($term) {
             $query->where(function ($builder) use ($term) {
@@ -24,7 +28,9 @@ class EmpleadoController extends Controller
                     ->orWhere('puesto', 'like', "%{$term}%");
                 if (ctype_digit($term)) $builder->orWhereKey((int) $term);
             });
-        })->orderBy('name')->paginate(12)->withQueryString();
+        })->when($filters['role'] ?? null, fn ($query, $role) => $query->where('role', $role))
+            ->when(array_key_exists('activo', $filters), fn ($query) => $query->where('activo', (bool) $filters['activo']))
+            ->orderBy('name')->paginate(12)->withQueryString();
         $unidades = Unidad::orderBy('economico')->get();
         return view('empleados.index', compact('empleados', 'unidades'));
     }
@@ -32,13 +38,15 @@ class EmpleadoController extends Controller
     public function store(Request $request)
     {
         $data = $this->validated($request);
+        $temporaryPassword = $data['password'];
         $unidadId = $data['unidad_id'] ?? null;
         unset($data['unidad_id']);
         $data['password'] = Hash::make($data['password']);
+        $data['must_change_password'] = true;
         if ($request->hasFile('foto')) $data['foto'] = $request->file('foto')->store('empleados', 'public');
         $empleado = User::create($data);
         $this->assignUnit($empleado, $unidadId);
-        app(OperationalMail::class)->employeeCreated($empleado);
+        app(OperationalMail::class)->employeeCreated($empleado, $temporaryPassword);
 
         return redirect()->to(route('empleados.index', [], false))->with('success', 'Empleado registrado correctamente.');
     }
@@ -47,16 +55,21 @@ class EmpleadoController extends Controller
     {
         abort_if($empleado->is($request->user()), 403, 'No puedes cambiar tu propio estado desde esta pantalla.');
         $data = $this->validated($request, $empleado);
+        $temporaryPassword = $data['password'] ?? null;
         $unidadId = $data['unidad_id'] ?? null;
         unset($data['unidad_id']);
         if (empty($data['password'])) unset($data['password']);
-        else $data['password'] = Hash::make($data['password']);
+        else {
+            $data['password'] = Hash::make($data['password']);
+            $data['must_change_password'] = true;
+        }
         if ($request->hasFile('foto')) {
             if ($empleado->foto) Storage::disk('public')->delete($empleado->foto);
             $data['foto'] = $request->file('foto')->store('empleados', 'public');
         }
         $empleado->update($data);
         $this->assignUnit($empleado, $unidadId);
+        if ($temporaryPassword) app(OperationalMail::class)->temporaryPasswordReset($empleado, $temporaryPassword);
 
         return redirect()->to(route('empleados.index', [], false))->with('success', 'Empleado actualizado correctamente.');
     }
@@ -65,12 +78,11 @@ class EmpleadoController extends Controller
     {
         abort_if($empleado->is($request->user()), 403, 'No puedes eliminar la cuenta con la que iniciaste sesión.');
         abort_if($empleado->role === 'admin', 403, 'La cuenta administradora está protegida.');
-
-        $photoPath = $empleado->foto;
+        $data = $request->validate(['motivo_baja' => ['required', 'string', 'max:1000']]);
+        Unidad::where('operador_id', $empleado->id)->update(['operador_id' => null]);
+        $empleado->forceFill(['activo' => false, 'motivo_baja' => $data['motivo_baja']])->save();
         $empleado->delete();
-        if ($photoPath) Storage::disk('public')->delete($photoPath);
-
-        return redirect()->to(route('empleados.index', [], false))->with('success', 'Empleado eliminado correctamente.');
+        return redirect()->to(route('papelera.index', [], false))->with('success', 'Empleado enviado a Papelera. Su historial y fotografía se conservaron.');
     }
 
     private function validated(Request $request, ?User $empleado = null): array

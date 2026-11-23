@@ -33,11 +33,11 @@ class Queja extends Model
 
     public function unidad()
     {
-        return $this->belongsTo(Unidad::class);
+        return $this->belongsTo(Unidad::class)->withTrashed();
     }
 
     public function operador()
     {
-        return $this->belongsTo(User::class, 'operador_id');
+        return $this->belongsTo(User::class, 'operador_id')->withTrashed();
     }
 }

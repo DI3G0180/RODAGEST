@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\EmployeeProfile;
+use App\Models\Aseo;
+use App\Models\Inspeccion;
+use App\Models\Queja;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -58,7 +61,15 @@ class HojaVidaController extends Controller
     {
         $empleado->loadMissing(['employeeProfile', 'unidadAsignada']);
         $perfil = $empleado->employeeProfile ?? new EmployeeProfile();
+        $eventos = collect();
+        if ($editable) {
+            $eventos = $eventos
+                ->concat(Inspeccion::with('unidad')->where(fn ($query) => $query->where('inspector_id', $empleado->id)->orWhere('operador_id', $empleado->id))->latest('fecha_reporte')->take(20)->get()->map(fn ($item) => ['tipo' => 'Inspección', 'fecha' => $item->fecha_reporte, 'unidad' => $item->unidad?->etiqueta_economico, 'detalle' => $item->tipo_dano.' · '.($item->estado ?? '')]))
+                ->concat(Aseo::with('unidad')->where('intendente_responsable', $empleado->name)->latest('fecha_hora')->take(20)->get()->map(fn ($item) => ['tipo' => 'Aseo', 'fecha' => $item->fecha_hora, 'unidad' => $item->unidad?->etiqueta_economico, 'detalle' => ($item->tipo_limpieza ?: 'Limpieza').' · '.$item->estado]))
+                ->concat(Queja::with('unidad')->where('operador_id', $empleado->id)->latest()->take(20)->get()->map(fn ($item) => ['tipo' => 'Reporte', 'fecha' => $item->created_at, 'unidad' => $item->eco ?: $item->unidad?->etiqueta_economico, 'detalle' => $item->tipo_queja.' · '.$item->estado]))
+                ->sortByDesc('fecha')->take(40)->values();
+        }
 
-        return view('empleados.hoja-de-vida', compact('empleado', 'perfil', 'editable'));
+        return view('empleados.hoja-de-vida', compact('empleado', 'perfil', 'editable', 'eventos'));
     }
 }

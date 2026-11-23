@@ -55,18 +55,24 @@ class EmployeeSecurityTest extends TestCase
         $this->post('/empleados', $payload)->assertSessionHasNoErrors();
         $this->assertDatabaseHas('users', ['email' => $payload['email'], 'role' => 'inspector']);
         $this->assertTrue(Hash::check('StrongPass123!', User::where('email', $payload['email'])->firstOrFail()->password));
+        $this->assertDatabaseHas('users', ['email' => $payload['email'], 'must_change_password' => true]);
         $this->post('/logout');
-        $this->post('/login', ['email' => $payload['email'], 'password' => 'StrongPass123!'])->assertRedirect(route('dashboard', absolute: false));
+        $this->post('/login', ['email' => $payload['email'], 'password' => 'StrongPass123!'])->assertRedirect(route('password.temporary.edit', absolute: false));
+        $this->put(route('password.temporary.update', absolute: false), ['password' => 'PersonalPass456!', 'password_confirmation' => 'PersonalPass456!'])
+            ->assertRedirect(route('dashboard', absolute: false));
+        $this->assertDatabaseHas('users', ['email' => $payload['email'], 'must_change_password' => false]);
     }
 
-    public function test_admin_can_delete_workers_but_not_admin_or_the_current_account(): void
+    public function test_admin_can_send_workers_to_trash_but_not_admin_or_the_current_account(): void
     {
         $admin = User::factory()->create(['role' => 'admin', 'activo' => true]);
         $worker = User::factory()->create(['role' => 'inspector', 'activo' => true]);
         $this->actingAs($admin);
 
-        $this->delete(route('empleados.destroy', $worker, absolute: false))->assertRedirect(route('empleados.index', absolute: false));
-        $this->assertDatabaseMissing('users', ['id' => $worker->id]);
+        $this->delete(route('empleados.destroy', $worker, absolute: false), ['motivo_baja' => 'Fin de relación laboral'])
+            ->assertRedirect(route('papelera.index', absolute: false));
+        $this->assertSoftDeleted('users', ['id' => $worker->id]);
+        $this->assertDatabaseHas('users', ['id' => $worker->id, 'activo' => false, 'motivo_baja' => 'Fin de relación laboral']);
 
         $this->delete(route('empleados.destroy', $admin, absolute: false))->assertForbidden();
         $this->assertDatabaseHas('users', ['id' => $admin->id]);

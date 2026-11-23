@@ -39,6 +39,9 @@
         </div>
     </section>
 
+    @if($editable)<section class="overflow-hidden rounded-2xl border border-[#B1D0E2] bg-white shadow-sm"><div class="border-b border-[#DBE7F3] p-5"><h2 class="text-lg font-bold">Historial operativo</h2><p class="text-sm text-slate-600">Registros relacionados con esta persona.</p></div><div class="divide-y divide-[#DBE7F3]">@forelse($eventos as $evento)<article class="grid gap-1 p-4 sm:grid-cols-[150px_120px_minmax(0,1fr)] sm:items-center"><time class="text-xs text-slate-500">{{ $evento['fecha']?->format('d/m/Y H:i') }}</time><span class="font-semibold">{{ $evento['tipo'] }}</span><span class="break-words text-sm text-slate-700">{{ $evento['unidad'] ?: 'Sin unidad' }} · {{ $evento['detalle'] }}</span></article>@empty<p class="p-5 text-sm text-slate-500">No hay registros operativos vinculados.</p>@endforelse</div></section>
+    @endif
+
     @if($editable)
         <form action="{{ route('empleados.hoja-vida.update', [$empleado->id], false) }}" method="POST" class="space-y-5">@csrf @method('PATCH')
             <section class="rounded-2xl border border-[#B1D0E2] bg-white p-5 shadow-sm sm:p-6"><h2 class="text-lg font-bold">Personal</h2><p class="mt-1 text-xs text-slate-500">CURP, RFC, NSS, domicilio y datos familiares se guardan cifrados. Solo Administración puede verlos y editarlos.</p><div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

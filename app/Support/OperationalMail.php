@@ -36,12 +36,20 @@ class OperationalMail
         ));
     }
 
-    public function employeeCreated(User $employee): void
+    public function employeeCreated(User $employee, string $temporaryPassword): void
     {
         $this->send([$employee->email], 'Bienvenido a RODAGEST', sprintf(
-            "Hola %s, tu cuenta de RODAGEST ya está activa. Inicia sesión con tu correo y la contraseña que te entregó el Administrador. Si necesitas restablecerla, solicítalo directamente al Administrador.",
+            "Hola %s, tu cuenta de RODAGEST ya está activa.\n\nCorreo: %s\nContraseña temporal: %s\nAcceso: %s\n\nAl iniciar sesión tendrás que cambiar la contraseña temporal por una personal y segura.",
             $employee->name,
+            $employee->email,
+            $temporaryPassword,
+            rtrim((string) config('app.url'), '/').'/login',
         ));
+    }
+
+    public function temporaryPasswordReset(User $employee, string $temporaryPassword): void
+    {
+        $this->employeeCreated($employee, $temporaryPassword);
     }
 
     private function send(array $recipients, string $subject, string $body): void

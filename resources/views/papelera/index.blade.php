@@ -1,0 +1,14 @@
+@extends('layouts.app')
+@section('title', 'Papelera')
+@section('content')
+<div class="mx-auto max-w-7xl space-y-6 p-4 sm:p-6">
+    <header class="flex flex-wrap items-end justify-between gap-3"><div><p class="text-xs font-bold uppercase tracking-widest text-[#018FC7]">Administración</p><h1 class="mt-1 text-2xl font-extrabold">Papelera</h1><p class="mt-1 text-sm text-slate-600">Unidades y empleados dados de baja; los registros históricos se conservan.</p></div><a href="{{ route('dashboard', [], false) }}" class="rounded-xl border border-[#B1D0E2] bg-white px-4 py-3 font-semibold text-[#018FC7]">Volver al panel</a></header>
+    @if(session('success'))<div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-800">{{ session('success') }}</div>@endif
+    <section class="overflow-hidden rounded-2xl border border-[#B1D0E2] bg-white"><div class="border-b border-[#DBE7F3] p-4 sm:p-5"><h2 class="text-lg font-bold">Unidades dadas de baja</h2></div><div class="divide-y divide-[#DBE7F3]">
+        @forelse($unidades as $unidad)<article class="flex flex-wrap items-center justify-between gap-3 p-4"><div class="min-w-0"><p class="font-bold">{{ $unidad->economico }} <span class="text-xs font-semibold text-red-700">(Dada de baja)</span></p><p class="mt-1 break-words text-sm text-slate-600">{{ $unidad->motivo_baja ?: 'Sin motivo registrado' }} · {{ $unidad->deleted_at?->format('d/m/Y H:i') }}</p></div><form method="POST" action="{{ route('papelera.unidades.restore', [$unidad->id], false) }}">@csrf<button class="min-h-10 rounded-lg bg-[#018FC7] px-4 font-bold text-white">Restaurar</button></form></article>@empty<p class="p-6 text-sm text-slate-500">No hay unidades dadas de baja.</p>@endforelse
+    </div><div class="p-4">{{ $unidades->links() }}</div></section>
+    <section class="overflow-hidden rounded-2xl border border-[#B1D0E2] bg-white"><div class="border-b border-[#DBE7F3] p-4 sm:p-5"><h2 class="text-lg font-bold">Empleados dados de baja</h2></div><div class="divide-y divide-[#DBE7F3]">
+        @forelse($empleados as $empleado)<article class="flex flex-wrap items-center justify-between gap-3 p-4"><div class="min-w-0"><p class="break-words font-bold">{{ $empleado->name }} <span class="text-xs font-semibold text-red-700">(Dado de baja)</span></p><p class="break-words text-sm text-slate-600">{{ $empleado->email }} · {{ $empleado->motivo_baja ?: 'Sin motivo registrado' }}</p></div><form method="POST" action="{{ route('papelera.empleados.restore', [$empleado->id], false) }}">@csrf<button class="min-h-10 rounded-lg bg-[#018FC7] px-4 font-bold text-white">Restaurar</button></form></article>@empty<p class="p-6 text-sm text-slate-500">No hay empleados dados de baja.</p>@endforelse
+    </div><div class="p-4">{{ $empleados->links() }}</div></section>
+</div>
+@endsection

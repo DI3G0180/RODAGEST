@@ -6,8 +6,8 @@
     @if(session('error'))<div class="mt-4 rounded-xl bg-red-50 p-3 text-red-700">{{ session('error') }}</div>@endif
     @if($errors->any())<div class="mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800"><ul class="list-disc space-y-1 pl-5">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
     <form action="{{ route('unidades.update', [$unidad->id], false) }}" method="POST" class="mt-5 grid min-w-0 gap-4 sm:grid-cols-2">@csrf @method('PUT')
-        <label class="field-label">Número económico<input name="economico" required value="{{ old('economico', $unidad->economico) }}" class="field"></label>
-        <label class="field-label">Modelo<input name="modelo" value="{{ old('modelo', $unidad->modelo) }}" class="field"></label>
+        <label class="field-label">Número económico<input value="{{ $unidad->economico }}" readonly aria-readonly="true" class="field cursor-not-allowed bg-[#DBE7F3]" title="El económico es inmutable"></label>
+        <label class="field-label">Modelo<input value="{{ $unidad->modelo }}" readonly aria-readonly="true" class="field cursor-not-allowed bg-[#DBE7F3]" title="El modelo es inmutable"></label>
         <label class="field-label">Área<input name="area" value="{{ old('area', $unidad->area) }}" class="field"></label>
         <label class="field-label">Estado<select name="estado" class="field">@foreach(['operativa'=>'Operativa','en_taller'=>'En taller','en_limpieza'=>'En limpieza','fuera_servicio'=>'Fuera de servicio'] as $value=>$label)<option value="{{ $value }}" @selected(old('estado',$unidad->estado)===$value)>{{ $label }}</option>@endforeach</select></label>
         <label class="field-label sm:col-span-2">Operador asignado<select name="operador_id" class="field"><option value="">Sin operador asignado</option>@foreach($operadores as $operador)<option value="{{ $operador->id }}" @selected((string)old('operador_id',$unidad->operador_id)===(string)$operador->id)>{{ $operador->name }}</option>@endforeach</select></label>

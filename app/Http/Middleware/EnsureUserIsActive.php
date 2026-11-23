@@ -12,6 +12,10 @@ class EnsureUserIsActive
     {
         abort_unless($request->user()?->activo, 403, 'La cuenta está inactiva. Contacta al administrador.');
 
+        if ($request->user()->must_change_password && ! $request->routeIs('password.temporary.*')) {
+            return redirect()->to(route('password.temporary.edit', [], false));
+        }
+
         return $next($request);
     }
 }

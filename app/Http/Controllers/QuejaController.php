@@ -13,6 +13,13 @@ class QuejaController extends Controller
 {
     public function index(Request $request)
     {
+        $filters = $request->validate([
+            'q' => ['nullable', 'string', 'max:100'],
+            'desde' => ['nullable', 'date'],
+            'hasta' => ['nullable', 'date', 'after_or_equal:desde'],
+            'estado' => ['nullable', 'in:pendiente,en_proceso,resuelto'],
+            'urgencia' => ['nullable', 'in:normal,alta,critica'],
+        ]);
         $query = Queja::with(['unidad', 'operador']);
 
         if ($request->user()->role === 'operador') {
@@ -21,10 +28,15 @@ class QuejaController extends Controller
             $query->where('tipo_queja', 'Limpieza');
         }
 
-        // Filtrar por estado si se solicita
-        if ($request->filled('estado')) {
-            $query->where('estado', $request->estado);
-        }
+        $query->when($filters['q'] ?? null, fn ($builder, $term) => $builder->where(fn ($sub) => $sub
+            ->where('eco', 'like', "%{$term}%")
+            ->orWhere('area', 'like', "%{$term}%")
+            ->orWhere('descripcion', 'like', "%{$term}%")
+            ->orWhereHas('unidad', fn ($unit) => $unit->where('economico', 'like', "%{$term}%"))))
+            ->when($filters['estado'] ?? null, fn ($builder, $state) => $builder->where('estado', $state))
+            ->when($filters['urgencia'] ?? null, fn ($builder, $urgency) => $builder->where('urgencia', $urgency))
+            ->when($filters['desde'] ?? null, fn ($builder, $date) => $builder->whereDate('created_at', '>=', $date))
+            ->when($filters['hasta'] ?? null, fn ($builder, $date) => $builder->whereDate('created_at', '<=', $date));
 
         // Filtrar por unidad si se especifica
         if ($request->filled('unidad_id')) {
@@ -42,7 +54,7 @@ class QuejaController extends Controller
             ? $request->user()->unidadesOperadas()->get()
             : Unidad::orderBy('economico')->get();
 
-        return view('quejas.index', compact('quejas', 'unidades'));
+        return view('quejas.index', compact('quejas', 'unidades', 'filters'));
     }
 
     public function store(Request $request)

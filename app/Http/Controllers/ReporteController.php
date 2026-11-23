@@ -16,6 +16,9 @@ class ReporteController extends Controller
         $filtros = $request->validate([
             'desde' => ['nullable', 'date'],
             'hasta' => ['nullable', 'date', 'after_or_equal:desde'],
+            'q' => ['nullable', 'string', 'max:100'],
+            'estado' => ['nullable', 'string', 'max:40'],
+            'urgencia' => ['nullable', 'in:baja,media,alta,critica,normal'],
         ]);
 
         $desde = Carbon::parse($filtros['desde'] ?? today()->subDays(29)->toDateString())->startOfDay();
@@ -28,6 +31,24 @@ class ReporteController extends Controller
         $incidencias = Queja::with('unidad')
             ->whereBetween('created_at', [$desde, $hasta])->latest()->get();
 
+        $term = trim($filtros['q'] ?? '');
+        if ($term !== '') {
+            $needle = mb_strtolower($term);
+            $inspecciones = $inspecciones->filter(fn ($item) => str_contains(mb_strtolower(($item->unidad?->economico ?? '').' '.$item->tipo_dano.' '.$item->descripcion), $needle))->values();
+            $aseos = $aseos->filter(fn ($item) => str_contains(mb_strtolower(($item->unidad?->economico ?? '').' '.$item->area_terminal.' '.$item->observaciones), $needle))->values();
+            $incidencias = $incidencias->filter(fn ($item) => str_contains(mb_strtolower(($item->eco ?: $item->unidad?->economico ?? '').' '.$item->area.' '.$item->tipo_queja.' '.$item->descripcion), $needle))->values();
+        }
+        if (! empty($filtros['estado'])) {
+            $inspecciones = $inspecciones->where('estado', $filtros['estado'])->values();
+            $aseos = $aseos->where('estado', $filtros['estado'])->values();
+            $incidencias = $incidencias->where('estado', $filtros['estado'])->values();
+        }
+        if (! empty($filtros['urgencia'])) {
+            $inspecciones = $inspecciones->where('prioridad', $filtros['urgencia'])->values();
+            $incidencias = $incidencias->where('urgencia', $filtros['urgencia'])->values();
+            $aseos = collect();
+        }
+
         $inspeccionesPorTipo = $inspecciones->groupBy(fn ($item) => $item->tipo_dano ?: 'Sin categoría')
             ->map->count()->sortDesc();
         $incidenciasPorTipo = $incidencias->groupBy(fn ($item) => $item->tipo_queja ?: 'Sin categoría')
@@ -38,6 +59,7 @@ class ReporteController extends Controller
         return view('reportes.index', [
             'desde' => $desde,
             'hasta' => $hasta,
+            'filtros' => $filtros,
             'inspecciones' => $inspecciones,
             'aseos' => $aseos,
             'incidencias' => $incidencias,
@@ -53,12 +75,15 @@ class ReporteController extends Controller
         $filtros = $request->validate([
             'desde' => ['nullable', 'date'],
             'hasta' => ['nullable', 'date', 'after_or_equal:desde'],
+            'q' => ['nullable', 'string', 'max:100'],
+            'estado' => ['nullable', 'string', 'max:40'],
+            'urgencia' => ['nullable', 'in:baja,media,alta,critica,normal'],
         ]);
 
         $desde = Carbon::parse($filtros['desde'] ?? today()->subDays(29)->toDateString())->startOfDay();
         $hasta = Carbon::parse($filtros['hasta'] ?? today()->toDateString())->endOfDay();
 
-        return response()->streamDownload(function () use ($desde, $hasta) {
+        return response()->streamDownload(function () use ($desde, $hasta, $filtros) {
             $zipPath = tempnam(sys_get_temp_dir(), 'rodagest-xlsx-');
             $sheetPath = tempnam(sys_get_temp_dir(), 'rodagest-sheet-');
             $sheet = fopen($sheetPath, 'wb');
@@ -86,14 +111,36 @@ class ReporteController extends Controller
             fwrite($sheet, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols><col min="1" max="1" width="19" customWidth="1"/><col min="2" max="2" width="20" customWidth="1"/><col min="3" max="8" width="24" customWidth="1"/></cols><sheetData>');
             $writeRow(['Fecha', 'Tipo de registro', 'Económico', 'Área', 'Categoría', 'Estado', 'Prioridad', 'Responsable', 'Detalle'], 1, true);
             $rowNumber = 2;
-            Inspeccion::with('unidad', 'inspector')->whereBetween('fecha_reporte', [$desde, $hasta])->orderBy('fecha_reporte')->chunk(200, function ($items) use ($writeRow, &$rowNumber) {
-                foreach ($items as $item) $writeRow([$item->fecha_reporte?->format('Y-m-d H:i'), 'Inspección', $item->unidad?->economico, $item->municipio ?: $item->direccion, $item->tipo_dano, $item->dictamen ?: $item->estado, $item->prioridad, $item->inspector?->name ?: $item->inspector_responsable, $item->descripcion], $rowNumber++);
+            $inspecciones = Inspeccion::with('unidad', 'inspector')->whereBetween('fecha_reporte', [$desde, $hasta]);
+            $aseos = Aseo::with('unidad')->whereBetween('fecha_hora', [$desde, $hasta]);
+            $incidencias = Queja::with(['unidad', 'operador'])->whereBetween('created_at', [$desde, $hasta]);
+            if (! empty($filtros['q'])) {
+                $term = $filtros['q'];
+                $inspecciones->where(fn ($q) => $q->whereHas('unidad', fn ($u) => $u->where('economico', 'like', "%{$term}%"))->orWhere('tipo_dano', 'like', "%{$term}%")->orWhere('descripcion', 'like', "%{$term}%"));
+                $aseos->where(fn ($q) => $q->whereHas('unidad', fn ($u) => $u->where('economico', 'like', "%{$term}%"))->orWhere('area_terminal', 'like', "%{$term}%")->orWhere('observaciones', 'like', "%{$term}%"));
+                $incidencias->where(fn ($q) => $q->where('eco', 'like', "%{$term}%")
+                    ->orWhereHas('unidad', fn ($unit) => $unit->where('economico', 'like', "%{$term}%"))
+                    ->orWhere('area', 'like', "%{$term}%")
+                    ->orWhere('descripcion', 'like', "%{$term}%"));
+            }
+            if (! empty($filtros['estado'])) {
+                $inspecciones->where('estado', $filtros['estado']);
+                $aseos->where('estado', $filtros['estado']);
+                $incidencias->where('estado', $filtros['estado']);
+            }
+            if (! empty($filtros['urgencia'])) {
+                $inspecciones->where('prioridad', $filtros['urgencia']);
+                $incidencias->where('urgencia', $filtros['urgencia']);
+                $aseos->whereRaw('1 = 0');
+            }
+            $inspecciones->orderBy('fecha_reporte')->chunk(200, function ($items) use ($writeRow, &$rowNumber) {
+                foreach ($items as $item) $writeRow([$item->fecha_reporte?->format('Y-m-d H:i'), 'Inspección', $item->unidad?->etiqueta_economico, $item->municipio ?: $item->direccion, $item->tipo_dano, $item->dictamen ?: $item->estado, $item->prioridad, $item->inspector?->name ?: $item->inspector_responsable, $item->descripcion], $rowNumber++);
             });
-            Aseo::with('unidad')->whereBetween('fecha_hora', [$desde, $hasta])->orderBy('fecha_hora')->chunk(200, function ($items) use ($writeRow, &$rowNumber) {
-                foreach ($items as $item) $writeRow([$item->fecha_hora?->format('Y-m-d H:i'), 'Aseo', $item->unidad?->economico, $item->area_terminal, $item->tipo_limpieza, $item->estado, '', $item->intendente_responsable, $item->observaciones ?: $item->producto_desinfectante], $rowNumber++);
+            $aseos->orderBy('fecha_hora')->chunk(200, function ($items) use ($writeRow, &$rowNumber) {
+                foreach ($items as $item) $writeRow([$item->fecha_hora?->format('Y-m-d H:i'), 'Aseo', $item->unidad?->etiqueta_economico, $item->area_terminal, $item->tipo_limpieza, $item->estado, '', $item->intendente_responsable, $item->observaciones ?: $item->producto_desinfectante], $rowNumber++);
             });
-            Queja::with('unidad', 'operador')->whereBetween('created_at', [$desde, $hasta])->orderBy('created_at')->chunk(200, function ($items) use ($writeRow, &$rowNumber) {
-                foreach ($items as $item) $writeRow([$item->created_at?->format('Y-m-d H:i'), 'Incidencia', $item->eco ?: $item->unidad?->economico, $item->area ?: $item->area_reportada, $item->tipo_queja, $item->estado, $item->urgencia, $item->operador?->name, $item->descripcion], $rowNumber++);
+            $incidencias->orderBy('created_at')->chunk(200, function ($items) use ($writeRow, &$rowNumber) {
+                foreach ($items as $item) $writeRow([$item->created_at?->format('Y-m-d H:i'), 'Incidencia', $item->eco ?: $item->unidad?->etiqueta_economico, $item->area ?: $item->area_reportada, $item->tipo_queja, $item->estado, $item->urgencia, $item->operador?->name, $item->descripcion], $rowNumber++);
             });
             fwrite($sheet, '</sheetData></worksheet>');
             fclose($sheet);

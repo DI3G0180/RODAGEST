@@ -31,6 +31,6 @@ class Aseo extends Model
     // Relación con el modelo Unidad (opcional pero muy útil)
     public function unidad()
     {
-        return $this->belongsTo(Unidad::class);
+        return $this->belongsTo(Unidad::class)->withTrashed();
     }
 }

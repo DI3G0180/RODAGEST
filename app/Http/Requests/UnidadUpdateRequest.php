@@ -14,14 +14,15 @@ class UnidadUpdateRequest extends BaseFormRequest
     public function rules(): array
     {
         return [
-            'economico' => ['sometimes', 'required', 'string', 'max:20', 'unique:unidades,economico,' . $this->unidad],
-            'modelo' => ['sometimes', 'nullable', 'string', 'max:100'],
+            'economico' => ['prohibited'],
+            'modelo' => ['prohibited'],
             'area' => ['sometimes', 'nullable', 'string', 'max:50'],
             'operador_id' => ['sometimes', 'nullable', 'exists:users,id,role,operador'],
             'odometro' => ['sometimes', 'nullable', 'integer', 'min:0'],
             'estado' => ['sometimes', 'in:operativa,en_taller,en_limpieza,fuera_servicio,activo,mantenimiento'],
             'proximo_mantenimiento_fecha' => ['sometimes', 'nullable', 'date'],
             'proximo_mantenimiento_odometro' => ['sometimes', 'nullable', 'integer', 'min:0'],
+            'motivo_baja' => ['prohibited'],
         ];
     }
 

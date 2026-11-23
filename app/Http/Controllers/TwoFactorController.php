@@ -63,6 +63,7 @@ class TwoFactorController extends Controller
         $request->session()->forget('2fa_user_id');
         auth()->login($user, $remember);
         $request->session()->regenerate();
+        if ($user->must_change_password) return redirect()->to(route('password.temporary.edit', [], false));
         return redirect()->to(route('dashboard', [], false));
     }
 }

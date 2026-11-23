@@ -9,8 +9,8 @@
     @if($errors->any())<div class="rounded-xl border border-red-200 bg-red-50 p-4 text-red-800"><ul class="list-disc space-y-1 pl-5">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
 
     @if($role !== 'admin')
-    <section class="rounded-2xl border border-[#B1D0E2] bg-white p-4 shadow-sm sm:p-6">
-        <h2 class="text-lg font-extrabold">Registrar reporte interno</h2>
+    <section class="rounded-2xl border border-[#B1D0E2] bg-white p-4 shadow-sm sm:p-6"><details @if(request()->boolean('crear') || $errors->any()) open @endif class="group">
+        <summary class="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-lg font-extrabold marker:hidden"><span>Reportes internos</span><span class="rounded-lg bg-[#018FC7] px-4 py-2 text-sm font-bold text-white group-open:hidden">+ Nuevo reporte</span><span class="hidden rounded-lg border border-[#B1D0E2] px-4 py-2 text-sm font-bold text-[#018FC7] group-open:inline-flex">Cerrar formulario</span></summary>
         <form action="{{ route('quejas.store', [], false) }}" method="POST" enctype="multipart/form-data" class="mt-4 grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-12">@csrf
             <label class="form-label lg:col-span-3">Número económico (ECO)<input name="eco" required maxlength="30" value="{{ old('eco', auth()->user()->role === 'operador' ? auth()->user()->unidadAsignada?->economico : '') }}" placeholder="Ej. ECO-104" class="field"></label>
             <label class="form-label lg:col-span-3">Área<input name="area" required maxlength="80" value="{{ old('area') }}" placeholder="Ej. salón, carrocería, terminal" class="field"></label>
@@ -20,14 +20,16 @@
             <label class="form-label lg:col-span-4">Foto (opcional)<input name="evidencia_foto" type="file" accept="image/*" capture="environment" class="field"></label>
             <button class="min-h-11 self-end rounded-xl bg-[#018FC7] px-4 font-bold text-white lg:col-span-12">Guardar reporte</button>
         </form>
-    </section>
+    </details></section>
     @endif
+
+    <form action="{{ route('quejas.index', [], false) }}" method="GET" class="grid min-w-0 gap-2 rounded-2xl border border-[#B1D0E2] bg-white p-4 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_160px_160px_160px_auto_auto]"><label class="sr-only" for="complaint-search">Buscar ECO, área o descripción</label><input id="complaint-search" name="q" value="{{ request('q') }}" placeholder="Buscar ECO, área o descripción" class="field"><select name="estado" aria-label="Filtrar por estado" class="field"><option value="">Todos los estados</option>@foreach(['pendiente'=>'Pendiente','en_proceso'=>'En proceso','resuelto'=>'Resuelto'] as $value=>$label)<option value="{{ $value }}" @selected(request('estado')===$value)>{{ $label }}</option>@endforeach</select><select name="urgencia" aria-label="Filtrar por urgencia" class="field"><option value="">Cualquier urgencia</option>@foreach(['normal'=>'Normal','alta'=>'Alta','critica'=>'Crítica'] as $value=>$label)<option value="{{ $value }}" @selected(request('urgencia')===$value)>{{ $label }}</option>@endforeach</select><label class="sr-only" for="complaint-from">Desde</label><input id="complaint-from" name="desde" type="date" value="{{ request('desde') }}" class="field"><button class="min-h-11 rounded-xl bg-[#018FC7] px-4 font-bold text-white">Filtrar</button><a href="{{ route('quejas.index', [], false) }}" class="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#B1D0E2] px-3 text-sm font-semibold text-[#018FC7]">Limpiar</a><label class="sr-only" for="complaint-to">Hasta</label><input id="complaint-to" name="hasta" type="date" value="{{ request('hasta') }}" class="field lg:col-start-4"></form>
 
     <section class="grid min-w-0 gap-3 lg:grid-cols-2">
         @forelse($quejas as $queja)
             <article class="min-w-0 overflow-hidden rounded-2xl border border-[#B1D0E2] bg-white shadow-sm">
                 <div class="flex min-w-0 flex-wrap items-start justify-between gap-3 border-b border-[#DBE7F3] bg-[#FBF1E5] p-4 sm:p-5">
-                    <div class="min-w-0"><div class="flex flex-wrap items-center gap-2"><h2 class="break-words text-lg font-extrabold">{{ $queja->eco ?: ($queja->unidad?->economico ?? 'Unidad no disponible') }}</h2><span class="rounded-full px-2.5 py-1 text-xs font-bold {{ $queja->estado === 'resuelto' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-900' }}">{{ str_replace('_',' ',$queja->estado) }}</span></div></div>
+                    <div class="min-w-0"><div class="flex flex-wrap items-center gap-2"><h2 class="break-words text-lg font-extrabold">{{ $queja->eco ?: ($queja->unidad?->etiqueta_economico ?? 'Unidad no disponible') }}</h2><span class="rounded-full px-2.5 py-1 text-xs font-bold {{ $queja->estado === 'resuelto' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-900' }}">{{ str_replace('_',' ',$queja->estado) }}</span></div></div>
                     <time class="text-xs text-slate-500">{{ $queja->created_at?->format('d/m/Y H:i') }}</time>
                 </div>
                 <div class="space-y-4 p-4 sm:p-5">

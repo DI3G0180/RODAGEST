@@ -10,6 +10,19 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="min-h-screen bg-[#FBF1E5] text-slate-800 antialiased">
+@php($user = $user ?? auth()->user())
+@php($userRole = $userRole ?? $user?->role ?? '')
+@php($alertas = $alertas ?? collect())
+@php($empleados = $empleados ?? collect())
+@php($unidades = $unidades ?? collect())
+@php($inspecciones = $inspecciones ?? collect())
+@php($aseos = $aseos ?? collect())
+@php($reportes = $reportes ?? collect())
+@php($unidadAsignada = $unidadAsignada ?? null)
+@php($turnoAbierto = $turnoAbierto ?? null)
+@php($liberacionUnidad = $liberacionUnidad ?? false)
+@php($estadoFlota = array_merge(['operativa' => 0, 'en_taller' => 0, 'en_limpieza' => 0, 'fuera_servicio' => 0], $estadoFlota ?? []))
+@php($kpis = array_merge(['unidades' => 0, 'empleados' => 0, 'inspeccionesHoy' => 0, 'aseosCompletados' => 0, 'aseosHoy' => 0, 'aseosPendientes' => 0, 'inspeccionesPendientes' => 0, 'reportesAbiertos' => 0, 'reportesOperador' => 0, 'reportesPendientesOperador' => 0, 'recorridosHoy' => 0, 'reportesLimpiezaPendientes' => 0], $kpis ?? []))
 @include('partials.role-menu')
 <main class="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8 space-y-6">
     @if(session('success'))<div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-800">{{ session('success') }}</div>@endif

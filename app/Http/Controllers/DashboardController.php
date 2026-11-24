@@ -91,6 +91,7 @@ class DashboardController extends Controller
         }
 
         return view('dashboard', [
+            'user' => $user,
             'userRole' => $user->role,
             'unidadAsignada' => $unidadAsignada,
             'unidades' => $unidades,

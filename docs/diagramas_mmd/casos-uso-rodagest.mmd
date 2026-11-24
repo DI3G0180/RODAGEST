@@ -1,0 +1,51 @@
+flowchart LR
+  admin((Administrador))
+  inspector((Inspector))
+  operador((Operador))
+  limpieza((Personal de limpieza))
+  publico((Reportante externo))
+  uc1([Crear, editar, desactivar y restaurar personal])
+  uc2([Crear, editar, dar de baja y restaurar unidades])
+  uc3([Supervisar quejas internas y públicas])
+  uc4([Cambiar estado de queja])
+  uc5([Consultar reportes operativos y exportar CSV])
+  uc6([Registrar inspección y evidencia])
+  uc7([Cambiar estado de inspección])
+  uc8([Abrir y cerrar turno propio])
+  uc9([Consultar unidad asignada y reportar incidencia])
+  uc10([Registrar aseo y etapas])
+  uc11([Atender queja de limpieza con acción y foto])
+  uc12([Crear reporte interno])
+  uc13([Enviar queja pública con ECO, área y foto opcional])
+  uc14([Consultar seguimiento por código])
+  uc15([Configurar perfil y 2FA])
+  uc16([Consultar reportes visibles según rol])
+  uc17([Consultar hoja de vida propia])
+  uc18([Generar QR para formulario público])
+  admin --> uc1
+  admin --> uc2
+  admin --> uc3
+  admin --> uc4
+  admin --> uc5
+  admin --> uc18
+  inspector --> uc3
+  inspector --> uc16
+  inspector --> uc4
+  inspector --> uc6
+  inspector --> uc7
+  inspector --> uc12
+  operador --> uc8
+  operador --> uc9
+  operador --> uc16
+  operador --> uc12
+  operador --> uc17
+  limpieza --> uc10
+  limpieza --> uc11
+  limpieza --> uc16
+  limpieza --> uc12
+  publico --> uc13
+  publico --> uc14
+  admin --> uc15
+  inspector --> uc15
+  operador --> uc15
+  limpieza --> uc15

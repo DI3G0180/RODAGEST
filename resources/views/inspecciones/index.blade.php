@@ -7,7 +7,6 @@
         <div><p class="text-xs font-bold uppercase tracking-[.16em] text-[#0C7075]">{{ $role === 'admin' ? 'Supervisión · Administración' : 'Operación · Inspector' }}</p><h1 class="mt-1 text-2xl font-extrabold sm:text-3xl">Inspección diaria</h1><p class="mt-1 text-sm text-[#294D61]">Registra daños, fallas, ubicación y evidencia fotográfica o en video.</p></div>
         <a href="{{ route('dashboard', [], false) }}" class="inline-flex min-h-11 items-center rounded-xl border border-[#6DA5C0]/50 bg-white px-4 font-semibold text-[#0C7075]">Volver al panel</a>
     </header>
-    @if(session('success'))<div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-800">{{ session('success') }}</div>@endif
     @if($errors->any())<div class="rounded-xl border border-red-200 bg-red-50 p-4 text-red-800"><ul class="list-disc pl-5">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
 
     <section class="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -36,8 +35,9 @@
         </form>
     </details></section>
 
-    <section class="space-y-3">
+    <section class="space-y-4">
         <div class="flex flex-wrap items-end justify-between gap-3"><div><h2 class="text-xl font-extrabold">Historial de inspecciones</h2><p class="text-sm text-[#294D61]">Filtra por unidad, fechas o tipo de falla.</p></div><form action="{{ route('inspecciones.index', [], false) }}" method="GET" class="grid w-full gap-2 sm:grid-cols-2 lg:w-auto lg:grid-cols-4"><select name="unidad_id" class="inspection-field"><option value="">Todas las unidades</option>@foreach($unidades as $unidad)<option value="{{ $unidad->id }}" @selected((string) request('unidad_id')===(string) $unidad->id)>{{ $unidad->economico }}</option>@endforeach</select><input name="desde" type="date" value="{{ request('desde') }}" aria-label="Desde" class="inspection-field"><input name="hasta" type="date" value="{{ request('hasta') }}" aria-label="Hasta" class="inspection-field"><select name="tipo_dano" class="inspection-field"><option value="">Todos los tipos</option>@foreach(['Mecánica','Carrocería','Eléctrica','Neumáticos','Vandalismo','Limpieza','Otro'] as $tipo)<option value="{{ $tipo }}" @selected(request('tipo_dano')===$tipo)>{{ $tipo }}</option>@endforeach</select><button class="min-h-11 rounded-xl bg-[#0F969C] px-4 font-bold text-white sm:col-span-2 lg:col-span-4">Filtrar historial</button></form></div>
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         @forelse($inspecciones as $inspeccion)
             <article class="min-w-0 rounded-2xl border border-[#6DA5C0]/50 bg-white p-4 shadow-sm sm:p-5">
                 <div class="flex flex-wrap items-start justify-between gap-3"><div class="min-w-0"><div class="flex flex-wrap items-center gap-2"><h3 class="text-lg font-extrabold">{{ $inspeccion->unidad?->etiqueta_economico ?? 'Unidad no disponible' }}</h3><span class="rounded-full bg-[#F4F9FB] px-3 py-1 text-xs font-bold text-[#0C7075]">{{ $inspeccion->tipo_dano }}</span><span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-900">{{ ['pendiente'=>'Pendiente','en_proceso'=>'En proceso','resuelto'=>'Resuelto'][$inspeccion->estado] ?? ucfirst(str_replace('_',' ', $inspeccion->estado)) }}</span></div><p class="mt-1 break-words text-sm text-[#294D61]">{{ $inspeccion->fecha_reporte?->format('d/m/Y H:i') }} · Inspector {{ $inspeccion->inspector_responsable }} · Prioridad {{ ucfirst($inspeccion->prioridad) }}</p><p class="mt-1 break-words text-sm text-[#294D61]">{{ $inspeccion->categoria_evento ?: 'Inspección diaria' }} · {{ $inspeccion->municipio ?: 'Ubicación no indicada' }} · {{ $inspeccion->direccion ?: '—' }}</p></div>
@@ -50,6 +50,7 @@
         @empty
             <div class="rounded-2xl border border-dashed border-[#6DA5C0]/50 bg-white p-8 text-center text-[#294D61]">Aún no hay inspecciones.</div>
         @endforelse
+        </div>
         <div class="rounded-xl bg-white p-3">{{ $inspecciones->links() }}</div>
     </section>
 </div>

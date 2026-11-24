@@ -49,6 +49,7 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/unidades/{unidad}', [UnidadController::class, 'show'])
         ->whereNumber('unidad')->middleware('role:admin,inspector,operador,limpieza')->name('unidades.show');
     Route::get('/empleados', [EmpleadoController::class, 'index'])->middleware('role:admin')->name('empleados.index');
+    Route::get('/empleados/{empleado}', [EmpleadoController::class, 'show'])->middleware('role:admin')->whereNumber('empleado')->name('empleados.show');
     Route::post('/empleados', [EmpleadoController::class, 'store'])->middleware('role:admin')->name('empleados.store');
     Route::patch('/empleados/{empleado}', [EmpleadoController::class, 'update'])->middleware('role:admin')->name('empleados.update');
     Route::delete('/empleados/{empleado}', [EmpleadoController::class, 'destroy'])->middleware('role:admin')->name('empleados.destroy');

@@ -4,7 +4,6 @@
 
 @section('content')
 <div class="mx-auto w-full max-w-6xl space-y-5 px-4 py-5 sm:px-6 sm:py-7">
-    @if(session('success'))<div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-800">{{ session('success') }}</div>@endif
 
     <a href="{{ route('dashboard', [], false) }}" class="inline-flex min-h-11 items-center gap-2 rounded-lg px-2 text-sm font-semibold text-[#0C7075] hover:bg-[#F4F9FB]">← Volver al panel</a>
 

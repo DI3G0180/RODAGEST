@@ -48,7 +48,6 @@
             @endif
         @endif
     </header>
-    @if(session('success'))<div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-800">{{ session('success') }}</div>@endif
     @if($errors->any())<div class="rounded-xl border border-red-200 bg-red-50 p-4 text-red-800"><ul class="list-disc pl-5">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
     @if($alertas && $userRole !== 'admin')<section class="rounded-2xl border border-[#6DA5C0]/50 bg-white p-4 shadow-sm sm:p-5"><div class="flex flex-wrap items-center justify-between gap-2"><div><p class="text-xs font-bold uppercase tracking-[.16em] text-[#0C7075]">Centro de alertas</p><h2 class="mt-1 text-lg font-extrabold">Pendientes operativos</h2></div><span class="rounded-full bg-[#F4F9FB] px-3 py-1 text-xs font-bold text-[#0C7075]">{{ count($alertas) }} {{ count($alertas) === 1 ? 'aviso' : 'avisos' }}</span></div><div class="mt-3 grid gap-2 sm:grid-cols-2">@foreach($alertas as $alerta)@php($alertaColor=['danger'=>'border-red-200 bg-red-50','warning'=>'border-amber-200 bg-amber-50','info'=>'border-[#6DA5C0]/50 bg-[#F4F9FB]'][$alerta['nivel']] ?? 'border-[#6DA5C0]/50 bg-white')<a href="{{ $alerta['ruta'] }}" class="block min-w-0 rounded-xl border p-3 transition hover:shadow-sm {{ $alertaColor }}"><span class="block break-words text-sm font-bold">{{ $alerta['titulo'] }}</span><span class="mt-1 block break-words text-xs text-[#294D61]">{{ $alerta['detalle'] }}</span></a>@endforeach</div></section>@endif
 

@@ -1,0 +1,23 @@
+flowchart TD
+  A[Acceso web] --> B{¿Autenticado?}
+  B -- No --> C[Login]
+  C --> D{Credenciales válidas}
+  D -- No --> C
+  D -- Sí --> E{¿2FA habilitado?}
+  E -- Sí --> F[Desafío TOTP]
+  E -- No --> G[Sesión autenticada]
+  F --> H{¿Código correcto?}
+  H -- No --> F
+  H -- Sí --> G
+  G --> I{¿Debe cambiar contraseña?}
+  I -- Sí --> J[Actualizar contraseña temporal]
+  I -- No --> K[Dashboard según rol]
+  J --> K
+  K --> L{Rol}
+  L --> M[Admin: Personal / Unidades / Reportes / Papelera]
+  L --> N[Inspector: Inspecciones / Seguimiento]
+  L --> O[Operador: Unidad / Turnos / Reportes propios]
+  L --> P[Limpieza: Aseos / Atención de reportes de limpieza]
+  EXT[Reportante externo con QR] --> Q[Formulario /reportar]
+  Q --> R[Guardar reporte + generar código]
+  R --> S[Seguimiento público por código]

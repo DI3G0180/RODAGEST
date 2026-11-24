@@ -40,6 +40,7 @@
         ];
     @endphp
 
+    <div x-data="{ open: false, toggle() { this.open = !this.open; document.body.style.overflow = this.open ? 'hidden' : '' }, close() { this.open = false; document.body.style.overflow = '' } }" @keydown.escape.window="close()">
     <div class="sticky top-0 z-30 border-b border-[#6DA5C0]/50 bg-white shadow-sm">
         <header class="mx-auto flex h-16 max-w-[1600px] items-center justify-between gap-3 px-4">
             <a href="{{ route('dashboard', [], false) }}" aria-label="RODAGEST, panel principal" class="flex min-w-0 shrink-0 items-center gap-2 md:w-44">
@@ -61,17 +62,17 @@
                 <form method="POST" action="{{ route('logout', [], false) }}">@csrf<button class="min-h-10 rounded-xl bg-[#072E33] px-4 text-sm font-bold text-white transition hover:bg-[#05161A]">Salir</button></form>
             </div>
 
-            <button type="button" onclick="openMobileDrawer()" aria-label="Abrir menú de navegación" aria-controls="rodagest-mobile-drawer" class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#072E33] text-white transition hover:bg-[#0C7075] focus:outline-none focus:ring-2 focus:ring-[#6DA5C0] md:hidden">
+            <button type="button" @click="toggle()" :aria-expanded="open.toString()" aria-label="Abrir menú de navegación" aria-controls="rodagest-mobile-drawer" class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 p-2.5 text-slate-800 transition hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-[#6DA5C0] md:hidden">
                 <svg aria-hidden="true" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
         </header>
     </div>
 
-    <div id="rodagest-mobile-drawer" class="fixed inset-0 z-50 hidden md:hidden" aria-hidden="true">
-        <div onclick="closeMobileDrawer()" class="fixed inset-0 bg-[#05161A]/70 transition-opacity" aria-hidden="true"></div>
-        <button type="button" onclick="closeMobileDrawer()" aria-label="Cerrar menú" class="fixed left-[min(82vw,18.5rem)] top-4 z-20 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-[#05161A]/90 text-xl text-white shadow-lg">✕</button>
+    <div id="rodagest-mobile-drawer" x-show="open" x-cloak x-transition.opacity :aria-hidden="(!open).toString()" class="fixed inset-0 z-50 md:hidden">
+        <div @click="close()" class="fixed inset-0 bg-[#05161A]/70 transition-opacity" aria-hidden="true"></div>
+        <button type="button" @click="close()" aria-label="Cerrar menú" class="absolute left-[min(82vw,18.5rem)] top-4 z-[60] flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-[#05161A] text-xl text-white shadow-lg">✕</button>
 
-        <aside id="rodagest-mobile-panel" role="dialog" aria-modal="true" aria-labelledby="rodagest-drawer-title" tabindex="-1" class="relative z-10 flex h-dvh w-72 max-w-[80vw] flex-col justify-between overflow-y-auto bg-white shadow-2xl">
+        <aside id="rodagest-mobile-panel" role="dialog" aria-modal="true" aria-labelledby="rodagest-drawer-title" tabindex="-1" class="relative z-50 flex h-[100dvh] w-72 max-w-[80vw] flex-col justify-between overflow-y-auto border-b border-slate-200 bg-white shadow-xl">
             <div class="min-h-0 flex-1">
                 <div class="bg-[#05161A] p-5 text-white">
                     <div class="flex items-start gap-3">
@@ -86,7 +87,7 @@
                             <h2 class="px-5 py-2 text-base font-extrabold text-[#05161A]">{{ $groupLabel }}</h2>
                             @foreach($items as [$label, $routeName])
                                 @php($active = request()->routeIs($routeName) || request()->routeIs($routeName . '.*'))
-                                <a href="{{ route($routeName, [], false) }}" @if($active) aria-current="page" @endif onclick="closeMobileDrawer()" class="flex min-h-12 items-center gap-3 border-l-4 px-5 py-3 text-sm {{ $active ? 'border-[#0C7075] bg-[#0C7075]/10 font-bold text-[#0C7075]' : 'border-transparent font-medium text-[#05161A] hover:bg-[#6DA5C0]/20' }}">
+                                <a href="{{ route($routeName, [], false) }}" @if($active) aria-current="page" @endif @click="close()" class="flex min-h-12 items-center gap-3 border-l-4 px-5 py-3 text-sm {{ $active ? 'border-[#0C7075] bg-[#0C7075]/10 font-bold text-[#0C7075]' : 'border-transparent font-medium text-[#05161A] hover:bg-[#6DA5C0]/20' }}">
                                     <svg aria-hidden="true" class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24"><path d="{{ $menuIcons[$routeName] ?? $menuIcons['dashboard'] }}"/></svg><span>{{ $label }}</span>
                                 </a>
                             @endforeach
@@ -95,32 +96,8 @@
                 </nav>
             </div>
 
-            <form method="POST" action="{{ route('logout', [], false) }}" class="shrink-0 border-t border-[#6DA5C0]/40 bg-[#F4F9FB] p-4">@csrf<button class="w-full rounded-xl bg-[#072E33] py-3 font-bold text-white transition hover:bg-[#05161A]">Cerrar sesión</button></form>
+            <form method="POST" action="{{ route('logout', [], false) }}" class="relative z-50 shrink-0 border-t border-[#6DA5C0]/40 bg-white p-4">@csrf<button class="w-full rounded-xl bg-[#072E33] py-3 font-bold text-white transition hover:bg-[#05161A]">Cerrar sesión</button></form>
         </aside>
     </div>
-
-    <script>
-        function openMobileDrawer() {
-            const drawer = document.getElementById('rodagest-mobile-drawer');
-            if (drawer) {
-                drawer.classList.remove('hidden');
-                drawer.setAttribute('aria-hidden', 'false');
-                document.body.style.overflow = 'hidden';
-                document.getElementById('rodagest-mobile-panel')?.focus();
-            }
-        }
-
-        function closeMobileDrawer() {
-            const drawer = document.getElementById('rodagest-mobile-drawer');
-            if (drawer) {
-                drawer.classList.add('hidden');
-                drawer.setAttribute('aria-hidden', 'true');
-                document.body.style.overflow = '';
-            }
-        }
-
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape') closeMobileDrawer();
-        });
-    </script>
+    </div>
 @endauth

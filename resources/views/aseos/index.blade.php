@@ -3,7 +3,6 @@
 @section('content')
 <div class="mx-auto w-full max-w-7xl space-y-5 px-4 py-5 sm:px-6 sm:py-8">
     <header class="flex flex-wrap items-end justify-between gap-3"><div><p class="text-xs font-bold uppercase tracking-[.16em] text-[#0C7075]">Operación · Limpieza</p><h1 class="mt-1 text-2xl font-extrabold sm:text-3xl">Aseo de unidades</h1><p class="mt-1 text-sm text-[#294D61]">Registra lavados, desinfecciones, etapas y evidencia.</p></div><a href="{{ route('dashboard', [], false) }}" class="inline-flex min-h-11 items-center rounded-xl border border-[#6DA5C0]/50 bg-white px-4 font-semibold text-[#0C7075]">Volver al panel</a></header>
-    @if(session('success'))<div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-800">{{ session('success') }}</div>@endif
     @if($errors->any())<div class="rounded-xl border border-red-200 bg-red-50 p-4 text-red-800"><ul class="list-disc pl-5">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
 
     <section class="rounded-2xl border border-[#6DA5C0]/50 bg-white p-5 shadow-sm sm:p-6"><details @if($errors->any()) open @endif class="group"><summary class="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-lg font-bold marker:hidden"><span>Bitácora de limpieza</span><span class="rounded-lg bg-[#0F969C] px-4 py-2 text-sm font-bold text-white group-open:hidden">+ Registrar aseo</span><span class="hidden rounded-lg border border-[#6DA5C0]/50 px-4 py-2 text-sm font-bold text-[#0C7075] group-open:inline-flex">Cerrar formulario</span></summary><form action="{{ route('aseos.store', [], false) }}" method="POST" enctype="multipart/form-data" class="mt-4 grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3">@csrf
@@ -20,12 +19,13 @@
         <button class="min-h-12 rounded-xl bg-[#0F969C] px-5 font-bold text-white hover:bg-[#072E33] sm:col-span-2 lg:col-span-3">Guardar proceso de aseo</button>
     </form></details></section>
 
-    <section class="space-y-3"><div><h2 class="text-xl font-extrabold">Bitácora de aseos</h2><p class="text-sm text-[#294D61]">Busca por ECO, responsable, área o rango de fechas.</p></div>
+    <section class="space-y-4"><div><h2 class="text-xl font-extrabold">Bitácora de aseos</h2><p class="text-sm text-[#294D61]">Busca por ECO, responsable, área o rango de fechas.</p></div>
         <form action="{{ route('aseos.index', [], false) }}" method="GET" class="grid min-w-0 gap-2 rounded-2xl border border-[#6DA5C0]/50 bg-white p-4 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_170px_170px_auto_auto]">
             <input name="q" value="{{ request('q') }}" placeholder="ECO, responsable o área" class="aseo-field">
             <label class="form-label">Desde<input type="date" name="desde" value="{{ request('desde') }}" class="aseo-field"></label><label class="form-label">Hasta<input type="date" name="hasta" value="{{ request('hasta') }}" class="aseo-field"></label>
             <button class="min-h-11 rounded-xl bg-[#0F969C] px-4 font-bold text-white">Buscar</button><a href="{{ route('aseos.index', [], false) }}" class="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#6DA5C0]/50 px-4 font-semibold text-[#0C7075]">Limpiar</a>
         </form>
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         @forelse($aseos as $aseo)
             <article class="min-w-0 rounded-2xl border border-[#6DA5C0]/50 bg-white p-4 shadow-sm sm:p-5">
                 <div class="flex flex-wrap items-start justify-between gap-3"><div class="min-w-0"><div class="flex flex-wrap items-center gap-2"><h3 class="text-lg font-extrabold">{{ $aseo->unidad?->etiqueta_economico ?? 'Unidad no disponible' }}</h3><span class="rounded-full bg-[#F4F9FB] px-3 py-1 text-xs font-bold text-[#0C7075]">{{ $aseo->tipo_limpieza }}</span><span class="rounded-full {{ $aseo->estado==='completado' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-900' }} px-3 py-1 text-xs font-bold">{{ ['en_proceso'=>'En proceso','completado'=>'Completado'][$aseo->estado] ?? ucfirst(str_replace('_',' ', $aseo->estado ?? 'completado')) }}</span></div><p class="mt-1 text-sm text-[#294D61]">{{ $aseo->fecha_hora?->format('d/m/Y H:i') }} · {{ $aseo->intendente_responsable }} · {{ $aseo->area_terminal ?: 'Área no indicada' }}</p><p class="mt-1 text-sm text-[#294D61]">{{ collect($aseo->etapas ?? [])->filter()->count() }}/4 etapas completas · Producto: {{ $aseo->producto_desinfectante ?: '—' }}</p></div>
@@ -41,7 +41,8 @@
                     </div>
                 </div>
             </article>
-        @empty<div class="rounded-2xl border border-dashed border-[#6DA5C0]/50 bg-white p-8 text-center text-[#294D61]">No hay registros con estos filtros.</div>@endforelse
+        @empty<div class="rounded-2xl border border-dashed border-[#6DA5C0]/50 bg-white p-8 text-center text-[#294D61] md:col-span-2 lg:col-span-3">No hay registros con estos filtros.</div>@endforelse
+        </div>
         <div class="rounded-xl bg-white p-3">{{ $aseos->links() }}</div>
     </section>
 </div>

@@ -1,0 +1,17 @@
+stateDiagram-v2
+  [*] --> Operativa: alta con estado por defecto
+  [*] --> EnLimpieza: alta con estado elegido
+  [*] --> EnTaller: alta con estado elegido
+  [*] --> FueraServicio: alta con estado elegido
+  Operativa --> EnTaller: inspección guarda dictamen
+  Operativa --> FueraServicio: inspección guarda dictamen
+  EnTaller --> Operativa: inspección guarda dictamen
+  EnTaller --> FueraServicio: inspección guarda dictamen
+  FueraServicio --> Operativa: inspección guarda dictamen
+  FueraServicio --> EnTaller: inspección guarda dictamen
+  Operativa --> EnLimpieza: registrar aseo no liberado
+  EnTaller --> EnLimpieza: registrar aseo no liberado
+  FueraServicio --> EnLimpieza: registrar aseo no liberado
+  EnLimpieza --> Operativa: aseo completo y liberado
+  EnLimpieza --> EnTaller: inspección guarda dictamen
+  EnLimpieza --> FueraServicio: inspección guarda dictamen

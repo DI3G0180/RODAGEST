@@ -3,7 +3,6 @@
 @section('content')
 <div class="mx-auto w-full max-w-3xl px-4 py-5 sm:px-6 sm:py-8"><section class="rounded-3xl border border-[#6DA5C0]/50 bg-white p-5 shadow-sm sm:p-7">
     <p class="text-xs font-bold uppercase tracking-[.16em] text-[#0C7075]">Administración de flota</p><h1 class="mt-1 break-words text-2xl font-extrabold sm:text-3xl">Editar unidad {{ $unidad->economico }}</h1>
-    @if(session('error'))<div class="mt-4 rounded-xl bg-red-50 p-3 text-red-700">{{ session('error') }}</div>@endif
     @if($errors->any())<div class="mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800"><ul class="list-disc space-y-1 pl-5">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
     <form action="{{ route('unidades.update', [$unidad->id], false) }}" method="POST" class="mt-5 grid min-w-0 gap-4 sm:grid-cols-2">@csrf @method('PUT')
         <label class="field-label">Número económico<input value="{{ $unidad->economico }}" readonly aria-readonly="true" class="field cursor-not-allowed bg-[#F4F9FB]" title="El económico es inmutable"></label>

@@ -44,6 +44,8 @@ class HojaVidaController extends Controller
             'estado' => ['nullable', 'string', 'max:100'],
             'codigo_postal' => ['nullable', 'string', 'max:12'],
             'telefono_alterno' => ['nullable', 'string', 'max:30'],
+            'contacto_emergencia' => ['nullable', 'string', 'max:180'],
+            'telefono_emergencia' => ['nullable', 'string', 'max:30'],
             'estatus_imss' => ['nullable', 'string', 'max:80'],
             'tipo_ingreso' => ['nullable', 'string', 'max:80'],
             'fecha_reingreso' => ['nullable', 'date'],
@@ -53,7 +55,7 @@ class HojaVidaController extends Controller
 
         $empleado->employeeProfile()->updateOrCreate([], $data);
 
-        return redirect()->to(route('empleados.hoja-vida', [$empleado->id], false))
+        return redirect()->to(route('empleados.show', [$empleado->id], false))
             ->with('success', 'Hoja de vida actualizada. Los datos personales quedan cifrados en la base de datos.');
     }
 

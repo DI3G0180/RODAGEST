@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Unidad;
+use App\Models\EmployeeProfile;
 use App\Models\User;
 use App\Support\OperationalMail;
 use Illuminate\Http\Request;
@@ -17,7 +18,7 @@ class EmpleadoController extends Controller
     {
         $filters = $request->validate([
             'q' => ['nullable', 'string', 'max:150'],
-            'role' => ['nullable', 'in:inspector,operador,limpieza'],
+            'role' => ['nullable', 'in:admin,inspector,operador,limpieza'],
             'activo' => ['nullable', 'in:1,0'],
         ]);
         $term = trim($request->string('q')->toString());
@@ -33,6 +34,15 @@ class EmpleadoController extends Controller
             ->orderBy('name')->paginate(12)->withQueryString();
         $unidades = Unidad::orderBy('economico')->get();
         return view('empleados.index', compact('empleados', 'unidades'));
+    }
+
+    public function show(User $empleado)
+    {
+        $empleado->loadMissing(['unidadAsignada', 'employeeProfile']);
+        $perfil = $empleado->employeeProfile ?? new EmployeeProfile();
+        $unidades = Unidad::orderBy('economico')->get();
+
+        return view('empleados.show', compact('empleado', 'perfil', 'unidades'));
     }
 
     public function store(Request $request)
@@ -71,7 +81,7 @@ class EmpleadoController extends Controller
         $this->assignUnit($empleado, $unidadId);
         if ($temporaryPassword) app(OperationalMail::class)->temporaryPasswordReset($empleado, $temporaryPassword);
 
-        return redirect()->to(route('empleados.index', [], false))->with('success', 'Empleado actualizado correctamente.');
+        return redirect()->to(route('empleados.show', [$empleado->id], false))->with('success', 'Empleado actualizado correctamente.');
     }
 
     public function destroy(Request $request, User $empleado)

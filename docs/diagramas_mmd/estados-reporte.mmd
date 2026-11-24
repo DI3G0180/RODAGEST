@@ -1,0 +1,8 @@
+stateDiagram-v2
+  [*] --> Pendiente: reporte creado
+  Pendiente --> EnProceso: admin o inspector selecciona estado
+  Pendiente --> Resuelto: admin/inspector cambia estado o limpieza atiende con evidencia
+  EnProceso --> Pendiente: admin o inspector cambia estado
+  EnProceso --> Resuelto: admin/inspector cambia estado o limpieza atiende con evidencia
+  Resuelto --> Pendiente: admin o inspector cambia estado
+  Resuelto --> EnProceso: admin o inspector cambia estado

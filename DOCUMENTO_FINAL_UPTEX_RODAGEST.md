@@ -134,13 +134,12 @@ La provisión de HTTPS automático por Caddy requiere DNS A/AAAA apuntando al se
 
 ```mermaid
 erDiagram
-    USERS ||--o{ UNIDADES : asigna
+    USERS o|--o{ UNIDADES : asigna
     USERS o|--o{ INSPECCIONES : inspector
     USERS o|--o{ INSPECCIONES : operador
     USERS o|--o{ QUEJAS : reporta
     USERS ||--o{ TURNOS : conduce
     USERS ||--o| EMPLOYEE_PROFILES : expediente
-    USERS ||--o{ PERSONAL_ACCESS_TOKENS : autentica
     UNIDADES ||--o{ INSPECCIONES : recibe
     UNIDADES ||--o{ ASEOS : limpia
     UNIDADES ||--o{ QUEJAS : recibe
@@ -153,7 +152,9 @@ erDiagram
     }
     SESSIONS {
       varchar id PK
-      bigint user_id FK
+      bigint user_id
+      varchar ip_address
+      text user_agent
       longtext payload
       integer last_activity
     }
@@ -171,89 +172,205 @@ erDiagram
       bigint id PK
       varchar queue
       longtext payload
+      integer attempts
+      integer reserved_at
+      integer available_at
+      integer created_at
     }
     JOB_BATCHES {
       varchar id PK
       varchar name
       integer total_jobs
+      integer pending_jobs
+      integer failed_jobs
+      longtext failed_job_ids
+      mediumtext options
+      integer cancelled_at
+      integer created_at
+      integer finished_at
     }
     FAILED_JOBS {
       bigint id PK
       varchar uuid UK
+      text connection
+      text queue
+      longtext payload
       longtext exception
+      timestamp failed_at
     }
 
     USERS {
       bigint id PK
+      varchar name
       varchar email UK
-      varchar role
+      timestamp email_verified_at
+      varchar password
+      enum role
+      varchar remember_token
+      varchar foto
+      date fecha_ingreso
+      varchar puesto
+      varchar telefono
+      varchar unidad_asignada
       boolean activo
+      text google2fa_secret
       boolean two_factor_enabled
       boolean must_change_password
+      text motivo_baja
+      timestamp created_at
+      timestamp updated_at
       timestamp deleted_at
     }
     UNIDADES {
       bigint id PK
       varchar economico UK
+      varchar placa
+      varchar placas
+      varchar tipo_unidad
+      varchar modelo
+      varchar area
+      varchar linea
       bigint operador_id FK
+      varchar ruta
+      integer odometro
       varchar estado
+      date proximo_mantenimiento_fecha
+      integer proximo_mantenimiento_odometro
+      text motivo_baja
+      timestamp created_at
+      timestamp updated_at
       timestamp deleted_at
     }
     INSPECCIONES {
       bigint id PK
       bigint unidad_id FK
+      varchar inspector_responsable
       bigint inspector_id FK
       bigint operador_id FK
       bigint intendente_responsable
+      varchar persona_reporta
+      varchar tipo_dano
+      enum prioridad
       varchar estado
+      text descripcion
+      varchar ubicacion_dano
+      varchar municipio
+      varchar direccion
+      varchar categoria_evento
+      datetime fecha_reporte
       json checklist
+      varchar dictamen
+      varchar evidencia_foto
+      timestamp created_at
+      timestamp updated_at
     }
     EVIDENCIAS {
       bigint id PK
       bigint inspeccion_id FK
       varchar ruta_archivo
       varchar tipo_media
+      varchar nombre_original
+      timestamp created_at
+      timestamp updated_at
     }
     ASEOS {
       bigint id PK
       bigint unidad_id FK
+      varchar intendente_responsable
+      varchar area_terminal
+      datetime fecha_hora
+      text comentarios
       varchar tipo_limpieza
+      text observaciones
       varchar estado
       json etapas
+      varchar producto_desinfectante
+      varchar evidencia_foto
+      timestamp created_at
+      timestamp updated_at
     }
     QUEJAS {
       bigint id PK
       bigint unidad_id FK
-      bigint operador_id FK
       varchar eco
       varchar area
+      bigint operador_id FK
+      varchar tipo_queja
       varchar estado
+      text descripcion
+      text comentarios
+      varchar urgencia
+      varchar evidencia_foto
+      varchar nombre_reportante
+      varchar medio_reporte
+      varchar area_reportada
+      varchar ruta_reportada
       varchar codigo_seguimiento UK
+      text accion_atencion
+      varchar evidencia_atencion
+      timestamp created_at
+      timestamp updated_at
     }
     TURNOS {
       bigint id PK
       bigint operador_id FK
       bigint unidad_id FK
+      integer odometro_inicial
+      integer odometro_final
+      varchar combustible_inicial
+      varchar combustible_final
       datetime inicio
       datetime fin
       varchar estado
+      timestamp created_at
+      timestamp updated_at
     }
     EMPLOYEE_PROFILES {
       bigint id PK
-      bigint user_id FK_UK
+      bigint user_id FK
       longtext curp
       longtext rfc
+      longtext nss
+      longtext fecha_nacimiento
+      longtext lugar_nacimiento
+      longtext estado_civil
+      longtext nombre_padre
+      longtext nombre_madre
+      longtext nombre_conyuge
+      longtext identificacion
+      longtext calle
+      longtext numero
+      longtext colonia
+      longtext municipio
+      longtext estado
+      longtext codigo_postal
+      longtext telefono_alterno
+      varchar escolaridad
+      varchar estatus_imss
+      varchar tipo_ingreso
       date fecha_reingreso
+      varchar licencia
+      varchar tarjeton
+      timestamp created_at
+      timestamp updated_at
     }
     PERSONAL_ACCESS_TOKENS {
       bigint id PK
-      bigint tokenable_id FK_POLYMORPHIC
+      varchar tokenable_type
+      bigint tokenable_id
+      varchar name
       varchar token UK
+      text abilities
+      timestamp last_used_at
       timestamp expires_at
+      timestamp created_at
+      timestamp updated_at
     }
 ```
 
-`FK_UK` indica llave foránea con unicidad. `FK_POLYMORPHIC` representa la relación polimórfica de Sanctum (`tokenable_type`, `tokenable_id`), no una FK SQL convencional.
+*Figura 1. Diagrama entidad–relación de RODAGEST. Fuente: elaboración propia con base en las migraciones y relaciones Eloquent del repositorio.*
+
+La relación `EMPLOYEE_PROFILES.user_id` está declarada como FK y es `UNIQUE`, por lo que cada usuario tiene como máximo un expediente. `SESSIONS.user_id` y `PERSONAL_ACCESS_TOKENS.tokenable_id` son índices, no llaves foráneas declaradas: la primera no tiene `constrained()` y la segunda forma parte de la relación polimórfica de Sanctum (`tokenable_type`, `tokenable_id`). `INSPECCIONES.intendente_responsable` es un `BIGINT` histórico sin FK declarada; no se dibuja como relación. `UNIDADES.placa` y `UNIDADES.placas` son columnas distintas existentes por evolución del esquema. `QUEJAS.operador_id`, `QUEJAS.eco` y `QUEJAS.area` permiten NULL para compatibilidad con reportes públicos/históricos, aunque los formularios actuales los validan. La FK `UNIDADES.operador_id` es nullable; las FKs `unidad_id` de inspecciones, aseos, quejas y turnos son obligatorias según sus migraciones. La tabla `migrations` la crea el repositorio de migraciones de Laravel durante la instalación y no aparece como `Schema::create` en los archivos de migración de la aplicación.
 
 ### Diccionario de datos
 
@@ -505,20 +622,25 @@ flowchart TD
   D -- No --> C
   D -- Sí --> E{¿2FA habilitado?}
   E -- Sí --> F[Desafío TOTP]
-  F --> G[Dashboard según role]
-  E -- No --> H{¿Debe cambiar contraseña?}
-  H -- Sí --> I[Actualizar contraseña temporal]
-  H -- No --> G
-  I --> G
-  G --> J{Rol}
-  J --> K[Admin: Personal / Unidades / Reportes / Papelera]
-  J --> L[Inspector: Inspecciones / Seguimiento]
-  J --> M[Operador: Unidad / Turnos / Reportes propios]
-  J --> N[Limpieza: Aseos / Atención de reportes de limpieza]
-  P[QR público] --> Q[Formulario /reportar]
+  E -- No --> G[Sesión autenticada]
+  F --> H{¿Código correcto?}
+  H -- No --> F
+  H -- Sí --> G
+  G --> I{¿Debe cambiar contraseña?}
+  I -- Sí --> J[Actualizar contraseña temporal]
+  I -- No --> K[Dashboard según rol]
+  J --> K
+  K --> L{Rol}
+  L --> M[Admin: Personal / Unidades / Reportes / Papelera]
+  L --> N[Inspector: Inspecciones / Seguimiento]
+  L --> O[Operador: Unidad / Turnos / Reportes propios]
+  L --> P[Limpieza: Aseos / Atención de reportes de limpieza]
+  EXT[Reportante externo con QR] --> Q[Formulario /reportar]
   Q --> R[Guardar reporte + generar código]
   R --> S[Seguimiento público por código]
 ```
+
+*Figura 2. Flujo de navegación web desde el acceso hasta el módulo autorizado por rol. Fuente: elaboración propia con base en `routes/web.php` y los middlewares del proyecto.*
 
 ## 2.6. Seguridad e identidad visual
 
@@ -536,53 +658,87 @@ flowchart TD
 
 # Capítulo 3. Desarrollo
 
-## 3.1. Metodología Kanban aplicada
+## 3.1. Metodología Scrum
 
-Kanban es un método de gestión de flujo que visualiza trabajo, limita el trabajo simultáneo y favorece la mejora continua. Para este proyecto se documenta el tablero acordado con las columnas siguientes:
+El proyecto se organizará con Scrum como marco iterativo e incremental. La evidencia disponible en el repositorio describe el producto (código, migraciones, rutas y vistas), pero no contiene actas ni registros históricos de sprints; por ello, el plan siguiente es la metodología y el cronograma académico adoptados para gestionar y presentar el trabajo, no una afirmación de que cada evento pasado quedó registrado.
 
-| Columna | Criterio de entrada/salida |
+### Responsabilidades Scrum
+
+| Responsabilidad | Aplicación en el proyecto |
 |---|---|
-| Backlog | Necesidad registrada, con actor y propósito identificados. |
-| Análisis | Reglas, permisos, datos y criterios de aceptación definidos. |
-| En Desarrollo | Cambio asignado y en implementación sobre el repositorio. |
-| Pruebas QA | Implementación lista; se comprueban validaciones, rutas y vista adaptable. |
-| Despliegue / Terminado | Prueba aprobada, migración revisada y versión desplegada o liberada. |
+| Product Owner | Prioriza el Product Backlog según valor operativo: control de flota, trazabilidad de inspecciones/aseos, reportes y seguridad. Acepta cada incremento con criterios verificables. |
+| Scrum Master | Facilita los eventos, hace visibles impedimentos y ayuda a proteger el objetivo del Sprint y la mejora continua. |
+| Developers | Los dos autores construyen, integran, revisan y verifican el incremento. Las responsabilidades se pueden compartir; no se atribuyen nombres individuales porque el material fuente no los asigna. |
 
-**Políticas explícitas propuestas para control académico:** cada tarea debe tener responsable, criterio verificable y definición de terminado; no se marca “Terminado” sin revisión de código y comprobación. El WIP (trabajo en progreso) sugerido para un equipo de dos autores es máximo dos tareas simultáneas en desarrollo y una tarea por autor en QA; los valores constituyen política documentada, no configuración automática del software. Los bloqueos deben quedar anotados y volver a análisis al cambiar el alcance. La mejora continua se realiza mediante revisión de defectos, retroalimentación de usuarios y ajuste priorizado del backlog.
+### Artefactos y eventos
+
+- **Product Backlog:** lista priorizada de necesidades y defectos, con actor, valor, reglas, criterios de aceptación y dependencias.
+- **Sprint Backlog:** objetivo del Sprint, elementos seleccionados y plan de trabajo del equipo. El incremento incluye código integrado, migraciones compatibles, vistas y documentación asociada.
+- **Sprint:** periodo de trabajo con objetivo único. Para este plan se usan ciclos de 14 días y un Sprint final de 13 días para cerrar el intervalo académico.
+- **Sprint Planning:** acuerda por qué el Sprint es valioso, qué puede completarse y cómo se realizará.
+- **Daily Scrum:** reunión breve diaria de Developers para inspeccionar el avance hacia el objetivo y ajustar el plan.
+- **Sprint Review:** demostración del incremento a interesados y actualización del Product Backlog con la retroalimentación recibida.
+- **Sprint Retrospective:** inspección de calidad, colaboración y proceso, seguida de una mejora concreta para el Sprint siguiente.
+
+### Criterio de terminado (Definition of Done)
+
+Un elemento se considera terminado cuando su autorización por rol y sus validaciones de servidor están implementadas, persiste o consulta la información prevista, la interfaz funciona en móvil y escritorio, las rutas y estados corresponden al comportamiento real, no quedan errores conocidos que impidan el flujo, y el cambio ha sido revisado y documentado. Si requiere migración, esta debe ser compatible con la base de datos objetivo. “Terminado” no equivale por sí solo a desplegado en AWS.
 
 ## 3.2. Fases, actividades y cronograma
 
-El intervalo solicitado cubre exactamente del 10/07/2026 al 25/11/2026. Las fechas siguientes son el cronograma académico de referencia. Las migraciones registran huellas de trabajo en agosto y noviembre; el repositorio no incluye bitácora Kanban histórica suficiente para certificar cada día de ejecución.
+El intervalo solicitado cubre exactamente del 10/07/2026 al 25/11/2026. Las fechas y objetivos siguientes conforman un plan Scrum académico por Sprints. Los timestamps de migraciones son evidencia de cambios del esquema, pero no sustituyen una bitácora de Sprint; el repositorio no incluye registros suficientes para reconstruir retrospectivamente cada evento ni la velocidad del equipo.
 
-| Fase | Periodo | Actividades | Entregable | Responsables |
-|---|---|---|---|---|
-| Inicio y definición | 10/07–24/07/2026 | Problema, usuarios, objetivos, alcance inicial | Documento de planteamiento | Ambos autores |
-| Requisitos y análisis | 25/07–07/08/2026 | Roles, estados, validaciones, relaciones | Requisitos priorizados / backlog | Ambos autores |
-| Diseño técnico | 08/08–21/08/2026 | MVC, esquema relacional, navegación y prototipo visual | Modelo inicial y vistas | Ambos autores |
-| Implementación base | 22/08–25/09/2026 | Laravel, autenticación, unidades, inspecciones, aseos | Módulos web iniciales | Desarrollo |
-| Integración operativa | 26/09–23/10/2026 | Quejas públicas/internas, turnos, archivos, reportes | Flujos integrados con DB | Desarrollo |
-| Seguridad y API | 24/10–10/11/2026 | Roles, contraseñas temporales, TOTP, Sanctum | Controles y API móvil v1 | Desarrollo |
-| Refinamiento y QA | 11/11–20/11/2026 | Migraciones compatibles, papelera, pruebas Feature, visuales | Versión candidata y suite | Desarrollo / QA |
-| Producción y cierre | 21/11–25/11/2026 | Revisión de Docker, Caddy, variables, pruebas finales y memoria | Liberación/documentación final | Ambos autores |
+| Sprint | Periodo | Objetivo y trabajo principal | Incremento esperado |
+|---|---|---|---|
+| 1 | 10/07–23/07/2026 | Definir visión, alcance, actores y Product Backlog inicial. | Backlog priorizado y criterios de aceptación iniciales. |
+| 2 | 24/07–06/08/2026 | Precisar requisitos, roles, estados y modelo relacional. | Requisitos y arquitectura MVC/datos acordados. |
+| 3 | 07/08–20/08/2026 | Preparar aplicación Laravel, autenticación, roles y datos base. | Acceso por rol y estructura inicial persistente. |
+| 4 | 21/08–03/09/2026 | Implementar administración de personal y unidades. | CRUD administrativo y asignación de operador. |
+| 5 | 04/09–17/09/2026 | Implementar inspección, checklist, dictamen y evidencias. | Flujo de inspección conectado con unidad y MySQL. |
+| 6 | 18/09–01/10/2026 | Implementar aseos por etapas y operación de turnos. | Registro de limpieza y turnos con estados. |
+| 7 | 02/10–15/10/2026 | Integrar quejas internas/públicas y seguimiento por código. | Reportes persistidos, evidencia y consulta de folio. |
+| 8 | 16/10–29/10/2026 | Construir reportes operativos y API autenticada para móvil. | Consultas y operaciones API del alcance implementado. |
+| 9 | 30/10–12/11/2026 | Refinar seguridad, TOTP, bajas/restauración y contraseñas temporales. | Controles de acceso y recuperación operativa revisados. |
+| 10 | 13/11–25/11/2026 | Integrar, corregir defectos, verificar despliegue y terminar la memoria. | Incremento final documentado y candidato a entrega. |
+
+```mermaid
+flowchart LR
+  PB[Product Backlog priorizado] --> SP[Sprint Planning]
+  SP --> SB[Sprint Backlog + Objetivo del Sprint]
+  SB --> DAILY[Daily Scrum: inspeccionar avance y ajustar el plan]
+  DAILY --> DEV[Desarrollo e integración por Developers]
+  DEV --> DAILY
+  DEV --> INC[Incremento que cumple Definition of Done]
+  INC --> SR[Sprint Review: demostración y retroalimentación]
+  SR --> PB
+  SR --> RET[Sprint Retrospective: mejora del proceso]
+  RET --> SP
+```
+
+*Figura 3. Ciclo de trabajo Scrum propuesto para el desarrollo de RODAGEST. Fuente: elaboración propia. Representa la metodología adoptada, no un registro histórico de eventos.*
 
 ```mermaid
 gantt
-    title Cronograma académico RODAGEST (10/07/2026–25/11/2026)
+    title Plan Scrum de RODAGEST (10/07/2026–25/11/2026)
     dateFormat YYYY-MM-DD
     axisFormat %d/%m
-    section Planeación
-    Inicio y planteamiento       :a1, 2026-07-10, 15d
-    Requisitos y análisis        :a2, 2026-07-25, 14d
-    section Diseño y construcción
-    Diseño técnico               :b1, 2026-08-08, 14d
-    Implementación base          :b2, 2026-08-22, 35d
-    Integración operativa        :b3, 2026-09-26, 28d
-    Seguridad y API              :b4, 2026-10-24, 18d
-    section Cierre
-    Refinamiento y QA            :c1, 2026-11-11, 10d
-    Producción, documentación y cierre :c2, 2026-11-21, 5d
+    section Descubrimiento y cimientos
+    Sprint 1 · Visión y backlog :s1, 2026-07-10, 14d
+    Sprint 2 · Requisitos y diseño :s2, 2026-07-24, 14d
+    section Módulos operativos
+    Sprint 3 · Acceso y base :s3, 2026-08-07, 14d
+    Sprint 4 · Personal y unidades :s4, 2026-08-21, 14d
+    Sprint 5 · Inspecciones :s5, 2026-09-04, 14d
+    Sprint 6 · Aseos y turnos :s6, 2026-09-18, 14d
+    Sprint 7 · Quejas y seguimiento :s7, 2026-10-02, 14d
+    section Integración y entrega
+    Sprint 8 · Reportes y API :s8, 2026-10-16, 14d
+    Sprint 9 · Seguridad y bajas :s9, 2026-10-30, 14d
+    Sprint 10 · QA y cierre :s10, 2026-11-13, 13d
     Cierre oficial               :milestone, m1, 2026-11-25, 0d
 ```
+
+*Figura 4. Cronograma académico propuesto por Sprints para RODAGEST. Fuente: elaboración propia; las fechas corresponden al plan documentado, no a evidencia de ejecución histórica.*
 
 ## 3.3. MVP y reglas de negocio
 
@@ -624,7 +780,7 @@ El MVP concentra registro, trazabilidad y consulta operativa para unidades, insp
 | RF-12 | Crear reporte autenticado, consultar según rol, filtrar y actualizar estado. | QuejaController. |
 | RF-13 | Enviar queja pública, adjuntar evidencia y consultar respuesta por folio. | QuejaPublicaController. |
 | RF-14 | Descargar reporte operativo exportado. | ReporteController.export. |
-| RF-15 | Dar de baja/restaurar empleado y unidad sin borrado lógico. | PapeleraController. |
+| RF-15 | Dar de baja/restaurar empleado y unidad con borrado lógico, conservando sus registros. | PapeleraController y SoftDeletes. |
 | RF-16 | Autenticar API móvil con token y revocar token actual. | `/api/v1/login`, logout. |
 | RF-17 | Consultar unidades, crear inspecciones, reportes de operador y aseos desde API. | MobileOperationsController. |
 | RF-18 | Enviar avisos SMTP de alta/clave temporal, reporte crítico y cambio de estado. | OperationalMail; depende de `MAIL_*`. |
@@ -674,16 +830,25 @@ Leyenda: **C** crear, **R** consultar, **U** actualizar, **D** eliminar/archivar
 
 ```mermaid
 flowchart LR
-  U[Cliente navegador / PWA o app móvil] -->|HTTPS 443| C[Caddy 2 reverse proxy]
-  C -->|PHP FastCGI :9000| L[Laravel 12 / PHP-FPM 8.3]
-  L --> MVC[Rutas + Middleware + Controllers + Eloquent + Blade]
-  L -->|PDO MySQL| DB[(MySQL 8.0)]
-  L --> FS[(Volumen storage: fotos, evidencias)]
-  C -->|HTTP 80: redirect / ACME| C
-  L -->|SMTP opcional| M[Servidor SMTP]
-  U -->|Bearer Sanctum /api/v1| L
-  C --- AWS[AWS Lightsail: host Docker; depende de APP_DOMAIN, DNS y reglas 80/443]
+  WEB[Personal: navegador web] -->|HTTPS 443| C[Caddy 2: proxy inverso y archivos públicos]
+  PUB[Reportante externo: QR] -->|HTTPS 443 /reportar y /seguimiento| C
+  APPCLI[Cliente móvil: API REST] -->|HTTPS 443 /api/v1 + Bearer Sanctum| C
+  C -->|FastCGI interno :9000| APP[Contenedor app: Laravel 12 + PHP-FPM 8.3]
+  APP --> ROUTE[Rutas web y API]
+  ROUTE --> MW[Middleware auth, active y role]
+  MW --> CTRL[Controladores y validación]
+  CTRL --> ORM[Eloquent / modelos]
+  ORM --> DB[(Contenedor db: MySQL 8.0)]
+  CTRL --> STORAGE[(Volumen persistente: storage/app/public)]
+  APP --> MAIL[Servidor SMTP configurable]
+  C --> VOLS[(Volúmenes persistentes Caddy: data y config)]
+  C --- HOST[AWS Lightsail · Docker Compose de producción]
+  NET[Red privada Docker] --- C
+  NET --- APP
+  NET --- DB
 ```
+
+*Figura 5. Arquitectura de aplicación y despliegue de RODAGEST. Fuente: elaboración propia con base en `docker-compose.prod.yml`, `Dockerfile` y `Caddyfile`.*
 
 ### Casos de uso general por rol
 
@@ -694,93 +859,149 @@ flowchart LR
   operador((Operador))
   limpieza((Personal de limpieza))
   publico((Reportante externo))
-  uc1([Gestionar personal])
-  uc2([Gestionar unidades])
-  uc3([Consultar reportes y estados])
-  uc4([Gestionar bajas y restaurar])
-  uc5([Registrar inspección y evidencia])
-  uc6([Revisar estado de inspección])
-  uc7([Abrir y cerrar turno])
-  uc8([Reportar falla sobre unidad asignada])
-  uc9([Registrar aseo por etapas])
-  uc10([Atender reporte de limpieza])
-  uc11([Enviar queja pública y foto])
-  uc12([Consultar folio de seguimiento])
-  uc13([Administrar perfil y 2FA])
+  uc1([Crear, editar, desactivar y restaurar personal])
+  uc2([Crear, editar, dar de baja y restaurar unidades])
+  uc3([Supervisar quejas internas y públicas])
+  uc4([Cambiar estado de queja])
+  uc5([Consultar reportes operativos y exportar CSV])
+  uc6([Registrar inspección y evidencia])
+  uc7([Cambiar estado de inspección])
+  uc8([Abrir y cerrar turno propio])
+  uc9([Consultar unidad asignada y reportar incidencia])
+  uc10([Registrar aseo y etapas])
+  uc11([Atender queja de limpieza con acción y foto])
+  uc12([Crear reporte interno])
+  uc13([Enviar queja pública con ECO, área y foto opcional])
+  uc14([Consultar seguimiento por código])
+  uc15([Configurar perfil y 2FA])
+  uc16([Consultar reportes visibles según rol])
+  uc17([Consultar hoja de vida propia])
+  uc18([Generar QR para formulario público])
   admin --> uc1
   admin --> uc2
   admin --> uc3
   admin --> uc4
-  admin --> uc13
-  inspector --> uc5
-  inspector --> uc6
+  admin --> uc5
+  admin --> uc18
   inspector --> uc3
-  inspector --> uc13
-  operador --> uc7
+  inspector --> uc16
+  inspector --> uc4
+  inspector --> uc6
+  inspector --> uc7
+  inspector --> uc12
   operador --> uc8
-  operador --> uc3
-  operador --> uc13
-  limpieza --> uc9
+  operador --> uc9
+  operador --> uc16
+  operador --> uc12
+  operador --> uc17
   limpieza --> uc10
-  limpieza --> uc3
-  limpieza --> uc13
-  publico --> uc11
-  publico --> uc12
+  limpieza --> uc11
+  limpieza --> uc16
+  limpieza --> uc12
+  publico --> uc13
+  publico --> uc14
+  admin --> uc15
+  inspector --> uc15
+  operador --> uc15
+  limpieza --> uc15
 ```
+
+*Figura 6. Casos de uso generales por actor y rol. Fuente: elaboración propia con base en rutas, controladores y middleware de autorización.*
 
 ### Secuencia A: autenticación, clave temporal y TOTP
 
 ```mermaid
 sequenceDiagram
   actor Usuario
-  participant Login as LoginController
+  participant Login as AuthenticatedSessionController
   participant DB as MySQL/Eloquent
-  participant TOTP as Google2FA
-  participant Middleware as Middleware active
+  participant TOTP as TwoFactorController / Google2FA
+  participant Session as Sesión Laravel
+  participant Middleware as Middleware auth / active
   participant Dash as DashboardController
   Usuario->>Login: POST /login (email, password)
   Login->>DB: buscar usuario y verificar hash
-  alt usuario inválido o inactivo
+  alt credenciales inválidas
     Login-->>Usuario: mensaje de credenciales / bloqueo
-  else credenciales válidas y TOTP activado
-    Login-->>Usuario: sesión de desafío pendiente
-    Usuario->>TOTP: POST /2fa/verify con 6 dígitos
-    TOTP->>DB: validar secreto cifrado y OTP
-  else TOTP desactivado
-    Login->>Middleware: completar login
+  else usuario válido con 2FA
+    Login->>Session: guardar 2fa_user_id y cerrar autenticación provisional
+    Login-->>Usuario: redirect /2fa/verify
+    Usuario->>TOTP: POST /2fa/verify con código de 6 dígitos
+    TOTP->>DB: leer secreto cifrado y verificar TOTP
+    alt código incorrecto
+      TOTP-->>Usuario: error; conservar desafío pendiente
+    else código correcto
+      TOTP->>Session: autenticar usuario y regenerar sesión
+    end
+  else usuario válido sin 2FA
+    Login->>Session: autenticar y regenerar sesión
   end
-  alt debe cambiar contraseña
-    Middleware-->>Usuario: redirect /password/temporary
-    Usuario->>DB: guardar hash fuerte y limpiar flag
+  alt contraseña temporal requerida
+    alt 2FA habilitado
+      TOTP-->>Usuario: redirect a cambio temporal
+    else sin 2FA
+      Login-->>Usuario: redirect a cambio temporal
+    end
+    Usuario->>DB: guardar nueva contraseña hasheada y retirar flag
   else listo
-    Middleware->>Dash: GET /dashboard
-    Dash->>DB: consultar métricas según rol
+    Usuario->>Middleware: GET /dashboard
+    Middleware->>Dash: usuario autenticado y cuenta activa
+    Dash->>DB: consultar datos del panel por rol
     Dash-->>Usuario: dashboard correspondiente
   end
 ```
+
+*Figura 7. Secuencia de autenticación, contraseña temporal y verificación TOTP. Fuente: elaboración propia con base en el flujo de autenticación implementado.*
 
 ### Secuencia B: captura de inspección, limpieza o reporte con evidencia
 
 ```mermaid
 sequenceDiagram
   actor Personal
-  participant Browser as Blade / navegador o cliente móvil
-  participant Route as Router + middleware
-  participant Controller as Controller del módulo
-  participant Storage as Filesystem public
+  participant UI as Blade / navegador o cliente móvil
+  participant Route as Ruta web o API
+  participant Auth as Middleware auth, active y role
+  participant Controller as Controlador del módulo
+  participant Storage as Disco public
   participant DB as Eloquent / MySQL
-  Personal->>Browser: completar datos, adjuntar evidencia opcional/requerida
-  Browser->>Route: POST web o /api/v1 con CSRF/token
-  Route->>Controller: autorizar role y estado activo
-  Controller->>Controller: validar campos y formato de imagen
-  opt incluye evidencia
-    Controller->>Storage: guardar archivo bajo disco public
-    Storage-->>Controller: ruta del archivo
+  participant Mail as OperationalMail / SMTP
+  Personal->>UI: completar formato del módulo y adjuntar evidencia si aplica
+  alt flujo interno autenticado
+    UI->>Route: POST web (CSRF) o API (Bearer Sanctum)
+    Route->>Auth: autenticar, revisar activo y rol
+    Auth->>Controller: pasar solicitud autorizada
+  else queja pública QR
+    UI->>Route: POST /reportar con límite de solicitudes
+    Route->>Controller: validar solicitud pública y bloquear rol admin
   end
-  Controller->>DB: crear registro y relaciones
-  DB-->>Controller: registro persistido
-  Controller-->>Browser: redirect+mensaje o JSON 201
+  Controller->>Controller: validar campos, pertenencia de unidad cuando aplica y archivo
+  alt inspección (solo inspector por rutas actuales)
+    Controller->>Storage: opcionalmente guardar foto/video
+    Storage-->>Controller: ruta de cada archivo
+    Controller->>DB: transacción crea inspección y filas evidencias
+    Controller->>DB: aplicar dictamen a estado de unidad
+  else aseo (solo limpieza por rutas actuales)
+    Controller->>Storage: opcionalmente guardar foto
+    Storage-->>Controller: ruta de evidencia
+    Controller->>DB: crear aseo con etapas
+    Controller->>DB: actualizar unidad a en_limpieza o, con liberación completa, operativa
+  else queja interna (inspector, operador o limpieza)
+    Controller->>Storage: opcionalmente guardar foto del reporte
+    Storage-->>Controller: ruta de evidencia
+    Controller->>DB: guardar queja interna pendiente, ECO/área
+    opt urgencia crítica
+      Controller->>Mail: notificar por correo SMTP configurado
+    end
+  else queja pública QR (sin sesión requerida)
+    Controller->>Storage: opcionalmente guardar foto del reporte
+    Storage-->>Controller: ruta de evidencia
+    Controller->>DB: guardar queja pendiente y generar folio de seguimiento
+  end
+  DB-->>Controller: datos persistidos
+  Controller-->>UI: redirect con mensaje o JSON 201
 ```
+
+*Figura 8. Secuencia de captura y persistencia de inspecciones, aseos y reportes con evidencia. Fuente: elaboración propia con base en controladores y almacenamiento configurado.*
 
 ### Secuencia C: baja lógica y restauración
 
@@ -791,50 +1012,80 @@ sequenceDiagram
   participant Controller as Empleado/Unidad/PapeleraController
   participant Model as Modelo SoftDeletes
   participant DB as MySQL
-  Admin->>Route: DELETE empleado/unidad + motivo
+  Admin->>Route: DELETE empleado/unidad con motivo
   Route->>Controller: autoriza admin
   Controller->>Controller: valida motivo y protecciones (admin/usuario actual)
-  Controller->>Model: marca activo=false si empleado; delete()
+  Controller->>Model: guardar motivo; desasignar operador cuando aplica; delete()
   Model->>DB: actualiza deleted_at; conserva fila
   Admin->>Route: GET /papelera
   Route->>Controller: lista onlyTrashed()
   Admin->>Route: POST restaurar/{id}
-  Controller->>Model: restore() y limpia motivo
+  Controller->>Model: restore() y limpia motivo; empleado vuelve a activo
   Model->>DB: deleted_at=NULL
 ```
+
+*Figura 9. Secuencia de baja lógica y restauración de personal o unidades. Fuente: elaboración propia con base en el uso de SoftDeletes y las rutas administrativas.*
 
 ### Diagrama de estados de unidad
 
 ```mermaid
 stateDiagram-v2
-  [*] --> Operativa: alta de unidad
-  Operativa --> EnTaller: dictamen / mantenimiento
-  EnTaller --> Operativa: liberación técnica
-  Operativa --> EnLimpieza: iniciar proceso de aseo
-  EnLimpieza --> Operativa: etapas requeridas completadas
-  EnLimpieza --> FueraDeServicio: hallazgo crítico
-  EnTaller --> FueraDeServicio: baja operativa
-  FueraDeServicio --> EnTaller: reparación autorizada
-  Operativa --> DadaDeBaja: baja lógica admin
-  EnTaller --> DadaDeBaja: baja lógica admin
-  EnLimpieza --> DadaDeBaja: baja lógica admin
-  FueraDeServicio --> DadaDeBaja: baja lógica admin
-  DadaDeBaja --> Operativa: restaurar; revisar antes de operar
+  [*] --> Operativa: alta con estado por defecto
+  [*] --> EnLimpieza: alta con estado elegido
+  [*] --> EnTaller: alta con estado elegido
+  [*] --> FueraServicio: alta con estado elegido
+  Operativa --> EnTaller: inspección guarda dictamen
+  Operativa --> FueraServicio: inspección guarda dictamen
+  EnTaller --> Operativa: inspección guarda dictamen
+  EnTaller --> FueraServicio: inspección guarda dictamen
+  FueraServicio --> Operativa: inspección guarda dictamen
+  FueraServicio --> EnTaller: inspección guarda dictamen
+  Operativa --> EnLimpieza: registrar aseo no liberado
+  EnTaller --> EnLimpieza: registrar aseo no liberado
+  FueraServicio --> EnLimpieza: registrar aseo no liberado
+  EnLimpieza --> Operativa: aseo completo y liberado
+  EnLimpieza --> EnTaller: inspección guarda dictamen
+  EnLimpieza --> FueraServicio: inspección guarda dictamen
 ```
 
-> El estado `DadaDeBaja` corresponde a `deleted_at` en Eloquent, no a un valor del campo `estado`. Los valores de estado y transiciones permitidos dependen del controlador; el diagrama resume los estados operativos de interfaz, no una máquina de estados formal implementada.
+*Figura 10. Estados operativos de una unidad y sus transiciones principales. Fuente: elaboración propia con base en `Unidad`, `InspeccionController` y `AseoController`.*
 
-### Diagrama de estados de reporte
+> La creación y edición de unidad admiten además los valores heredados `activo` y `mantenimiento`; una migración de normalización los convierte a `operativa` y `en_taller`. El formulario de inspección escribe el `dictamen` `operativa`, `en_taller` o `fuera_servicio`, que se asigna a la unidad al guardar. El controlador de aseo cambia la unidad a `en_limpieza` y solo la devuelve a `operativa` cuando el aseo queda completado y se libera con todas las etapas completas. Administración también puede cambiar directamente el campo estado desde la edición de unidad. La baja lógica es un eje independiente (`deleted_at`), no un valor de `unidades.estado`: restaurar conserva el estado existente y solicita revisarlo antes de operar.
+
+### Diagrama de estados de inspección y queja
 
 ```mermaid
 stateDiagram-v2
   [*] --> Pendiente: reporte creado
-  Pendiente --> EnProceso: admin/inspector inicia seguimiento
-  Pendiente --> Resuelto: limpieza registra atención con evidencia
-  EnProceso --> Resuelto: se concluye atención
-  EnProceso --> Pendiente: seguimiento reabierto
-  Resuelto --> [*]
+  Pendiente --> EnProceso: admin o inspector selecciona estado
+  Pendiente --> Resuelto: admin/inspector cambia estado o limpieza atiende con evidencia
+  EnProceso --> Pendiente: admin o inspector cambia estado
+  EnProceso --> Resuelto: admin/inspector cambia estado o limpieza atiende con evidencia
+  Resuelto --> Pendiente: admin o inspector cambia estado
+  Resuelto --> EnProceso: admin o inspector cambia estado
 ```
+
+*Figura 11. Estados de inspecciones y quejas. Fuente: elaboración propia con base en las validaciones y acciones de seguimiento implementadas.*
+
+> `pendiente`, `en_proceso` y `resuelto` son estados de inspección y queja, almacenados en sus propias filas. No hay una transición irreversible ni una regla de reapertura: las rutas de actualización aceptan cualquiera de esos estados. Solo para quejas de tipo `Limpieza`, la ruta de atención exige descripción de la acción y foto y fuerza `resuelto`.
+
+### Diagrama de estados de aseo
+
+```mermaid
+stateDiagram-v2
+  [*] --> EnProceso: registro con etapas incompletas
+  [*] --> Completado: registro con las cuatro etapas completas
+  Pendiente --> EnProceso: actualización de estado
+  Pendiente --> Completado: etapas completas
+  EnProceso --> Pendiente: actualización de estado
+  EnProceso --> Completado: etapas completas
+  Completado --> Pendiente: actualización de estado
+  Completado --> EnProceso: actualización de estado
+```
+
+*Figura 12. Estados de un aseo y condición de liberación de la unidad. Fuente: elaboración propia con base en `AseoController`.*
+
+> El controlador admite `pendiente`, `en_proceso` y `completado`. Un aseo no se puede marcar `completado` desde la acción de estado si las cuatro etapas no están completas. Al registrar un aseo, la unidad pasa a `operativa` únicamente si se solicita liberarla y las cuatro etapas están completas; si no, permanece `en_limpieza`. En la acción posterior de actualización de estado, `completado` pone la unidad en `operativa` y los otros dos estados en `en_limpieza`.
 
 ---
 

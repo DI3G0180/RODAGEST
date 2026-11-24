@@ -1,0 +1,9 @@
+stateDiagram-v2
+  [*] --> EnProceso: registro con etapas incompletas
+  [*] --> Completado: registro con las cuatro etapas completas
+  Pendiente --> EnProceso: actualización de estado
+  Pendiente --> Completado: etapas completas
+  EnProceso --> Pendiente: actualización de estado
+  EnProceso --> Completado: etapas completas
+  Completado --> Pendiente: actualización de estado
+  Completado --> EnProceso: actualización de estado

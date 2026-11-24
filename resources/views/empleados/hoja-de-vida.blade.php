@@ -21,7 +21,6 @@
         <div><p class="text-xs font-bold uppercase tracking-[.16em] text-[#0C7075]">{{ $editable ? 'Administración · acceso restringido' : 'Mi expediente' }}</p><h1 class="mt-1 text-2xl font-extrabold sm:text-3xl">Hoja de vida del operador</h1><p class="mt-1 text-sm text-[#294D61]">Datos personales y laborales de {{ $empleado->name }}.</p></div>
         <a href="{{ route($editable ? 'empleados.index' : 'dashboard', [], false) }}" class="inline-flex min-h-11 items-center rounded-xl border border-[#6DA5C0]/50 bg-white px-4 font-semibold text-[#0C7075]">Volver</a>
     </header>
-    @if(session('success'))<div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-800">{{ session('success') }}</div>@endif
     @if($errors->any())<div class="rounded-xl border border-red-200 bg-red-50 p-4 text-red-800"><ul class="list-disc pl-5">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
 
     <section class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_240px]">

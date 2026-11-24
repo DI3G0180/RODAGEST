@@ -24,10 +24,13 @@ class DashboardController extends Controller
         $turnoAbierto = $user->role === 'operador'
             ? Turno::with('unidad')->where('operador_id', $user->id)->where('estado', 'abierto')->latest('inicio')->first()
             : null;
-        $inspeccionAprobadaHoy = $unidadAsignada && Inspeccion::where('unidad_id', $unidadAsignada->id)
-            ->whereDate('fecha_reporte', today())->whereIn('estado', ['aprobada', 'reparada'])->exists();
-        $aseoCompletadoHoy = $unidadAsignada && Aseo::where('unidad_id', $unidadAsignada->id)
-            ->whereDate('fecha_hora', today())->where('estado', 'completado')->exists();
+        // Inspection workflow states are pendiente / en_proceso / resuelto.
+        // The old check used aprobada / reparada, values never produced by this app.
+        $inspeccionAprobadaHoy = (bool) ($unidadAsignada && Inspeccion::where('unidad_id', $unidadAsignada->id)
+            ->whereDate('fecha_reporte', today())->where('estado', 'resuelto')->exists());
+        $aseoCompletadoHoy = (bool) ($unidadAsignada && Aseo::where('unidad_id', $unidadAsignada->id)
+            ->whereDate('fecha_hora', today())->where('estado', 'completado')->exists());
+        $unidadOperativa = (bool) ($unidadAsignada && in_array($unidadAsignada->estado, ['operativa', 'activo'], true));
         $estadoFlota = [
             'operativa' => Unidad::whereIn('estado', ['operativa', 'activo'])->count(),
             'en_taller' => Unidad::whereIn('estado', ['en_taller', 'mantenimiento'])->count(),
@@ -100,7 +103,10 @@ class DashboardController extends Controller
             'aseos' => $aseos,
             'reportes' => $reportes,
             'turnoAbierto' => $turnoAbierto,
-            'liberacionUnidad' => (bool) ($unidadAsignada && $inspeccionAprobadaHoy && $aseoCompletadoHoy && in_array($unidadAsignada->estado, ['operativa', 'activo'], true)),
+            'inspeccionAprobadaHoy' => $inspeccionAprobadaHoy,
+            'aseoCompletadoHoy' => $aseoCompletadoHoy,
+            'unidadOperativa' => $unidadOperativa,
+            'liberacionUnidad' => (bool) ($unidadAsignada && $inspeccionAprobadaHoy && $aseoCompletadoHoy && $unidadOperativa),
             'estadoFlota' => $estadoFlota,
             'alertas' => $alertas,
             'kpis' => [

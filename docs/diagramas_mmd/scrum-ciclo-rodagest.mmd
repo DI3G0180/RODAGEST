@@ -1,0 +1,11 @@
+flowchart LR
+  PB[Product Backlog priorizado] --> SP[Sprint Planning]
+  SP --> SB[Sprint Backlog + Objetivo del Sprint]
+  SB --> DAILY[Daily Scrum: inspeccionar avance y ajustar el plan]
+  DAILY --> DEV[Desarrollo e integración por Developers]
+  DEV --> DAILY
+  DEV --> INC[Incremento que cumple Definition of Done]
+  INC --> SR[Sprint Review: demostración y retroalimentación]
+  SR --> PB
+  SR --> RET[Sprint Retrospective: mejora del proceso]
+  RET --> SP

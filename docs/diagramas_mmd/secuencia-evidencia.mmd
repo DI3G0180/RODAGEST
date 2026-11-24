@@ -1,0 +1,43 @@
+sequenceDiagram
+  actor Personal
+  participant UI as Blade / navegador o cliente móvil
+  participant Route as Ruta web o API
+  participant Auth as Middleware auth, active y role
+  participant Controller as Controlador del módulo
+  participant Storage as Disco public
+  participant DB as Eloquent / MySQL
+  participant Mail as OperationalMail / SMTP
+  Personal->>UI: completar formato del módulo y adjuntar evidencia si aplica
+  alt flujo interno autenticado
+    UI->>Route: POST web (CSRF) o API (Bearer Sanctum)
+    Route->>Auth: autenticar, revisar activo y rol
+    Auth->>Controller: pasar solicitud autorizada
+  else queja pública QR
+    UI->>Route: POST /reportar con límite de solicitudes
+    Route->>Controller: validar solicitud pública y bloquear rol admin
+  end
+  Controller->>Controller: validar campos, pertenencia de unidad cuando aplica y archivo
+  alt inspección (solo inspector por rutas actuales)
+    Controller->>Storage: opcionalmente guardar foto/video
+    Storage-->>Controller: ruta de cada archivo
+    Controller->>DB: transacción crea inspección y filas evidencias
+    Controller->>DB: aplicar dictamen a estado de unidad
+  else aseo (solo limpieza por rutas actuales)
+    Controller->>Storage: opcionalmente guardar foto
+    Storage-->>Controller: ruta de evidencia
+    Controller->>DB: crear aseo con etapas
+    Controller->>DB: actualizar unidad a en_limpieza o, con liberación completa, operativa
+  else queja interna (inspector, operador o limpieza)
+    Controller->>Storage: opcionalmente guardar foto del reporte
+    Storage-->>Controller: ruta de evidencia
+    Controller->>DB: guardar queja interna pendiente, ECO/área
+    opt urgencia crítica
+      Controller->>Mail: notificar por correo SMTP configurado
+    end
+  else queja pública QR (sin sesión requerida)
+    Controller->>Storage: opcionalmente guardar foto del reporte
+    Storage-->>Controller: ruta de evidencia
+    Controller->>DB: guardar queja pendiente y generar folio de seguimiento
+  end
+  DB-->>Controller: datos persistidos
+  Controller-->>UI: redirect con mensaje o JSON 201

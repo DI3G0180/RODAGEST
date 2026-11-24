@@ -39,7 +39,7 @@
         </article>
     </section>
 
-    <section class="grid min-w-0 gap-4 lg:grid-cols-3">
+    <section class="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         @foreach([['Inspecciones recientes',$inspecciones->take(8),'Inspección'],['Aseos recientes',$aseos->take(8),'Aseo'],['Incidencias recientes',$incidencias->take(8),'Incidencia']] as [$title,$items,$type])
             <article class="min-w-0 rounded-2xl border border-[#6DA5C0]/50 bg-white p-5 shadow-sm"><h2 class="font-extrabold">{{ $title }}</h2><div class="mt-3 space-y-2">
                 @forelse($items as $item)

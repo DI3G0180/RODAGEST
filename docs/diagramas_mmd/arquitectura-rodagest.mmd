@@ -1,0 +1,17 @@
+flowchart LR
+  WEB[Personal: navegador web] -->|HTTPS 443| C[Caddy 2: proxy inverso y archivos públicos]
+  PUB[Reportante externo: QR] -->|HTTPS 443 /reportar y /seguimiento| C
+  APPCLI[Cliente móvil: API REST] -->|HTTPS 443 /api/v1 + Bearer Sanctum| C
+  C -->|FastCGI interno :9000| APP[Contenedor app: Laravel 12 + PHP-FPM 8.3]
+  APP --> ROUTE[Rutas web y API]
+  ROUTE --> MW[Middleware auth, active y role]
+  MW --> CTRL[Controladores y validación]
+  CTRL --> ORM[Eloquent / modelos]
+  ORM --> DB[(Contenedor db: MySQL 8.0)]
+  CTRL --> STORAGE[(Volumen persistente: storage/app/public)]
+  APP --> MAIL[Servidor SMTP configurable]
+  C --> VOLS[(Volúmenes persistentes Caddy: data y config)]
+  C --- HOST[AWS Lightsail · Docker Compose de producción]
+  NET[Red privada Docker] --- C
+  NET --- APP
+  NET --- DB

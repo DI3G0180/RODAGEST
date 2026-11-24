@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class EmployeeProfile extends Model
 {
     protected $fillable = [
-        'curp', 'rfc', 'nss', 'fecha_nacimiento', 'lugar_nacimiento', 'estado_civil',
+        'curp', 'rfc', 'nss', 'fecha_nacimiento', 'lugar_nacimiento', 'estado_civil', 'contacto_emergencia', 'telefono_emergencia',
         'nombre_padre', 'nombre_madre', 'nombre_conyuge', 'identificacion', 'escolaridad',
         'calle', 'numero', 'colonia', 'municipio', 'estado', 'codigo_postal', 'telefono_alterno',
         'estatus_imss', 'tipo_ingreso', 'fecha_reingreso', 'licencia', 'tarjeton',
@@ -17,6 +17,7 @@ class EmployeeProfile extends Model
     {
         return [
             'curp' => 'encrypted', 'rfc' => 'encrypted', 'nss' => 'encrypted',
+            'contacto_emergencia' => 'encrypted', 'telefono_emergencia' => 'encrypted',
             'fecha_nacimiento' => 'encrypted', 'lugar_nacimiento' => 'encrypted',
             'estado_civil' => 'encrypted', 'nombre_padre' => 'encrypted',
             'nombre_madre' => 'encrypted', 'nombre_conyuge' => 'encrypted',

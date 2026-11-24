@@ -1,0 +1,38 @@
+sequenceDiagram
+  actor Usuario
+  participant Login as AuthenticatedSessionController
+  participant DB as MySQL/Eloquent
+  participant TOTP as TwoFactorController / Google2FA
+  participant Session as Sesión Laravel
+  participant Middleware as Middleware auth / active
+  participant Dash as DashboardController
+  Usuario->>Login: POST /login (email, password)
+  Login->>DB: buscar usuario y verificar hash
+  alt credenciales inválidas
+    Login-->>Usuario: mensaje de credenciales / bloqueo
+  else usuario válido con 2FA
+    Login->>Session: guardar 2fa_user_id y cerrar autenticación provisional
+    Login-->>Usuario: redirect /2fa/verify
+    Usuario->>TOTP: POST /2fa/verify con código de 6 dígitos
+    TOTP->>DB: leer secreto cifrado y verificar TOTP
+    alt código incorrecto
+      TOTP-->>Usuario: error; conservar desafío pendiente
+    else código correcto
+      TOTP->>Session: autenticar usuario y regenerar sesión
+    end
+  else usuario válido sin 2FA
+    Login->>Session: autenticar y regenerar sesión
+  end
+  alt contraseña temporal requerida
+    alt 2FA habilitado
+      TOTP-->>Usuario: redirect a cambio temporal
+    else sin 2FA
+      Login-->>Usuario: redirect a cambio temporal
+    end
+    Usuario->>DB: guardar nueva contraseña hasheada y retirar flag
+  else listo
+    Usuario->>Middleware: GET /dashboard
+    Middleware->>Dash: usuario autenticado y cuenta activa
+    Dash->>DB: consultar datos del panel por rol
+    Dash-->>Usuario: dashboard correspondiente
+  end

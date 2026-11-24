@@ -1,0 +1,16 @@
+sequenceDiagram
+  actor Admin
+  participant Route as Router role:admin
+  participant Controller as Empleado/Unidad/PapeleraController
+  participant Model as Modelo SoftDeletes
+  participant DB as MySQL
+  Admin->>Route: DELETE empleado/unidad con motivo
+  Route->>Controller: autoriza admin
+  Controller->>Controller: valida motivo y protecciones (admin/usuario actual)
+  Controller->>Model: guardar motivo; desasignar operador cuando aplica; delete()
+  Model->>DB: actualiza deleted_at; conserva fila
+  Admin->>Route: GET /papelera
+  Route->>Controller: lista onlyTrashed()
+  Admin->>Route: POST restaurar/{id}
+  Controller->>Model: restore() y limpia motivo; empleado vuelve a activo
+  Model->>DB: deleted_at=NULL

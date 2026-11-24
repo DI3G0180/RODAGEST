@@ -20,7 +20,8 @@ class HojaVidaController extends Controller
 
     public function showEmployee(User $empleado)
     {
-        return $this->show($empleado, true);
+        // El expediente de administración vive en una sola pantalla con pestañas.
+        return redirect()->to(route('empleados.show', [$empleado->id], false));
     }
 
     public function update(Request $request, User $empleado)

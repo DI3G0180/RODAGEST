@@ -2,18 +2,20 @@
 @section('title', 'Expediente de personal')
 @section('content')
 @php
-    $personal = ['curp'=>'CURP','rfc'=>'RFC','nss'=>'NSS','nombre_padre'=>'Nombre del padre','nombre_madre'=>'Nombre de la madre','nombre_conyuge'=>'Cónyuge','identificacion'=>'Identificación','calle'=>'Calle','numero'=>'Número','colonia'=>'Colonia','municipio'=>'Municipio','estado'=>'Estado','codigo_postal'=>'Código postal','telefono_alterno'=>'Teléfono alterno','estatus_imss'=>'Estatus IMSS','licencia'=>'Licencia','tarjeton'=>'Tarjetón'];
+    $personal = ['curp'=>'CURP','rfc'=>'RFC','nss'=>'NSS','escolaridad'=>'Escolaridad','lugar_nacimiento'=>'Lugar de nacimiento','estado_civil'=>'Estado civil','nombre_padre'=>'Nombre del padre','nombre_madre'=>'Nombre de la madre','nombre_conyuge'=>'Cónyuge','identificacion'=>'Identificación','calle'=>'Calle','numero'=>'Número','colonia'=>'Colonia','municipio'=>'Municipio','estado'=>'Estado','codigo_postal'=>'Código postal','telefono_alterno'=>'Teléfono alterno'];
+    $laboral = ['estatus_imss'=>'Estatus IMSS','tipo_ingreso'=>'Tipo de ingreso','licencia'=>'Licencia','tarjeton'=>'Tarjetón'];
 @endphp
-<div class="mx-auto max-w-5xl space-y-5 p-4 sm:p-6" x-data="{ tab: 'cuenta' }">
+<div class="mx-auto max-w-5xl space-y-5 p-4 sm:p-6" x-data="{ tab: 'expediente' }">
     <header class="flex flex-wrap items-center justify-between gap-3"><div class="flex min-w-0 items-center gap-3">
         @if($empleado->foto)<img src="{{ '/storage/'.$empleado->foto }}" alt="Foto de {{ $empleado->name }}" class="h-14 w-14 shrink-0 rounded-full border border-slate-200 object-cover">@else<div class="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-[#DBE7F3] text-xl font-extrabold text-[#0C7075]">{{ strtoupper(mb_substr($empleado->name,0,1)) }}</div>@endif
         <div class="min-w-0"><p class="text-xs font-bold uppercase tracking-widest text-[#0C7075]">Expediente individual</p><h1 class="truncate text-xl font-extrabold sm:text-2xl">{{ $empleado->name }}</h1><p class="truncate text-sm text-[#294D61]">{{ $empleado->email }}</p></div>
     </div><a href="{{ route('empleados.index', [], false) }}" class="inline-flex min-h-11 items-center rounded-xl border border-[#6DA5C0]/50 bg-white px-4 text-sm font-semibold text-[#0C7075]">← Personal</a></header>
+    @if(session('success'))<div class="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800" role="status">{{ session('success') }}</div>@endif
     @if($errors->any())<div class="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800" role="alert">@foreach($errors->all() as $error)<p>{{ $error }}</p>@endforeach</div>@endif
 
     <nav aria-label="Secciones del expediente" class="flex gap-2 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-2">
-        <button type="button" @click="tab='cuenta'" :aria-current="tab==='cuenta' ? 'page' : null" :class="tab==='cuenta' ? 'bg-[#0C7075] text-white' : 'text-slate-700 hover:bg-[#DBE7F3]'" class="min-h-11 shrink-0 rounded-xl px-4 text-sm font-bold">Cuenta y accesos</button>
-        <button type="button" @click="tab='expediente'" :aria-current="tab==='expediente' ? 'page' : null" :class="tab==='expediente' ? 'bg-[#0C7075] text-white' : 'text-slate-700 hover:bg-[#DBE7F3]'" class="min-h-11 shrink-0 rounded-xl px-4 text-sm font-bold">Hoja de vida / expediente</button>
+        <button type="button" @click="tab='expediente'" :aria-current="tab==='expediente' ? 'page' : null" :class="tab==='expediente' ? 'bg-[#0C7075] text-white' : 'text-slate-700 hover:bg-[#DBE7F3]'" class="min-h-11 shrink-0 rounded-xl px-4 text-sm font-bold">Expediente / hoja de vida</button>
+        <button type="button" @click="tab='cuenta'" :aria-current="tab==='cuenta' ? 'page' : null" :class="tab==='cuenta' ? 'bg-[#0C7075] text-white' : 'text-slate-700 hover:bg-[#DBE7F3]'" class="min-h-11 shrink-0 rounded-xl px-4 text-sm font-bold">Editar accesos y cuenta</button>
         @if($empleado->role !== 'admin' && $empleado->id !== auth()->id())<button type="button" @click="tab='baja'" :aria-current="tab==='baja' ? 'page' : null" :class="tab==='baja' ? 'bg-red-700 text-white' : 'text-red-700 hover:bg-red-50'" class="min-h-11 shrink-0 rounded-xl px-4 text-sm font-bold">Zona de baja</button>@endif
     </nav>
 
@@ -41,10 +43,7 @@
         <form action="{{ route('empleados.hoja-vida.update', [$empleado->id], false) }}" method="POST" class="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3">@csrf @method('PATCH')
             @foreach($personal as $field=>$label)<label class="form-label">{{ $label }}<input name="{{ $field }}" value="{{ old($field,$perfil->{$field}) }}" class="field mt-1"></label>@endforeach
             <label class="form-label">Fecha de nacimiento<input type="date" name="fecha_nacimiento" value="{{ old('fecha_nacimiento',$perfil->fecha_nacimiento) }}" class="field mt-1"></label>
-            <label class="form-label">Lugar de nacimiento<input name="lugar_nacimiento" value="{{ old('lugar_nacimiento',$perfil->lugar_nacimiento) }}" class="field mt-1"></label>
-            <label class="form-label">Estado civil<input name="estado_civil" value="{{ old('estado_civil',$perfil->estado_civil) }}" class="field mt-1"></label>
-            <label class="form-label">Escolaridad<input name="escolaridad" value="{{ old('escolaridad',$perfil->escolaridad) }}" class="field mt-1"></label>
-            <label class="form-label">Tipo de ingreso<input name="tipo_ingreso" value="{{ old('tipo_ingreso',$perfil->tipo_ingreso) }}" class="field mt-1"></label>
+            @foreach($laboral as $field=>$label)<label class="form-label">{{ $label }}<input name="{{ $field }}" value="{{ old($field,$perfil->{$field}) }}" class="field mt-1"></label>@endforeach
             <label class="form-label">Fecha de reingreso<input type="date" name="fecha_reingreso" value="{{ old('fecha_reingreso',$perfil->fecha_reingreso?->format('Y-m-d')) }}" class="field mt-1"></label>
             <label class="form-label">Contacto de emergencia<input name="contacto_emergencia" maxlength="180" value="{{ old('contacto_emergencia',$perfil->contacto_emergencia) }}" class="field mt-1"></label>
             <label class="form-label">Teléfono de emergencia<input name="telefono_emergencia" maxlength="30" value="{{ old('telefono_emergencia',$perfil->telefono_emergencia) }}" class="field mt-1"></label>

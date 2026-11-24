@@ -3,13 +3,13 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#EADCC8">
+    <meta name="theme-color" content="#F4F9FB">
     <link rel="icon" type="image/png" href="/favicon.png?v=4">
     <link rel="shortcut icon" href="/favicon.ico?v=4">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=4">
     <title>RODAGEST — Verificación en dos pasos</title>
     <style>
-        *{box-sizing:border-box}body{min-height:100vh;margin:0;display:grid;place-items:center;padding:16px;background:#EADCC8;color:#183647;font-family:system-ui,sans-serif}.card{width:min(100%,420px);padding:clamp(24px,6vw,40px);border:1px solid #7FB3B8;border-radius:22px;background:white;box-shadow:0 18px 55px #17445b16}img{display:block;width:min(180px,60%);height:80px;object-fit:contain;mix-blend-mode:multiply;margin:0 auto 18px}h1{text-align:center;margin:0;font-size:26px}.hint{text-align:center;color:#607985;font-size:14px;line-height:1.5}.field{width:100%;min-height:54px;border:1px solid #7FB3B8;border-radius:10px;text-align:center;font-size:24px;letter-spacing:.35em}.btn{width:100%;min-height:48px;margin-top:16px;background:#2E6F73;border:0;border-radius:10px;color:white;font-weight:800}.error{color:#a22;background:#fff1f1;border:1px solid #efbbbb;padding:10px;border-radius:8px}.back{display:block;text-align:center;margin-top:18px;color:#087ca5;text-decoration:none;font-weight:700}
+        *{box-sizing:border-box}body{min-height:100vh;margin:0;display:grid;place-items:center;padding:16px;background:#F4F9FB;color:#05161A;font-family:system-ui,sans-serif}.card{width:min(100%,420px);padding:clamp(24px,6vw,40px);border:1px solid #6DA5C0;border-radius:22px;background:white;box-shadow:0 18px 55px #05161A16}img{display:block;width:min(180px,60%);height:80px;object-fit:contain;mix-blend-mode:multiply;margin:0 auto 18px}h1{text-align:center;margin:0;font-size:26px}.hint{text-align:center;color:#294D61;font-size:14px;line-height:1.5}.field{width:100%;min-height:54px;border:1px solid #6DA5C0;border-radius:10px;text-align:center;font-size:24px;letter-spacing:.35em}.btn{width:100%;min-height:48px;margin-top:16px;background:#0F969C;border:0;border-radius:10px;color:white;font-weight:800}.btn:hover{background:#072E33}.error{color:#a22;background:#fff1f1;border:1px solid #efbbbb;padding:10px;border-radius:8px}.back{display:block;text-align:center;margin-top:18px;color:#0C7075;text-decoration:none;font-weight:700}
     </style>
 </head>
 <body>

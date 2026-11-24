@@ -36,16 +36,16 @@
                     </svg>
                 </div>
                 <h1 class="text-2xl font-bold primary">RODAGEST</h1>
-                <p class="text-slate-600">Sistema de Gestión de Unidades</p>
+                <p class="text-[#294D61]">Sistema de Gestión de Unidades</p>
             </div>
 
             <form class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-[#0F3D3E]">Correo Electrónico</label>
+                    <label class="block text-sm font-medium text-[#294D61]">Correo Electrónico</label>
                     <input type="email" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none bg-cream">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-[#0F3D3E]">Contraseña</label>
+                    <label class="block text-sm font-medium text-[#294D61]">Contraseña</label>
                     <input type="password" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none bg-cream">
                 </div>
 

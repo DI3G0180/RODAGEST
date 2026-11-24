@@ -3,10 +3,16 @@
 @tailwind utilities;
 
 :root {
-    --rodagest-ink: #0A0F14;
-    --rodagest-deep: #0F3D3E;
-    --rodagest-accent: #2E6F73;
-    --rodagest-soft: #7FB3B8;
-    --rodagest-cream: #EADCC8;
-    --rodagest-action: #C6601F;
+    --rodagest-abyss: #05161A;
+    --rodagest-petroleum: #072E33;
+    --rodagest-turquoise: #0C7075;
+    --rodagest-cyan: #0F969C;
+    --rodagest-sky: #6DA5C0;
+    --rodagest-steel: #294D61;
+    --rodagest-background: #F4F9FB;
 }
+
+html, body { background-color: var(--rodagest-background); color: var(--rodagest-abyss); }
+h1, h2 { color: var(--rodagest-abyss); }
+thead { background: var(--rodagest-petroleum); color: #fff; }
+thead th { color: #fff; }

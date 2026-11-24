@@ -12,7 +12,7 @@
     @if($children)
     <div class="mt-2 bg-white rounded-lg shadow-xl w-56 absolute z-10 mt-2" @click.outside="isOpen = false">
         @foreach($children as $child)
-        <a href="{{ $child['route'] }}" class="block px-4 py-2 text-sm text-[#0F3D3E] hover:bg-secondary hover:text-primary transition">
+        <a href="{{ $child['route'] }}" class="block px-4 py-2 text-sm text-[#294D61] hover:bg-secondary hover:text-primary transition">
             {{ $child['label'] }}
         </a>
         @endforeach

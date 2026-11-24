@@ -41,11 +41,11 @@
 
             <form class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-slate-700">Correo Electrónico</label>
+                    <label class="block text-sm font-medium text-[#0F3D3E]">Correo Electrónico</label>
                     <input type="email" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none bg-cream">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-slate-700">Contraseña</label>
+                    <label class="block text-sm font-medium text-[#0F3D3E]">Contraseña</label>
                     <input type="password" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none bg-cream">
                 </div>
 

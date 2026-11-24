@@ -20,7 +20,7 @@
         @endif
 
         <div class="flex justify-end gap-3 mt-6">
-            <button @click="hide()" class="px-4 py-2 rounded-lg text-sm font-medium bg-slate-200 text-slate-700 hover:bg-slate-300 transition">Cancelar</button>
+            <button @click="hide()" class="px-4 py-2 rounded-lg text-sm font-medium bg-slate-200 text-[#0F3D3E] hover:bg-slate-300 transition">Cancelar</button>
             <button @click="submit()" class="px-4 py-2 rounded-lg text-sm font-medium bg-primary text-white hover:bg-secondary transition">
                 {{ $buttonText ?? 'Guardar' }}
             </button>

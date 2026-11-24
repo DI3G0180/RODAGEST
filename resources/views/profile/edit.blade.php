@@ -25,26 +25,26 @@
         <div class="p-6 sm:p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="space-y-1">
                 <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Nombre Completo</span>
-                <p class="text-slate-800 font-medium bg-slate-50 p-3 rounded-xl border border-slate-200">{{ Auth::user()->name }}</p>
+                <p class="text-[#0A0F14] font-medium bg-slate-50 p-3 rounded-xl border border-slate-200">{{ Auth::user()->name }}</p>
             </div>
             <div class="space-y-1">
                 <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Correo Electrónico</span>
-                <p class="text-slate-800 font-medium bg-slate-50 p-3 rounded-xl border border-slate-200">{{ Auth::user()->email }}</p>
+                <p class="text-[#0A0F14] font-medium bg-slate-50 p-3 rounded-xl border border-slate-200">{{ Auth::user()->email }}</p>
             </div>
             <div class="space-y-1">
                 <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Terminal Asignada</span>
-                <p class="text-slate-800 font-medium bg-slate-50 p-3 rounded-xl border border-slate-200">Terminal Chimalhuacán</p>
+                <p class="text-[#0A0F14] font-medium bg-slate-50 p-3 rounded-xl border border-slate-200">Terminal Chimalhuacán</p>
             </div>
             <div class="space-y-1">
                 <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Área</span>
-                <p class="text-slate-800 font-medium bg-slate-50 p-3 rounded-xl border border-slate-200">Equipo Rodante</p>
+                <p class="text-[#0A0F14] font-medium bg-slate-50 p-3 rounded-xl border border-slate-200">Equipo Rodante</p>
             </div>
         </div>
     </div>
 
     <!-- TARJETA DE SEGURIDAD / ACTUALIZAR CONTRASEÑA -->
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
-        <h3 class="text-base font-bold text-slate-800 mb-1">Seguridad de la Cuenta</h3>
+        <h3 class="text-base font-bold text-[#0A0F14] mb-1">Seguridad de la Cuenta</h3>
         <p class="text-xs text-slate-500 mb-6">Asegúrate de mantener tu cuenta protegida actualizando tu contraseña regularmente.</p>
 
         @if (session('status') === 'password-updated')
@@ -68,21 +68,21 @@
             <div>
                 <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Contraseña Actual</label>
                 <input type="password" name="current_password"
-                       class="w-full rounded-xl border border-slate-200 bg-white text-slate-800 px-3 py-2.5 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 text-sm shadow-sm outline-none"
+                       class="w-full rounded-xl border border-slate-200 bg-white text-[#0A0F14] px-3 py-2.5 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 text-sm shadow-sm outline-none"
                        required>
             </div>
 
             <div>
                 <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Nueva Contraseña</label>
                 <input type="password" name="password"
-                       class="w-full rounded-xl border border-slate-200 bg-white text-slate-800 px-3 py-2.5 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 text-sm shadow-sm outline-none"
+                       class="w-full rounded-xl border border-slate-200 bg-white text-[#0A0F14] px-3 py-2.5 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 text-sm shadow-sm outline-none"
                        required>
             </div>
 
             <div>
                 <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Confirmar Nueva Contraseña</label>
                 <input type="password" name="password_confirmation"
-                       class="w-full rounded-xl border border-slate-200 bg-white text-slate-800 px-3 py-2.5 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 text-sm shadow-sm outline-none"
+                       class="w-full rounded-xl border border-slate-200 bg-white text-[#0A0F14] px-3 py-2.5 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 text-sm shadow-sm outline-none"
                        required>
             </div>
 

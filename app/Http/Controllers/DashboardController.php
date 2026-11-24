@@ -111,6 +111,7 @@ class DashboardController extends Controller
                 'aseosHoy' => Aseo::whereDate('fecha_hora', today())->where('estado', 'completado')->count(),
                 'aseosPendientes' => Aseo::whereIn('estado', ['pendiente', 'en_proceso'])->count(),
                 'inspeccionesPendientes' => Inspeccion::where('estado', 'pendiente')->count(),
+                'inspeccionesCriticas' => Inspeccion::where('prioridad', 'critica')->whereNotIn('estado', ['resuelto', 'reparada'])->count(),
                 'reportesAbiertos' => Queja::whereIn('estado', ['pendiente', 'en_proceso'])->count(),
                 'reportesOperador' => Queja::where('operador_id', $user->id)->count(),
                 'reportesPendientesOperador' => Queja::where('operador_id', $user->id)->whereIn('estado', ['pendiente', 'en_proceso'])->count(),

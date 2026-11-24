@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Diagramas técnicos · RODAGEST</title>
+  <style>
+    :root{--ink:#05161A;--petrol:#072E33;--turq:#0C7075;--cyan:#0F969C;--sky:#6DA5C0;--steel:#294D61;--bg:#F4F9FB;--card:#fff}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+    header{background:var(--petrol);color:#fff;padding:28px max(20px,calc((100% - 1200px)/2))}header h1{margin:0;font-size:clamp(1.5rem,4vw,2.3rem)}header p{margin:.5rem 0 0;color:#d7e6eb}
+    main{width:min(1200px,calc(100% - 32px));margin:24px auto 64px}.note{border:1px solid #efd28a;background:#fff9e8;color:#624700;border-radius:14px;padding:14px 18px;margin-bottom:20px}
+    .diagram{background:var(--card);border:1px solid var(--sky);border-radius:16px;margin:18px 0;padding:18px;box-shadow:0 2px 8px #05161a0b;overflow:hidden}.diagram h2{font-size:1.2rem;margin:0 0 12px}.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}.toolbar button{border:1px solid var(--sky);background:white;color:var(--ink);border-radius:9px;padding:9px 13px;font-weight:700;cursor:pointer}.toolbar button:first-child{background:var(--cyan);border-color:var(--cyan);color:white}.toolbar button:hover{filter:brightness(.96)}.toolbar button:disabled{opacity:.5;cursor:wait}
+    .diagram-output{overflow:auto;min-height:150px;padding:10px;border:1px solid #6da5c033;border-radius:10px;background:#fff}.diagram-output svg{display:block;max-width:100%;height:auto;margin:auto}.source{display:none}.status{font-size:.85rem;color:var(--steel);min-height:1.3em;margin:8px 0 0}.loading{padding:40px;text-align:center;color:var(--steel)}
+    @media(max-width:600px){main{width:min(100% - 20px,1200px);margin-top:12px}.diagram{padding:12px}.toolbar button{flex:1 1 140px}.diagram-output{padding:4px}}
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+</head>
+<body>
+<header><h1>RODAGEST · Diagramas del sistema</h1><p>Material visual de apoyo para el documento académico UPTex</p></header>
+<main>
+  <aside class="note"><strong>Nota:</strong> esta página carga Mermaid.js desde CDN; requiere conexión a Internet para dibujar los diagramas. Descarga cada diagrama como SVG vectorial o como PNG a 3× de resolución. El cronograma es el periodo acordado del 10/07/2026 al 25/11/2026. Las rutas de producción y resultados deben confirmarse en el servidor/equipo de evaluación.</aside>
+
+  <section class="diagram" data-name="cronograma-rodagest">
+    <h2>1. Cronograma Gantt · 10/07/2026–25/11/2026</h2><div class="toolbar"><button data-format="png">Descargar PNG 3×</button><button data-format="svg">Descargar SVG</button></div><div class="diagram-output"><p class="loading">Dibujando diagrama…</p></div><p class="status" aria-live="polite"></p>
+    <script type="text/plain" class="source">
+gantt
+    title Cronograma académico RODAGEST (10/07/2026–25/11/2026)
+    dateFormat YYYY-MM-DD
+    axisFormat %d/%m
+    section Planeación
+    Inicio y planteamiento       :a1, 2026-07-10, 15d
+    Requisitos y análisis        :a2, 2026-07-25, 14d
+    section Diseño y construcción
+    Diseño técnico               :b1, 2026-08-08, 14d
+    Implementación base          :b2, 2026-08-22, 35d
+    Integración operativa        :b3, 2026-09-26, 28d
+    Seguridad y API              :b4, 2026-10-24, 18d
+    section Cierre
+    Refinamiento y QA            :c1, 2026-11-11, 10d
+    Producción, documentación y cierre :c2, 2026-11-21, 5d
+    Cierre oficial               :milestone, m1, 2026-11-25, 0d
+    </script>
+  </section>
+
+  <section class="diagram" data-name="arquitectura-rodagest">
+    <h2>2. Arquitectura y despliegue</h2><div class="toolbar"><button data-format="png">Descargar PNG 3×</button><button data-format="svg">Descargar SVG</button></div><div class="diagram-output"><p class="loading">Dibujando diagrama…</p></div><p class="status" aria-live="polite"></p>
+    <script type="text/plain" class="source">
+flowchart LR
+  U[Cliente navegador / app móvil] -->|HTTPS 443| C[Caddy 2 reverse proxy]
+  C -->|FastCGI :9000| L[Laravel 12 / PHP-FPM 8.3]
+  L --> MVC[Rutas · Middleware · Controllers · Eloquent · Blade]
+  L -->|PDO MySQL| DB[(MySQL 8.0)]
+  L --> FS[(Volumen persistente storage)]
+  L -->|SMTP configurable| M[Servidor de correo]
+  U -->|Bearer Sanctum /api/v1| L
+  C --- AWS[AWS Lightsail · host Docker]
+    </script>
+  </section>
+
+  <section class="diagram" data-name="casos-uso-rodagest">
+    <h2>3. Casos de uso por rol</h2><div class="toolbar"><button data-format="png">Descargar PNG 3×</button><button data-format="svg">Descargar SVG</button></div><div class="diagram-output"><p class="loading">Dibujando diagrama…</p></div><p class="status" aria-live="polite"></p>
+    <script type="text/plain" class="source">
+flowchart LR
+  admin((Administrador))
+  inspector((Inspector))
+  operador((Operador))
+  limpieza((Limpieza))
+  publico((Público))
+  u1([Administrar personal y unidades])
+  u2([Ver reportes y administrar estados])
+  u3([Gestionar papelera])
+  u4([Registrar inspección y evidencia])
+  u5([Abrir y cerrar turno])
+  u6([Reportar incidencia de unidad asignada])
+  u7([Registrar aseo y sus etapas])
+  u8([Atender reporte de limpieza])
+  u9([Crear reporte por QR])
+  u10([Consultar seguimiento por folio])
+  u11([Administrar perfil y 2FA])
+  admin --> u1
+  admin --> u2
+  admin --> u3
+  inspector --> u2
+  inspector --> u4
+  operador --> u5
+  operador --> u6
+  limpieza --> u7
+  limpieza --> u8
+  publico --> u9
+  publico --> u10
+  admin --> u11
+  inspector --> u11
+  operador --> u11
+  limpieza --> u11
+    </script>
+  </section>
+
+  <section class="diagram" data-name="entidad-relacion-rodagest">
+    <h2>4. Entidad–Relación (tablas operativas)</h2><div class="toolbar"><button data-format="png">Descargar PNG 3×</button><button data-format="svg">Descargar SVG</button></div><div class="diagram-output"><p class="loading">Dibujando diagrama…</p></div><p class="status" aria-live="polite"></p>
+    <script type="text/plain" class="source">
+erDiagram
+  USERS ||--o{ UNIDADES : asigna
+  USERS o|--o{ INSPECCIONES : inspector
+  USERS o|--o{ INSPECCIONES : operador
+  USERS o|--o{ QUEJAS : reporta
+  USERS ||--o{ TURNOS : opera
+  USERS ||--o| EMPLOYEE_PROFILES : expediente
+  USERS ||--o{ PERSONAL_ACCESS_TOKENS : tokens
+  UNIDADES ||--o{ INSPECCIONES : recibe
+  UNIDADES ||--o{ ASEOS : limpia
+  UNIDADES ||--o{ QUEJAS : recibe
+  UNIDADES ||--o{ TURNOS : asignada
+  INSPECCIONES ||--o{ EVIDENCIAS : documenta
+  USERS {
+    bigint id PK
+    string email UK
+    string role
+  }
+  UNIDADES {
+    bigint id PK
+    string economico UK
+    bigint operador_id FK
+    string estado
+  }
+  INSPECCIONES {
+    bigint id PK
+    bigint unidad_id FK
+    bigint inspector_id FK
+    bigint operador_id FK
+    string estado
+    json checklist
+  }
+  EVIDENCIAS {
+    bigint id PK
+    bigint inspeccion_id FK
+    string ruta_archivo
+    string tipo_media
+  }
+  ASEOS {
+    bigint id PK
+    bigint unidad_id FK
+    string tipo_limpieza
+    string estado
+    json etapas
+  }
+  QUEJAS {
+    bigint id PK
+    bigint unidad_id FK
+    bigint operador_id FK
+    string eco
+    string area
+    string estado
+    string codigo_seguimiento UK
+  }
+  TURNOS {
+    bigint id PK
+    bigint operador_id FK
+    bigint unidad_id FK
+    datetime inicio
+    datetime fin
+  }
+  EMPLOYEE_PROFILES {
+    bigint id PK
+    bigint user_id FK_UK
+    longtext curp
+    longtext rfc
+    longtext nss
+  }
+  PERSONAL_ACCESS_TOKENS {
+    bigint id PK
+    bigint tokenable_id FK_POLYMORPHIC
+    string token UK
+  }
+  PASSWORD_RESET_TOKENS {
+    string email PK
+    string token
+  }
+  SESSIONS {
+    string id PK
+    bigint user_id FK_INDEX
+    longtext payload
+  }
+  CACHE {
+    string key PK
+    mediumtext value
+    integer expiration
+  }
+  CACHE_LOCKS {
+    string key PK
+    string owner
+    integer expiration
+  }
+  JOBS {
+    bigint id PK
+    string queue INDEX
+    longtext payload
+  }
+  JOB_BATCHES {
+    string id PK
+    string name
+    integer total_jobs
+  }
+  FAILED_JOBS {
+    bigint id PK
+    string uuid UK
+    longtext exception
+  }
+    </script>
+  </section>
+
+  <section class="diagram" data-name="secuencia-autenticacion-2fa">
+    <h2>5. Secuencia: autenticación, contraseña temporal y 2FA</h2><div class="toolbar"><button data-format="png">Descargar PNG 3×</button><button data-format="svg">Descargar SVG</button></div><div class="diagram-output"><p class="loading">Dibujando diagrama…</p></div><p class="status" aria-live="polite"></p>
+    <script type="text/plain" class="source">
+sequenceDiagram
+  actor Usuario
+  participant Login as Auth Controller
+  participant DB as Eloquent / DB
+  participant TOTP as Google2FA
+  participant Guard as Middleware
+  participant Dash as Dashboard
+  Usuario->>Login: Enviar correo y contraseña
+  Login->>DB: Buscar cuenta y verificar hash
+  alt TOTP habilitado
+    Login-->>Usuario: Solicitar código de seis dígitos
+    Usuario->>TOTP: Enviar código actual
+    TOTP->>DB: Verificar secreto cifrado
+  else TOTP deshabilitado
+    Login->>Guard: Continuar sesión autenticada
+  end
+  alt cambio de contraseña requerido
+    Guard-->>Usuario: Mostrar cambio temporal
+    Usuario->>DB: Guardar clave robusta y quitar indicador
+  else acceso permitido
+    Guard->>Dash: GET /dashboard
+    Dash-->>Usuario: Panel del rol
+  end
+    </script>
+  </section>
+
+  <section class="diagram" data-name="secuencia-evidencia">
+    <h2>6. Secuencia: registro de inspección, aseo o reporte con evidencia</h2><div class="toolbar"><button data-format="png">Descargar PNG 3×</button><button data-format="svg">Descargar SVG</button></div><div class="diagram-output"><p class="loading">Dibujando diagrama…</p></div><p class="status" aria-live="polite"></p>
+    <script type="text/plain" class="source">
+sequenceDiagram
+  actor Personal
+  participant UI as Web / App
+  participant Router as Router + role middleware
+  participant Ctl as Controlador
+  participant Files as Storage public
+  participant DB as MySQL
+  Personal->>UI: Capturar campos y foto
+  UI->>Router: POST con CSRF o Bearer token
+  Router->>Ctl: Comprobar sesión/rol/activo
+  Ctl->>Ctl: Validar datos y tipo/tamaño de imagen
+  opt fotografía adjunta
+    Ctl->>Files: Guardar archivo
+    Files-->>Ctl: Devolver ruta
+  end
+  Ctl->>DB: Crear registro y guardar ruta
+  DB-->>Ctl: Registro persistido
+  Ctl-->>UI: Redirect o respuesta JSON 201
+    </script>
+  </section>
+
+  <section class="diagram" data-name="secuencia-papelera">
+    <h2>7. Secuencia: baja lógica y restauración</h2><div class="toolbar"><button data-format="png">Descargar PNG 3×</button><button data-format="svg">Descargar SVG</button></div><div class="diagram-output"><p class="loading">Dibujando diagrama…</p></div><p class="status" aria-live="polite"></p>
+    <script type="text/plain" class="source">
+sequenceDiagram
+  actor Admin
+  participant Route as Rutas protegidas
+  participant Ctl as Controlador de bajas
+  participant Model as SoftDeletes
+  participant DB as MySQL
+  Admin->>Route: Solicitar baja con motivo
+  Route->>Ctl: Verificar role admin
+  Ctl->>Ctl: Impedir baja protegida y validar motivo
+  Ctl->>Model: Marcar empleado inactivo / delete lógico
+  Model->>DB: Guardar deleted_at y motivo
+  Admin->>Route: Consultar /papelera
+  Route->>Ctl: Listar onlyTrashed
+  Admin->>Route: Restaurar elemento
+  Ctl->>Model: restore() y limpiar motivo
+  Model->>DB: deleted_at = null
+  DB-->>Admin: Elemento restaurado
+    </script>
+  </section>
+
+  <section class="diagram" data-name="estados-unidad">
+    <h2>8. Estados operativos de una unidad</h2><div class="toolbar"><button data-format="png">Descargar PNG 3×</button><button data-format="svg">Descargar SVG</button></div><div class="diagram-output"><p class="loading">Dibujando diagrama…</p></div><p class="status" aria-live="polite"></p>
+    <script type="text/plain" class="source">
+stateDiagram-v2
+  [*] --> Operativa: Alta
+  Operativa --> EnTaller: Mantenimiento o falla
+  EnTaller --> Operativa: Liberación técnica
+  Operativa --> EnLimpieza: Iniciar aseo
+  EnLimpieza --> Operativa: Completar etapas
+  EnLimpieza --> FueraDeServicio: Hallazgo
+  EnTaller --> FueraDeServicio: Diagnóstico crítico
+  FueraDeServicio --> EnTaller: Reparación
+  Operativa --> DadaDeBaja: Baja lógica
+  EnTaller --> DadaDeBaja: Baja lógica
+  EnLimpieza --> DadaDeBaja: Baja lógica
+  FueraDeServicio --> DadaDeBaja: Baja lógica
+  DadaDeBaja --> Operativa: Restaurar y revisar
+    </script>
+  </section>
+
+  <section class="diagram" data-name="estados-reporte">
+    <h2>9. Estados de un reporte</h2><div class="toolbar"><button data-format="png">Descargar PNG 3×</button><button data-format="svg">Descargar SVG</button></div><div class="diagram-output"><p class="loading">Dibujando diagrama…</p></div><p class="status" aria-live="polite"></p>
+    <script type="text/plain" class="source">
+stateDiagram-v2
+  [*] --> Pendiente: Reporte creado
+  Pendiente --> EnProceso: Iniciar seguimiento
+  Pendiente --> Resuelto: Atención terminada
+  EnProceso --> Resuelto: Resolver
+  EnProceso --> Pendiente: Reabrir
+  Resuelto --> [*]
+    </script>
+  </section>
+</main>
+<script>
+(() => {
+  const cards = [...document.querySelectorAll('.diagram')];
+  const setStatus = (card, message) => { card.querySelector('.status').textContent = message; };
+  const safeName = (value) => value.replace(/[^a-z0-9-]/gi, '-').toLowerCase();
+
+  if (!window.mermaid) {
+    document.querySelectorAll('.loading').forEach((node) => node.textContent = 'No se pudo cargar Mermaid.js. Comprueba la conexión e inténtalo de nuevo.');
+    return;
+  }
+
+  mermaid.initialize({ startOnLoad: false, securityLevel: 'strict', theme: 'neutral', flowchart: { htmlLabels: false, curve: 'basis' }, sequence: { useMaxWidth: true }, er: { useMaxWidth: true } });
+
+  async function draw(card, index) {
+    const source = card.querySelector('.source').textContent.trim();
+    const output = card.querySelector('.diagram-output');
+    try {
+      const { svg } = await mermaid.render(`rodagest-diagram-${index}`, source);
+      output.innerHTML = svg;
+      const graphic = output.querySelector('svg');
+      graphic.removeAttribute('style');
+      graphic.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+      if (!graphic.getAttribute('viewBox')) {
+        const box = graphic.getBBox();
+        graphic.setAttribute('viewBox', `0 0 ${Math.ceil(box.width + 40)} ${Math.ceil(box.height + 40)}`);
+      }
+      graphic.setAttribute('width', graphic.getAttribute('width') || '1200');
+      graphic.setAttribute('height', graphic.getAttribute('height') || 'auto');
+      setStatus(card, 'Diagrama listo para descargar.');
+    } catch (error) {
+      output.innerHTML = '<p class="loading">No se pudo interpretar este diagrama. Revisa la conexión o la sintaxis Mermaid.</p>';
+      setStatus(card, error?.message || 'Error al procesar Mermaid.');
+    }
+  }
+
+  function svgMarkup(card) {
+    const svg = card.querySelector('.diagram-output svg');
+    if (!svg) throw new Error('El diagrama aún no terminó de dibujarse.');
+    const clone = svg.cloneNode(true);
+    clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    clone.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+    const viewBox = clone.viewBox.baseVal;
+    const width = Math.max(1200, Math.ceil(viewBox.width || parseFloat(clone.getAttribute('width')) || 1200));
+    const height = Math.max(400, Math.ceil(viewBox.height || parseFloat(clone.getAttribute('height')) || 400));
+    clone.setAttribute('width', String(width));
+    clone.setAttribute('height', String(height));
+    clone.setAttribute('viewBox', `0 0 ${viewBox.width || width} ${viewBox.height || height}`);
+    return { text: new XMLSerializer().serializeToString(clone), width, height };
+  }
+
+  function downloadBlob(blob, filename) {
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.href = url;
+    link.download = filename;
+    document.body.append(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+  }
+
+  async function exportDiagram(button) {
+    const card = button.closest('.diagram');
+    const format = button.dataset.format;
+    const base = safeName(card.dataset.name || 'rodagest-diagrama');
+    button.disabled = true;
+    try {
+      const { text, width, height } = svgMarkup(card);
+      if (format === 'svg') {
+        downloadBlob(new Blob([text], { type: 'image/svg+xml;charset=utf-8' }), `${base}.svg`);
+      } else {
+        const image = new Image();
+        const url = URL.createObjectURL(new Blob([text], { type: 'image/svg+xml;charset=utf-8' }));
+        await new Promise((resolve, reject) => { image.onload = resolve; image.onerror = reject; image.src = url; });
+        const scale = 3;
+        const canvas = document.createElement('canvas');
+        canvas.width = width * scale;
+        canvas.height = height * scale;
+        const context = canvas.getContext('2d');
+        context.fillStyle = '#ffffff';
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.scale(scale, scale);
+        context.drawImage(image, 0, 0, width, height);
+        URL.revokeObjectURL(url);
+        const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+        if (!blob) throw new Error('El navegador no pudo crear la imagen PNG.');
+        downloadBlob(blob, `${base}-3x.png`);
+      }
+      setStatus(card, `Descarga ${format.toUpperCase()} iniciada.`);
+    } catch (error) {
+      setStatus(card, error?.message || 'No se pudo exportar el diagrama.');
+    } finally {
+      button.disabled = false;
+    }
+  }
+
+  cards.forEach((card, index) => {
+    draw(card, index);
+    card.querySelectorAll('[data-format]').forEach((button) => button.addEventListener('click', () => exportDiagram(button)));
+  });
+})();
+</script>
+</body>
+</html>

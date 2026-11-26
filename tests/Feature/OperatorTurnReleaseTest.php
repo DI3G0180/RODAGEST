@@ -15,6 +15,39 @@ class OperatorTurnReleaseTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_cleaner_can_complete_all_four_stages_without_a_photo(): void
+    {
+        $cleaner = User::factory()->create(['role' => 'limpieza', 'activo' => true]);
+        $unit = Unidad::create(['economico' => 'ECO-ASEO-FAST', 'estado' => 'operativa']);
+
+        $this->actingAs($cleaner)->get(route('dashboard', [], false))
+            ->assertOk()->assertSee('Aseo rápido de hoy')->assertSee('Pendiente');
+        $this->post(route('aseos.completar-rapido', [], false), ['unidad_id' => $unit->id])
+            ->assertRedirect()->assertSessionHasNoErrors();
+
+        $aseo = Aseo::where('unidad_id', $unit->id)->firstOrFail();
+        $this->assertSame('completado', $aseo->estado);
+        $this->assertSame(4, collect($aseo->etapas)->filter()->count());
+        $this->assertNull($aseo->evidencia_foto);
+        $this->assertDatabaseHas('unidades', ['id' => $unit->id, 'estado' => 'operativa']);
+    }
+
+    public function test_operator_quick_checklist_registers_all_ok_and_updates_dashboard_indicator(): void
+    {
+        $operator = User::factory()->create(['role' => 'operador', 'activo' => true]);
+        $unit = Unidad::create(['economico' => 'ECO-CHECK-FAST', 'estado' => 'operativa', 'operador_id' => $operator->id]);
+
+        $this->actingAs($operator)->post(route('turnos.checklist-rapido', [], false), [
+            'hay_falla' => '0',
+            'checklist' => ['luces' => '1', 'frenos' => '1', 'llantas' => '1', 'fluidos' => '1', 'espejos_seguridad' => '1'],
+        ])->assertRedirect()->assertSessionHasNoErrors();
+
+        $inspection = Inspeccion::where('unidad_id', $unit->id)->firstOrFail();
+        $this->assertSame('resuelto', $inspection->estado);
+        $this->assertCount(5, collect($inspection->checklist)->filter());
+        $this->get(route('dashboard', [], false))->assertOk()->assertSee('Checklist de hoy registrado.');
+    }
+
     public function test_dashboard_recognizes_today_records_by_unit_and_allows_turn_start(): void
     {
         config(['app.timezone' => 'America/Mexico_City']);

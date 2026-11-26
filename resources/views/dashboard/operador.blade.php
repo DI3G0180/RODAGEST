@@ -25,6 +25,24 @@
                         </div>
                     @endforeach
                 </div>
+                @if(!$inspeccionAprobadaHoy)
+                    <details class="mt-4 rounded-xl border border-[#6DA5C0]/40 bg-[#F4F9FB] p-3" x-data="{ checks: { luces: true, frenos: true, llantas: true, fluidos: true, espejos_seguridad: true }, get hayFalla() { return Object.values(this.checks).some(ok => !ok) } }">
+                        <summary class="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 font-bold text-[#0C7075]"><span>Checklist rápido de hoy</span><span class="text-sm">Abrir</span></summary>
+                        <form action="{{ route('turnos.checklist-rapido', [], false) }}" method="POST" class="mt-3 space-y-3">@csrf
+                            <input type="hidden" name="hay_falla" :value="hayFalla ? 1 : 0">
+                            <div class="grid gap-2 sm:grid-cols-2">
+                                @foreach(['luces'=>'Luces','frenos'=>'Frenos','llantas'=>'Llantas','fluidos'=>'Niveles de fluidos','espejos_seguridad'=>'Espejos / seguridad'] as $key=>$label)
+                                    <label class="flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border border-[#6DA5C0]/30 bg-white px-4 py-3 text-sm font-semibold"><input type="checkbox" name="checklist[{{ $key }}]" value="1" x-model="checks.{{ $key }}" checked class="h-5 w-5 rounded text-[#0F969C] focus:ring-[#0F969C]"><span>{{ $label }}</span><span class="ml-auto text-xs font-bold text-emerald-700" x-show="checks.{{ $key }}">OK</span><span class="ml-auto text-xs font-bold text-red-700" x-show="!checks.{{ $key }}">Revisar</span></label>
+                                @endforeach
+                            </div>
+                            <div x-show="!hayFalla" class="flex flex-wrap items-center justify-between gap-2"><p class="text-sm font-semibold text-emerald-800">Todo OK (Sin novedad)</p><button type="button" @click="Object.keys(checks).forEach(key => checks[key] = true)" class="min-h-10 rounded-lg border border-emerald-300 bg-white px-3 text-xs font-bold text-emerald-800">Confirmar todo OK</button></div>
+                            <label x-show="hayFalla" class="block text-sm font-semibold text-red-800">Nota breve del punto a revisar<textarea name="observaciones" :required="hayFalla" maxlength="500" rows="2" class="field mt-1" placeholder="Describe brevemente el hallazgo"></textarea></label>
+                            <button class="min-h-12 w-full rounded-xl bg-[#0F969C] px-4 py-3 font-bold text-white">Guardar checklist de hoy</button>
+                        </form>
+                    </details>
+                @else
+                    <p class="mt-4 rounded-xl bg-emerald-50 p-3 text-sm font-semibold text-emerald-800">Checklist de hoy registrado.</p>
+                @endif
             @else
                 <p class="mt-4 rounded-xl bg-amber-50 p-3 text-sm text-amber-900">No tienes una unidad asignada. Solicita la asignación al administrador.</p>
             @endif

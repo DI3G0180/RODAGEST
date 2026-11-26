@@ -86,12 +86,14 @@ Route::middleware(['auth', 'active'])->group(function () {
         ->middleware('role:limpieza')->name('quejas.accion-limpieza');
 
     Route::post('/turnos', [TurnoController::class, 'store'])->middleware('role:operador')->name('turnos.store');
+    Route::post('/turnos/checklist-rapido', [TurnoController::class, 'quickInspection'])->middleware('role:operador')->name('turnos.checklist-rapido');
     Route::patch('/turnos/{turno}/cerrar', [TurnoController::class, 'close'])->middleware('role:operador')->name('turnos.close');
 
     // 4. MÓDULO DE ASEO / MANTENIMIENTO (Admin e Intendente)
     Route::resource('aseos', AseoController::class)->only(['index', 'create', 'store', 'destroy'])->middleware('role:limpieza')->parameters([
         'aseos' => 'aseo'
     ]);
+    Route::post('/aseos/completar-rapido', [AseoController::class, 'quickComplete'])->middleware('role:limpieza')->name('aseos.completar-rapido');
     Route::patch('aseos/{aseo}', [AseoController::class, 'update'])->middleware('role:limpieza')->name('aseos.update');
 
     // Rutas adicionales para aseos

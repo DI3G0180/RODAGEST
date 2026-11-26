@@ -6,9 +6,49 @@ use App\Models\Aseo;
 use App\Models\Unidad;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class AseoController extends Controller
 {
+    public function quickComplete(Request $request)
+    {
+        $data = $request->validate([
+            'unidad_id' => ['required', 'integer', 'exists:unidades,id'],
+            'incidencia' => ['nullable', 'boolean'],
+            'observaciones' => ['required_if:incidencia,1', 'nullable', 'string', 'max:1000'],
+            'evidencia_foto' => ['required_if:incidencia,1', 'nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+        ]);
+        $unidad = Unidad::whereKey($data['unidad_id'])->whereIn('estado', ['operativa', 'activo'])->firstOrFail();
+        if (Aseo::where('unidad_id', $unidad->id)->whereDate('fecha_hora', today())->where('estado', 'completado')->exists()) {
+            return back()->with('success', 'Esta unidad ya tiene el aseo de hoy registrado.');
+        }
+
+        $path = $request->hasFile('evidencia_foto') ? $request->file('evidencia_foto')->store('aseos', 'public') : null;
+        try {
+            DB::transaction(function () use ($request, $unidad, $data, $path): void {
+                Aseo::create([
+                    'unidad_id' => $unidad->id,
+                    'tipo_limpieza' => 'Lavado y desinfección',
+                    'intendente_responsable' => $request->user()->name,
+                    'area_terminal' => $unidad->area ?: 'Patio',
+                    'fecha_hora' => now(),
+                    'producto_desinfectante' => 'Desinfectante habitual',
+                    'etapas' => ['barrido' => true, 'pasamanos_asientos' => true, 'cabina_exterior' => true, 'nebulizacion' => true],
+                    'estado' => 'completado',
+                    'observaciones' => $data['observaciones'] ?? 'Sin novedad · aseo diario 4/4.',
+                    'comentarios' => $data['observaciones'] ?? 'Sin novedad · aseo diario 4/4.',
+                    'evidencia_foto' => $path,
+                ]);
+                $unidad->update(['estado' => 'operativa']);
+            });
+        } catch (\Throwable $exception) {
+            if ($path) Storage::disk('public')->delete($path);
+            throw $exception;
+        }
+
+        return back()->with('success', 'Aseo 4/4 registrado para '.$unidad->economico.'.');
+    }
+
     public function index(Request $request)
     {
         $request->validate([

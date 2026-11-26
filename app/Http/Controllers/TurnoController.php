@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Turno;
 use App\Models\User;
+use App\Models\Inspeccion;
+use App\Models\Queja;
 use App\Notifications\TurnoIniciadoConRequisitosPendientes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -12,6 +14,58 @@ use Illuminate\Validation\Rule;
 class TurnoController extends Controller
 {
     private const FUEL_LEVELS = ['vacío', '1/4', '1/2', '3/4', 'lleno'];
+
+    private const QUICK_CHECKS = [
+        'luces' => 'Luces', 'frenos' => 'Frenos', 'llantas' => 'Llantas',
+        'fluidos' => 'Niveles de fluidos', 'espejos_seguridad' => 'Espejos / seguridad',
+    ];
+
+    public function quickInspection(Request $request)
+    {
+        $operador = $request->user();
+        $unidad = $operador->unidadAsignada;
+        abort_unless($unidad && in_array($unidad->estado, ['operativa', 'activo'], true), 422, 'No tienes una unidad operativa asignada.');
+        $data = $request->validate([
+            'checklist' => ['nullable', 'array'],
+            'checklist.luces' => ['nullable', 'boolean'], 'checklist.frenos' => ['nullable', 'boolean'],
+            'checklist.llantas' => ['nullable', 'boolean'], 'checklist.fluidos' => ['nullable', 'boolean'],
+            'checklist.espejos_seguridad' => ['nullable', 'boolean'],
+            'observaciones' => ['required_if:hay_falla,1', 'nullable', 'string', 'max:500'],
+            'hay_falla' => ['nullable', 'boolean'],
+        ]);
+        $checklist = collect(self::QUICK_CHECKS)->mapWithKeys(fn ($label, $key) => [$key => $request->boolean('checklist.'.$key)])->all();
+        $fallas = collect($checklist)->filter(fn ($ok) => ! $ok)->keys()->map(fn ($key) => self::QUICK_CHECKS[$key])->all();
+        $nota = trim((string) ($data['observaciones'] ?? ''));
+        $hasFailure = count($fallas) > 0;
+        if ($hasFailure && $nota === '') {
+            return back()->withErrors(['observaciones' => 'Describe brevemente el punto que requiere atención.'])->withInput();
+        }
+        if (Inspeccion::where('unidad_id', $unidad->id)->whereDate('fecha_reporte', today())->exists()) {
+            return back()->with('success', 'La inspección de hoy ya está registrada.');
+        }
+
+        DB::transaction(function () use ($unidad, $operador, $checklist, $fallas, $nota, $hasFailure): void {
+            $descripcion = $hasFailure
+                ? 'Checklist rápido con hallazgo en: '.implode(', ', $fallas).'. '.$nota
+                : 'Checklist rápido diario: todo OK, sin novedad.';
+            Inspeccion::create([
+                'unidad_id' => $unidad->id, 'operador_id' => $operador->id,
+                'inspector_responsable' => $operador->name, 'tipo_dano' => $hasFailure ? 'Inspección rápida con hallazgo' : 'Checklist diario sin novedad',
+                'prioridad' => $hasFailure ? 'media' : 'baja', 'estado' => $hasFailure ? 'pendiente' : 'resuelto',
+                'descripcion' => $descripcion, 'fecha_reporte' => now(), 'checklist' => $checklist,
+                'dictamen' => 'operativa',
+            ]);
+            if ($hasFailure) {
+                Queja::create([
+                    'unidad_id' => $unidad->id, 'eco' => $unidad->economico, 'operador_id' => $operador->id,
+                    'tipo_queja' => 'Falla mecánica', 'estado' => 'pendiente', 'urgencia' => 'normal',
+                    'descripcion' => $descripcion, 'comentarios' => $nota, 'medio_reporte' => 'interno',
+                ]);
+            }
+        });
+
+        return back()->with('success', $hasFailure ? 'Checklist guardado; se generó un reporte de seguimiento.' : 'Checklist de hoy guardado: todo OK.');
+    }
 
     public function store(Request $request)
     {

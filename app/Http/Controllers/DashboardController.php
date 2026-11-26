@@ -20,6 +20,8 @@ class DashboardController extends Controller
         $empleados = User::with('unidadAsignada')->orderBy('name')->get();
         $inspecciones = Inspeccion::with('unidad')->latest()->take(8)->get();
         $aseos = Aseo::with('unidad')->latest()->take(8)->get();
+        $unidadesLimpieza = Unidad::whereIn('estado', ['operativa', 'activo'])->orderBy('economico')->get();
+        $aseoCompletadoHoyUnidadIds = Aseo::whereDate('fecha_hora', today())->where('estado', 'completado')->pluck('unidad_id')->unique()->values();
         $reportes = Queja::with('unidad')->where('operador_id', $user->id)->latest()->take(8)->get();
         $turnoAbierto = $user->role === 'operador'
             ? Turno::with('unidad')->where('operador_id', $user->id)->where('estado', 'abierto')->latest('inicio')->first()
@@ -101,6 +103,8 @@ class DashboardController extends Controller
             'empleados' => $empleados,
             'inspecciones' => $inspecciones,
             'aseos' => $aseos,
+            'unidadesLimpieza' => $unidadesLimpieza,
+            'aseoCompletadoHoyUnidadIds' => $aseoCompletadoHoyUnidadIds,
             'reportes' => $reportes,
             'turnoAbierto' => $turnoAbierto,
             'inspeccionAprobadaHoy' => $inspeccionAprobadaHoy,

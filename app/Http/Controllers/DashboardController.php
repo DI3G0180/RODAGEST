@@ -24,11 +24,12 @@ class DashboardController extends Controller
         $turnoAbierto = $user->role === 'operador'
             ? Turno::with('unidad')->where('operador_id', $user->id)->where('estado', 'abierto')->latest('inicio')->first()
             : null;
-        // Algunas instalaciones guardan la inspección con el estado heredado reparada.
+        // La inspección y el aseo son requisitos de registro diario por unidad,
+        // independientemente del usuario o del estado histórico con que se guardaron.
         $inspeccionAprobadaHoy = (bool) ($unidadAsignada && Inspeccion::where('unidad_id', $unidadAsignada->id)
-            ->whereDate('fecha_reporte', today())->whereIn('estado', ['resuelto', 'reparada', 'completado', 'aprobada'])->exists());
+            ->whereDate('fecha_reporte', today())->exists());
         $aseoCompletadoHoy = (bool) ($unidadAsignada && Aseo::where('unidad_id', $unidadAsignada->id)
-            ->whereDate('fecha_hora', today())->whereIn('estado', ['completado', 'completa', 'realizado', 'realizada'])->exists());
+            ->whereDate('fecha_hora', today())->exists());
         $unidadOperativa = (bool) ($unidadAsignada && in_array($unidadAsignada->estado, ['operativa', 'activo'], true));
         $estadoFlota = [
             'operativa' => Unidad::whereIn('estado', ['operativa', 'activo'])->count(),

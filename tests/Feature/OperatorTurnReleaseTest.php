@@ -26,7 +26,7 @@ class OperatorTurnReleaseTest extends TestCase
         Inspeccion::create([
             'unidad_id' => $unit->id, 'inspector_id' => $inspector->id,
             'inspector_responsable' => $inspector->name, 'tipo_dano' => 'Sin hallazgo',
-            'prioridad' => 'baja', 'estado' => 'reparada', 'descripcion' => 'Inspección conforme',
+            'prioridad' => 'baja', 'estado' => 'pendiente', 'descripcion' => 'Inspección registrada hoy',
             'fecha_reporte' => now(),
         ]);
         Aseo::create([

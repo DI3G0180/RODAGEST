@@ -29,10 +29,8 @@ class TurnoController extends Controller
             return back()->withErrors(['odometro_inicio' => 'El odómetro inicial no puede ser menor al último registro.'])->withInput();
         }
 
-        $inspeccionHoy = \App\Models\Inspeccion::where('unidad_id', $unidad->id)->whereDate('fecha_reporte', today())
-            ->whereIn('estado', ['resuelto', 'reparada', 'completado', 'aprobada'])->exists();
-        $aseoHoy = \App\Models\Aseo::where('unidad_id', $unidad->id)->whereDate('fecha_hora', today())
-            ->whereIn('estado', ['completado', 'completa', 'realizado', 'realizada'])->exists();
+        $inspeccionHoy = \App\Models\Inspeccion::where('unidad_id', $unidad->id)->whereDate('fecha_reporte', today())->exists();
+        $aseoHoy = \App\Models\Aseo::where('unidad_id', $unidad->id)->whereDate('fecha_hora', today())->exists();
         $pendientes = array_values(array_filter([
             ! $inspeccionHoy ? 'Inspección de hoy' : null,
             ! $aseoHoy ? 'Aseo completado hoy' : null,

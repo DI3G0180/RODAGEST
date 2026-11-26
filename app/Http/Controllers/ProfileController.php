@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
@@ -47,22 +46,6 @@ class ProfileController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
-        ]);
-
-        $user = $request->user();
-        abort_if($user->role === 'admin', 403, 'La cuenta administradora no se puede eliminar desde el perfil.');
-        $user->forceFill(['activo' => false, 'motivo_baja' => 'Baja solicitada por el usuario'])->save();
-        \App\Models\Unidad::where('operador_id', $user->id)->update(['operador_id' => null]);
-
-        Auth::logout();
-
-        $user->delete();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return Redirect::to('/');
+        abort(403, 'No puedes dar de baja tu propia cuenta. Solicita la gestión al administrador.');
     }
 }

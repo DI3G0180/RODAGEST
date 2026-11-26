@@ -40,7 +40,7 @@
         ];
     @endphp
 
-    <div x-data="{ open: false, toggle() { this.open = !this.open; document.body.style.overflow = this.open ? 'hidden' : '' }, close() { this.open = false; document.body.style.overflow = '' } }" @keydown.escape.window="close()">
+    <div x-data="{ open: false, toggle() { this.open = !this.open }, close() { this.open = false } }" x-effect="document.body.style.overflow = open ? 'hidden' : ''" @keydown.escape.window="close()">
     <div class="sticky top-0 z-30 border-b border-[#6DA5C0]/50 bg-white shadow-sm">
         <header class="mx-auto flex h-16 max-w-[1600px] items-center justify-between gap-3 px-4">
             <a href="{{ route('dashboard', [], false) }}" aria-label="RODAGEST, panel principal" class="flex min-w-0 shrink-0 items-center gap-2 md:w-44">
@@ -68,26 +68,27 @@
         </header>
     </div>
 
-    <div id="rodagest-mobile-drawer" x-show="open" x-cloak x-transition.opacity :aria-hidden="(!open).toString()" class="fixed inset-0 z-50 md:hidden">
-        <div @click="close()" class="fixed inset-0 bg-[#05161A]/70 transition-opacity" aria-hidden="true"></div>
-        <button type="button" @click="close()" aria-label="Cerrar menú" class="absolute left-[min(82vw,18.5rem)] top-4 z-[60] flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-[#05161A] text-xl text-white shadow-lg">✕</button>
+    <template x-teleport="body">
+    <div id="rodagest-mobile-drawer" x-show="open" x-cloak x-transition.opacity :aria-hidden="(!open).toString()" class="fixed inset-0 z-40 md:hidden">
+        <div @click="close()" class="absolute inset-0 bg-slate-900/60 transition-opacity" aria-hidden="true"></div>
 
-        <aside id="rodagest-mobile-panel" role="dialog" aria-modal="true" aria-labelledby="rodagest-drawer-title" tabindex="-1" class="relative z-50 flex h-[100dvh] w-72 max-w-[80vw] flex-col justify-between overflow-y-auto border-b border-slate-200 bg-white shadow-xl">
+        <aside id="rodagest-mobile-panel" role="dialog" aria-modal="true" aria-labelledby="rodagest-drawer-title" tabindex="-1" class="fixed inset-y-0 right-0 z-50 flex h-[100dvh] w-72 max-w-[85vw] flex-col overflow-y-auto bg-white text-slate-800 shadow-2xl">
             <div class="min-h-0 flex-1">
-                <div class="bg-[#05161A] p-5 text-white">
+                <div class="flex items-start justify-between gap-3 border-b border-slate-200 bg-white p-4">
                     <div class="flex items-start gap-3">
-                        <span class="mt-1 grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/10 text-white"><svg aria-hidden="true" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2m8-10a4 4 0 1 0 0-8 4 4 0 0 0 0 8"/></svg></span>
-                        <div class="min-w-0"><p id="rodagest-drawer-title" class="font-extrabold">Hola, {{ $user->name }}</p><span class="mt-1 inline-flex rounded-full bg-[#0F969C] px-2.5 py-0.5 text-xs font-bold uppercase text-white">{{ $roleLabels[$role] ?? $role }}</span><p class="mt-3 text-xs font-medium text-white/75">Explorar RODAGEST</p></div>
+                        <img src="/images/logo-rodagest.png" alt="RODAGEST" class="h-9 w-auto object-contain [mix-blend-mode:multiply]">
+                        <div class="min-w-0"><p id="rodagest-drawer-title" class="break-words font-extrabold text-slate-900">Hola, {{ $user->name }}</p><span class="mt-1 inline-flex rounded-full bg-teal-100 px-2.5 py-0.5 text-xs font-bold uppercase text-teal-900">{{ $roleLabels[$role] ?? $role }}</span><p class="mt-2 text-xs font-medium text-slate-600">Explorar RODAGEST</p></div>
                     </div>
+                    <button type="button" @click="close()" aria-label="Cerrar menú" class="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-slate-100 text-xl font-bold text-slate-800 hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-700">×</button>
                 </div>
 
-                <nav aria-label="Menú móvil" class="divide-y divide-[#6DA5C0]/30">
+                <nav aria-label="Menú móvil" class="divide-y divide-slate-200 bg-white">
                     @foreach($navigationGroups as $groupLabel => $items)
                         <section class="py-2">
-                            <h2 class="px-5 py-2 text-base font-extrabold text-[#05161A]">{{ $groupLabel }}</h2>
+                            <h2 class="px-4 py-2 text-xs font-extrabold uppercase tracking-wide text-slate-500">{{ $groupLabel }}</h2>
                             @foreach($items as [$label, $routeName])
                                 @php($active = request()->routeIs($routeName) || request()->routeIs($routeName . '.*'))
-                                <a href="{{ route($routeName, [], false) }}" @if($active) aria-current="page" @endif @click="close()" class="flex min-h-12 items-center gap-3 border-l-4 px-5 py-3 text-sm {{ $active ? 'border-[#0C7075] bg-[#0C7075]/10 font-bold text-[#0C7075]' : 'border-transparent font-medium text-[#05161A] hover:bg-[#6DA5C0]/20' }}">
+                                <a href="{{ route($routeName, [], false) }}" @if($active) aria-current="page" @endif @click="close()" class="flex min-h-12 items-center gap-3 border-l-4 px-4 py-3 text-sm {{ $active ? 'border-teal-700 bg-teal-50 font-bold text-teal-900' : 'border-transparent font-medium text-slate-800 hover:bg-teal-50' }}">
                                     <svg aria-hidden="true" class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24"><path d="{{ $menuIcons[$routeName] ?? $menuIcons['dashboard'] }}"/></svg><span>{{ $label }}</span>
                                 </a>
                             @endforeach
@@ -96,8 +97,9 @@
                 </nav>
             </div>
 
-            <form method="POST" action="{{ route('logout', [], false) }}" class="relative z-50 shrink-0 border-t border-[#6DA5C0]/40 bg-white p-4">@csrf<button class="w-full rounded-xl bg-[#072E33] py-3 font-bold text-white transition hover:bg-[#05161A]">Cerrar sesión</button></form>
+            <form method="POST" action="{{ route('logout', [], false) }}" class="shrink-0 border-t border-slate-200 bg-white p-4">@csrf<button class="w-full rounded-xl bg-[#072E33] py-3 font-bold text-white transition hover:bg-[#05161A]">Cerrar sesión</button></form>
         </aside>
     </div>
+    </template>
     </div>
 @endauth

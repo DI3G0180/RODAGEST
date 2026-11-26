@@ -31,9 +31,12 @@ class RoleDashboardsTest extends TestCase
 
             $this->get(route('dashboard', [], false))
                 ->assertOk()
-                ->assertViewHas('userRole', $role);
+                ->assertViewHas('userRole', $role)
+                ->assertSee('x-teleport="body"', false)
+                ->assertSee('rodagest-mobile-panel', false)
+                ->assertSee('hover:bg-teal-50', false);
 
-            $this->post(route('logout', [], false))->assertRedirect(route('login', [], false));
+            $this->post(route('logout', [], false))->assertRedirect('/');
             $this->get(route('login', [], false))->assertOk();
         }
     }

@@ -11,6 +11,25 @@ class EmployeeSecurityTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_employee_directory_and_individual_tabs_render_without_legacy_bulk_edit_section(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $worker = User::factory()->create(['role' => 'inspector', 'name' => 'Inspectora QA']);
+
+        $this->actingAs($admin)
+            ->get(route('empleados.index', [], false))
+            ->assertOk()
+            ->assertSee('Ver expediente y gestionar')
+            ->assertDontSee('Editar accesos y gestionar cuentas de esta página');
+
+        $this->get(route('empleados.show', $worker, false))
+            ->assertOk()
+            ->assertSee("x-data=\"{ tab: 'expediente' }\"", false)
+            ->assertSee('Expediente / hoja de vida')
+            ->assertSee('Editar accesos y cuenta')
+            ->assertSee('Dar de baja trabajador');
+    }
+
     public function test_employee_start_date_must_be_in_2026_or_later_and_is_persisted(): void
     {
         $admin = User::factory()->create(['role' => 'admin', 'activo' => true]);
@@ -28,7 +47,8 @@ class EmployeeSecurityTest extends TestCase
 
         $payload['fecha_ingreso'] = '2026-01-01';
         $this->post('/empleados', $payload)->assertSessionHasNoErrors();
-        $this->assertDatabaseHas('users', ['email' => $payload['email'], 'fecha_ingreso' => '2026-01-01']);
+        $empleado = User::where('email', $payload['email'])->firstOrFail();
+        $this->assertSame('2026-01-01', $empleado->fecha_ingreso->toDateString());
     }
 
     public function test_admin_cannot_create_a_second_admin_and_employee_password_must_be_strong(): void

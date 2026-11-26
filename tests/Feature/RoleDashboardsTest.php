@@ -32,6 +32,8 @@ class RoleDashboardsTest extends TestCase
             $this->get(route('dashboard', [], false))
                 ->assertOk()
                 ->assertViewHas('userRole', $role)
+                ->assertSee('rel="stylesheet"', false)
+                ->assertSee('/build/assets/', false)
                 ->assertSee('x-teleport="body"', false)
                 ->assertSee('rodagest-mobile-panel', false)
                 ->assertSee('hover:bg-teal-50', false);
@@ -39,5 +41,16 @@ class RoleDashboardsTest extends TestCase
             $this->post(route('logout', [], false))->assertRedirect('/');
             $this->get(route('login', [], false))->assertOk();
         }
+    }
+
+    public function test_units_page_includes_production_vite_stylesheet(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin', 'activo' => true]);
+
+        $this->actingAs($admin)
+            ->get(route('unidades.index', [], false))
+            ->assertOk()
+            ->assertSee('rel="stylesheet"', false)
+            ->assertSee('/build/assets/', false);
     }
 }

@@ -33,6 +33,7 @@ services:
       MAIL_FROM_NAME: ${MAIL_FROM_NAME:-RODAGEST}
     volumes:
       - rodagest_storage:/app/storage
+      - rodagest_public_build:/app/public/build
     depends_on:
       db:
         condition: service_healthy
@@ -67,6 +68,7 @@ services:
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - .:/app:ro
+      - rodagest_public_build:/app/public/build:ro
       - rodagest_storage:/app/storage:ro
       - caddy_data:/data
       - caddy_config:/config
@@ -76,6 +78,7 @@ services:
 volumes:
   rodagest_db:
   rodagest_storage:
+  rodagest_public_build:
   caddy_data:
   caddy_config:
 

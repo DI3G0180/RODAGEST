@@ -6,7 +6,7 @@
     <link rel="shortcut icon" href="/favicon.ico?v=4">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=4">
     <title>RODAGEST — Panel operativo</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-[#F4F9FB] text-[#05161A] antialiased">
 @php($user = $user ?? auth()->user())

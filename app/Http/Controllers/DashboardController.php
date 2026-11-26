@@ -24,12 +24,11 @@ class DashboardController extends Controller
         $turnoAbierto = $user->role === 'operador'
             ? Turno::with('unidad')->where('operador_id', $user->id)->where('estado', 'abierto')->latest('inicio')->first()
             : null;
-        // Inspection workflow states are pendiente / en_proceso / resuelto.
-        // The old check used aprobada / reparada, values never produced by this app.
+        // Algunas instalaciones guardan la inspección con el estado heredado reparada.
         $inspeccionAprobadaHoy = (bool) ($unidadAsignada && Inspeccion::where('unidad_id', $unidadAsignada->id)
-            ->whereDate('fecha_reporte', today())->where('estado', 'resuelto')->exists());
+            ->whereDate('fecha_reporte', today())->whereIn('estado', ['resuelto', 'reparada', 'completado', 'aprobada'])->exists());
         $aseoCompletadoHoy = (bool) ($unidadAsignada && Aseo::where('unidad_id', $unidadAsignada->id)
-            ->whereDate('fecha_hora', today())->where('estado', 'completado')->exists());
+            ->whereDate('fecha_hora', today())->whereIn('estado', ['completado', 'completa', 'realizado', 'realizada'])->exists());
         $unidadOperativa = (bool) ($unidadAsignada && in_array($unidadAsignada->estado, ['operativa', 'activo'], true));
         $estadoFlota = [
             'operativa' => Unidad::whereIn('estado', ['operativa', 'activo'])->count(),

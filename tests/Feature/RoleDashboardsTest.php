@@ -36,11 +36,30 @@ class RoleDashboardsTest extends TestCase
                 ->assertSee('/build/assets/', false)
                 ->assertSee('x-teleport="body"', false)
                 ->assertSee('rodagest-mobile-panel', false)
+                ->assertSee('aria-label="Accesos rápidos"', false)
+                ->assertSee('pb-20 md:pb-8', false)
                 ->assertSee('hover:bg-teal-50', false);
 
             $this->post(route('logout', [], false))->assertRedirect('/');
             $this->get(route('login', [], false))->assertOk();
         }
+    }
+
+    public function test_dashboard_html_is_not_cached_by_mobile_webviews(): void
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+            'activo' => true,
+            'must_change_password' => false,
+            'two_factor_enabled' => false,
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('dashboard', [], false))
+            ->assertOk()
+            ->assertHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->assertHeader('Pragma', 'no-cache')
+            ->assertHeader('Expires', '0');
     }
 
     public function test_units_page_includes_production_vite_stylesheet(): void

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" class="overflow-x-hidden">
 <head>
     <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
     <title>RODAGEST — @yield('title', 'Gestión de flotas')</title>
@@ -9,7 +9,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>h1,h2{color:#05161A}thead{background:#072E33!important;color:#fff!important}thead th{color:#fff!important}</style>
 </head>
-<body class="min-h-screen bg-[#F4F9FB] font-sans text-[#05161A] antialiased">
+<body class="min-h-screen overflow-x-hidden bg-[#F4F9FB] font-sans text-[#05161A] antialiased">
     @include('partials.role-menu')
     @if(session('success') || session('error') || (session('status') && !in_array(session('status'), ['two-factor-enabled', 'two-factor-disabled', 'profile-updated', 'password-updated', 'verification-link-sent'], true)))
         <div class="mx-auto w-full max-w-7xl space-y-2 px-4 pt-3 sm:px-6" aria-live="polite">
@@ -18,6 +18,6 @@
             @if(session('error'))<div x-data="{ visible: true }" x-show="visible" x-transition.opacity x-init="setTimeout(() => visible = false, 6000)" class="flash-message rounded-xl border border-red-200 bg-red-50 p-3 text-sm font-medium text-red-800" role="alert">{{ session('error') }}</div>@endif
         </div>
     @endif
-    <main class="min-w-0">@yield('content')</main>
+    <main class="min-w-0 overflow-x-hidden pb-20 md:pb-8">@yield('content')</main>
 </body>
 </html>

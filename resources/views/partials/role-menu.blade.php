@@ -24,6 +24,13 @@
         $navigationGroups = $groupsByRole[$role] ?? ['Operación principal' => [['Panel principal', 'dashboard']]];
         $navigationGroups['Cuenta y seguridad'] = [['Mi perfil', 'profile.edit'], ['Seguridad 2FA', '2fa.setup']];
         $desktopItems = collect($navigationGroups)->flatten(1);
+        $mobileShortcuts = match ($role) {
+            'admin' => [['Inicio', 'dashboard', ''], ['Unidades', 'unidades.index', ''], ['Reportes', 'reportes.index', '']],
+            'inspector' => [['Inicio', 'dashboard', ''], ['Inspección', 'inspecciones.create', ''], ['Historial', 'inspecciones.index', '']],
+            'operador' => [['Inicio', 'dashboard', ''], ['Turno', 'dashboard', '#turno-operador'], ['Reportes', 'quejas.index', '']],
+            'limpieza' => [['Inicio', 'dashboard', ''], ['Aseo rápido', 'dashboard', '#aseo-rapido'], ['Aseos', 'aseos.index', '']],
+            default => [['Inicio', 'dashboard', '']],
+        };
         $desktopLabels = ['Panel principal' => 'Panel', 'Reportes operativos' => 'Reportes', 'Quejas e incidencias' => 'Quejas', 'Seguridad 2FA' => '2FA'];
         $menuIcons = [
             'dashboard' => 'M3 10.5 12 3l9 7.5M5 9v11h5v-6h4v6h5V9',
@@ -101,5 +108,16 @@
         </aside>
     </div>
     </template>
+
+    <nav aria-label="Accesos rápidos" class="fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgba(15,23,42,.08)] md:hidden">
+        @foreach($mobileShortcuts as [$label, $routeName, $anchor])
+            <a href="{{ route($routeName, [], false) }}{{ $anchor ?? '' }}" @click="close()" class="flex min-h-14 flex-col items-center justify-center gap-0.5 px-1 py-2 text-center text-[11px] font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-900">
+                <span class="max-w-full truncate">{{ $label }}</span>
+            </a>
+        @endforeach
+        <button type="button" @click="toggle()" :aria-expanded="open.toString()" aria-controls="rodagest-mobile-drawer" class="flex min-h-14 flex-col items-center justify-center gap-0.5 px-1 py-2 text-[11px] font-bold text-slate-800 hover:bg-teal-50">
+            <span aria-hidden="true" class="text-lg leading-none">☰</span><span>Menú</span>
+        </button>
+    </nav>
     </div>
 @endauth

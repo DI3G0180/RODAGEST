@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" class="overflow-x-hidden">
 <head>
     <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="/favicon.png?v=4">
@@ -8,7 +8,7 @@
     <title>RODAGEST — Panel operativo</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen bg-[#F4F9FB] text-[#05161A] antialiased">
+<body class="min-h-screen overflow-x-hidden bg-[#F4F9FB] text-[#05161A] antialiased">
 @php($user = $user ?? auth()->user())
 @php($userRole = $userRole ?? $user?->role ?? '')
 @php($alertas = $alertas ?? collect())
@@ -28,12 +28,12 @@
 @php($primaryAction = match($userRole) {
     'admin' => ['label' => '+ Registrar unidad', 'url' => route('unidades.create', [], false)],
     'inspector' => ['label' => '+ Nueva inspección', 'url' => route('inspecciones.create', [], false)],
-    'operador' => ['label' => '+ Reportar falla / incidencia', 'url' => '#reportes-operador', 'target' => 'report-form-operador'],
-    'limpieza' => ['label' => '+ Registrar limpieza', 'url' => '#form-limpieza', 'target' => 'form-limpieza'],
+    'operador' => ['label' => 'Turno / checklist de hoy', 'url' => '#turno-operador'],
+    'limpieza' => ['label' => 'Completar aseo 4/4 hoy', 'url' => '#aseo-rapido'],
     default => null,
 })
 @include('partials.role-menu')
-<main class="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8 space-y-6">
+<main class="mx-auto max-w-7xl space-y-4 overflow-x-hidden px-3 pb-20 pt-3 sm:space-y-6 sm:p-6 md:pb-8 lg:p-8">
     <header class="flex flex-col gap-4 border-b border-[#6DA5C0]/30 pb-5 sm:flex-row sm:items-end sm:justify-between">
         <div class="min-w-0">
             <p class="text-xs font-bold uppercase tracking-widest text-[#0C7075]">{{ $roleLabels[$userRole] ?? 'Personal' }} · {{ now()->format('d/m/Y') }}</p>
@@ -56,6 +56,6 @@
     @includeWhen($userRole === 'operador', 'dashboard.operador')
     @includeWhen($userRole === 'limpieza', 'dashboard.limpieza')
 </main>
-<style>h1,h2{color:#05161A}thead{background:#072E33!important;color:#fff!important}thead th{color:#fff!important}.field{width:100%;min-width:0;border:1px solid #6DA5C0;border-radius:.65rem;background:#fff;padding:.7rem .8rem;font-size:.9rem;outline:none}.field:focus{border-color:#0C7075;box-shadow:0 0 0 3px #0C707533}.metric{display:flex;height:100%;min-height:10rem;flex-direction:column;justify-content:space-between;border:1px solid rgb(109 165 192 / .5);border-top:4px solid #0C7075;border-radius:1rem;background:#fff;padding:1.25rem;box-shadow:0 1px 2px rgb(5 22 26 / .08);transition:box-shadow .2s}.metric:hover{box-shadow:0 4px 12px rgb(5 22 26 / .12)}.metric>div:first-child>span{display:block;color:#294D61;font-size:.75rem;font-weight:700;line-height:1.35;letter-spacing:.08em;text-transform:uppercase}.metric b{display:block;color:#05161A;font-size:2.25rem;line-height:1.1;margin:.5rem 0}.metric-footer{display:flex;align-items:center;justify-content:space-between;gap:.5rem;border-top:1px solid rgb(109 165 192 / .25);padding-top:.75rem;font-size:.75rem}.metric-footer span{color:#294D61}.metric-footer a{flex-shrink:0;font-weight:600;color:#0C7075}.metric-footer a:hover{color:#05161A}</style>
+<style>h1,h2{color:#05161A}thead{background:#072E33!important;color:#fff!important}thead th{color:#fff!important}.field{width:100%;min-width:0;border:1px solid #6DA5C0;border-radius:.65rem;background:#fff;padding:.7rem .8rem;font-size:.9rem;outline:none}.field:focus{border-color:#0C7075;box-shadow:0 0 0 3px #0C707533}.metric{display:flex;height:100%;min-height:7rem;flex-direction:column;justify-content:space-between;border:1px solid rgb(109 165 192 / .5);border-top:4px solid #0C7075;border-radius:1rem;background:#fff;padding:.75rem;box-shadow:0 1px 2px rgb(5 22 26 / .08);transition:box-shadow .2s}.metric:hover{box-shadow:0 4px 12px rgb(5 22 26 / .12)}.metric>div:first-child>span{display:block;color:#294D61;font-size:.65rem;font-weight:700;line-height:1.35;letter-spacing:.06em;text-transform:uppercase}.metric b{display:block;color:#05161A;font-size:1.75rem;line-height:1.1;margin:.35rem 0}.metric-footer{display:flex;align-items:center;justify-content:space-between;gap:.5rem;border-top:1px solid rgb(109 165 192 / .25);padding-top:.45rem;font-size:.68rem}.metric-footer span{color:#294D61}.metric-footer a{flex-shrink:0;font-weight:600;color:#0C7075}.metric-footer a:hover{color:#05161A}@media(min-width:640px){.metric{min-height:9rem;padding:1.5rem}.metric>div:first-child>span{font-size:.75rem}.metric b{font-size:2.25rem;margin:.5rem 0}.metric-footer{padding-top:.75rem;font-size:.75rem}}</style>
 </body>
 </html>

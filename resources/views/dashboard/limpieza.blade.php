@@ -1,10 +1,10 @@
-<section class="grid grid-cols-1 gap-3 min-[480px]:grid-cols-3">
+<section class="grid grid-cols-2 gap-2.5 sm:gap-4 md:grid-cols-3">
     <article class="metric"><div><span>Aseos completados hoy</span><b>{{ $kpis['aseosHoy'] }}</b></div><p class="metric-footer">Servicios completados</p></article>
     <article class="metric"><div><span>Pendientes o en proceso</span><b>{{ $kpis['aseosPendientes'] }}</b></div><p class="metric-footer">Unidades por atender</p></article>
     <article class="metric"><div><span>Reportes por atender</span><b>{{ $kpis['reportesLimpiezaPendientes'] }}</b></div><p class="metric-footer">Incidencias de limpieza</p></article>
 </section>
 
-<section class="rounded-2xl border border-[#6DA5C0]/50 bg-white p-5 sm:p-6">
+<section id="aseo-rapido" class="rounded-2xl border border-[#6DA5C0]/50 bg-white p-3 sm:p-6">
     <div><h2 class="text-lg font-extrabold">Aseo rápido de hoy</h2><p class="mt-1 text-sm text-[#294D61]">Completa las cuatro etapas en un envío. La foto solo se pide si reportas una incidencia.</p></div>
     <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         @forelse($unidadesLimpieza as $unidad)
@@ -46,4 +46,4 @@
     </details>
 </section>
 
-<section class="rounded-2xl border border-[#6DA5C0]/50 bg-white p-5"><h2 class="font-bold">Aseos recientes</h2><div class="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">@forelse($aseos as $aseo)<article class="min-w-0 rounded-xl border border-slate-200 p-3"><div class="flex items-start justify-between gap-2"><b class="text-lg text-[#0C7075]">{{ $aseo->unidad?->etiqueta_economico ?? '—' }}</b><span class="rounded-full px-2.5 py-1 text-xs font-bold {{ $aseo->estado==='completado' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-900' }}">{{ ucfirst(str_replace('_',' ',$aseo->estado)) }}</span></div><time class="mt-2 block text-xs text-[#294D61]">{{ $aseo->fecha_hora?->format('d/m/Y H:i') }}</time><p class="mt-2 text-sm">Etapas: <b>{{ collect($aseo->etapas ?? [])->filter()->count() }}/4</b></p></article>@empty<p class="rounded-xl bg-[#F4F9FB] p-4 text-sm text-[#294D61] md:col-span-2 lg:col-span-3">No hay aseos recientes.</p>@endforelse</div></section>
+<details class="group rounded-2xl border border-[#6DA5C0]/50 bg-white p-4 sm:p-5"><summary class="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 font-bold"><span>Aseos recientes</span><span class="text-sm font-semibold text-[#0C7075] group-open:rotate-180">⌄</span></summary><div class="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">@forelse($aseos as $aseo)<article class="min-w-0 rounded-xl border border-slate-200 p-3"><div class="flex items-start justify-between gap-2"><b class="text-lg text-[#0C7075]">{{ $aseo->unidad?->etiqueta_economico ?? '—' }}</b><span class="rounded-full px-2.5 py-1 text-xs font-bold {{ $aseo->estado==='completado' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-900' }}">{{ ucfirst(str_replace('_',' ',$aseo->estado)) }}</span></div><time class="mt-2 block text-xs text-[#294D61]">{{ $aseo->fecha_hora?->format('d/m/Y H:i') }}</time><p class="mt-2 text-sm">Etapas: <b>{{ collect($aseo->etapas ?? [])->filter()->count() }}/4</b></p></article>@empty<p class="rounded-xl bg-[#F4F9FB] p-4 text-sm text-[#294D61] md:col-span-2 lg:col-span-3">No hay aseos recientes.</p>@endforelse</div></details>

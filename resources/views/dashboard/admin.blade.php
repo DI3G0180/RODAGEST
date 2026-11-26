@@ -1,4 +1,4 @@
-<section class="grid grid-cols-1 min-[480px]:grid-cols-2 lg:grid-cols-4 items-stretch gap-3 sm:gap-5">
+<section class="grid grid-cols-2 items-stretch gap-2.5 sm:gap-4 md:grid-cols-4">
             @foreach([['Unidades',$kpis['unidades'],'Flota registrada'],['Empleados activos',$kpis['empleados'],'Personal vigente'],['Inspecciones de hoy',$kpis['inspeccionesHoy'],'Actividad de hoy'],['Aseos completados',$kpis['aseosCompletados'],'Servicios completados']] as [$label,$value,$context])
                 <article class="flex h-full min-h-40 flex-col justify-between rounded-2xl border border-[#6DA5C0]/50 border-t-4 border-t-[#0C7075] bg-white p-5 shadow-sm"><div><p class="text-xs font-bold uppercase tracking-wider text-[#294D61]">{{ $label }}</p><p class="my-2 text-4xl font-extrabold text-[#05161A]">{{ $value }}</p></div><div class="border-t border-[#6DA5C0]/25 pt-3 text-xs text-[#294D61]">{{ $context }}</div></article>
             @endforeach

@@ -3,65 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RODAGEST — @yield('title', 'Acceso')</title>
+    <meta name="theme-color" content="#F8FAFC">
+    <title>RODAGEST — @yield('title', 'Acceso seguro')</title>
     <link rel="icon" type="image/png" href="/favicon.png?v=4">
     <link rel="shortcut icon" href="/favicon.ico?v=4">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=4">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                    },
-                }
-            }
-        }
-    </script>
-
-    @vite('resources/css/app.css')
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-[#F8FAFC] font-sans text-[#083344] antialiased">
+<body class="min-h-screen bg-[#F8FAFC] font-sans text-[#083344] antialiased">
     @include('components.splash-screen')
-
-    <div class="min-h-screen flex items-center justify-center p-6">
-        <div class="bg-white rounded-xl border border-slate-200 w-full max-w-md p-8 shadow-xl animate-fade-in-up">
-            <div class="text-center mb-6">
-                <div class="w-16 h-16 rounded-lg primary flex items-center justify-center mx-auto mb-4">
-                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 16l2-2m8 4l2-2m8 4l2-2M6 20 horizontal-8l2-2M4 6l2-2M4 6l2-2m16 0a4 4 0 11-8 0 4 4 0 018 0l-8 8Z"/>
-                    </svg>
-                </div>
-                <h1 class="text-2xl font-bold primary">RODAGEST</h1>
-                <p class="text-[#294D61]">Sistema de Gestión de Unidades</p>
-            </div>
-
-            <form class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-[#294D61]">Correo Electrónico</label>
-                    <input type="email" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none bg-cream">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-[#294D61]">Contraseña</label>
-                    <input type="password" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none bg-cream">
-                </div>
-
-                <div>
-                    <button type="submit" class="w-full px-4 py-3 rounded-lg text-sm font-medium primary text-white hover:bg-secondary transition-all duration-300">
-                        <i class="ri-login-circle-line text-sm mr-2 align-middle"></i>
-                        Ingresar al Sistema
-                    </button>
-                </div>
-            </form>
+    <main class="grid min-h-screen place-items-center px-4 py-8">
+        <div class="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-5 shadow-xl sm:p-8">
+            {{ $slot }}
         </div>
-    </div>
-
+    </main>
 </body>
 </html>

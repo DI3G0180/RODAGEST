@@ -1,77 +1,66 @@
-<div id="rodagest-splash" role="status" aria-live="polite" aria-label="Cargando RODAGEST" class="fixed inset-0 z-[999999] flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#083344] via-[#0E7490] to-[#155E75] text-white" style="position:fixed; inset:0; z-index:999999; opacity:1; transition:opacity .4s ease;">
-    <div class="splash-orb splash-orb-one" aria-hidden="true"></div>
-    <div class="splash-orb splash-orb-two" aria-hidden="true"></div>
-    <div class="splash-wave splash-wave-one" aria-hidden="true"></div>
-    <div class="splash-wave splash-wave-two" aria-hidden="true"></div>
-
-    <div class="relative z-10 flex w-full max-w-sm flex-col items-center px-8 text-center">
-        <div class="splash-logo-halo grid h-36 w-36 place-items-center rounded-full border border-white/50 bg-white p-5 shadow-[0_0_55px_rgba(255,255,255,.35)] sm:h-40 sm:w-40">
-            <img src="/images/logo-rodagest.png" alt="RODAGEST" class="h-full w-full object-contain" style="mix-blend-mode:multiply">
-        </div>
-        <h1 class="mt-7 text-3xl font-extrabold tracking-[.16em] text-white sm:text-4xl">RODAGEST</h1>
-        <p class="mt-2 max-w-xs text-sm font-medium tracking-wide text-white/90 sm:text-base">Sistema Integral de Gestión y Control de Flotas</p>
-    </div>
-    <div class="absolute bottom-8 left-1/2 h-1.5 w-52 -translate-x-1/2 overflow-hidden rounded-full bg-white/25" aria-hidden="true">
-        <div class="splash-progress h-full rounded-full bg-white"></div>
+<div id="rodagest-splash" role="status" aria-live="polite" aria-label="Cargando RODAGEST" style="position:fixed; inset:0; z-index:999999; display:flex; align-items:center; justify-content:center; background:#ffffff; opacity:1; transition:opacity .3s ease, transform .3s ease;">
+    <div class="splash-content">
+        <div class="splash-emblem"><img src="/images/logo-rodagest.png" alt="Logotipo RODAGEST"></div>
+        <h1>RODAGEST</h1>
+        <p>Control y Gestión Inteligente de Flotas</p>
+        <div class="splash-loader" aria-hidden="true"><span></span></div>
     </div>
 </div>
 
 <style>
-    #rodagest-splash::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 22% 18%,rgba(255,255,255,.12),transparent 28%),radial-gradient(circle at 82% 76%,rgba(34,211,238,.15),transparent 32%),linear-gradient(135deg,transparent 35%,rgba(255,255,255,.035) 50%,transparent 65%)}
-    #rodagest-splash .splash-orb{position:absolute;border:1px solid rgba(255,255,255,.12);border-radius:9999px;background:rgba(255,255,255,.035);pointer-events:none}
-    #rodagest-splash .splash-orb-one{width:min(76vw,520px);height:min(76vw,520px);top:-24%;right:-20%;animation:splash-float 7s ease-in-out infinite alternate}
-    #rodagest-splash .splash-orb-two{width:min(90vw,680px);height:min(90vw,680px);bottom:-44%;left:-26%;animation:splash-float 9s ease-in-out infinite alternate-reverse}
-    #rodagest-splash .splash-wave{position:absolute;left:-15%;width:130%;height:28%;border:1px solid rgba(255,255,255,.1);border-radius:50%;background:rgba(255,255,255,.025);pointer-events:none}
-    #rodagest-splash .splash-wave-one{bottom:-18%;transform:rotate(-8deg)}
-    #rodagest-splash .splash-wave-two{bottom:-23%;transform:rotate(7deg)}
-    #rodagest-splash .splash-logo-halo{animation:splash-enter .65s cubic-bezier(.2,.8,.2,1) both,splash-pulse 2.1s ease-in-out .65s infinite}
-    #rodagest-splash .splash-progress{width:0;animation:splash-fill 1.3s ease-out forwards}
-    @keyframes splash-enter{from{opacity:0;transform:scale(.72)}to{opacity:1;transform:scale(1)}}
-    @keyframes splash-pulse{0%,100%{box-shadow:0 0 34px rgba(255,255,255,.2)}50%{box-shadow:0 0 58px rgba(255,255,255,.42)}}
-    @keyframes splash-fill{to{width:100%}}
-    @keyframes splash-float{from{transform:translate3d(0,0,0)}to{transform:translate3d(0,18px,0)}}
-    @media(prefers-reduced-motion:reduce){#rodagest-splash .splash-logo-halo,#rodagest-splash .splash-orb,#rodagest-splash .splash-progress{animation-duration:.01ms;animation-iteration-count:1}#rodagest-splash .splash-progress{width:100%}}
+    #rodagest-splash{color:#083344;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+    #rodagest-splash .splash-content{display:flex;flex-direction:column;align-items:center;padding:24px;text-align:center;animation:splash-reveal .65s cubic-bezier(.2,.8,.2,1) both}
+    #rodagest-splash .splash-emblem{display:grid;width:clamp(132px,36vw,176px);height:clamp(132px,36vw,176px);place-items:center;padding:20px;border:1px solid #dbeafe;border-radius:32px;background:#fff;box-shadow:0 18px 55px rgba(8,51,68,.12)}
+    #rodagest-splash .splash-emblem img{display:block;width:100%;height:100%;object-fit:contain}
+    #rodagest-splash h1{margin:22px 0 0;color:#083344;font-size:clamp(27px,7vw,36px);font-weight:800;letter-spacing:.12em;line-height:1.15}
+    #rodagest-splash p{margin:9px 0 0;color:#0E7490;font-size:14px;font-weight:600;letter-spacing:.01em}
+    #rodagest-splash .splash-loader{width:148px;height:3px;margin-top:28px;overflow:hidden;border-radius:999px;background:#e2e8f0}
+    #rodagest-splash .splash-loader span{display:block;width:0;height:100%;border-radius:inherit;background:#0E7490;animation:splash-load 1.3s ease-out forwards}
+    @keyframes splash-reveal{from{opacity:0;transform:translateY(8px) scale(.94)}to{opacity:1;transform:translateY(0) scale(1)}}
+    @keyframes splash-load{to{width:100%}}
+    @media(prefers-reduced-motion:reduce){#rodagest-splash .splash-content,#rodagest-splash .splash-loader span{animation-duration:.01ms;animation-iteration-count:1}#rodagest-splash .splash-loader span{width:100%}}
 </style>
 
 <script>
     (function () {
-        var splash = document.getElementById('rodagest-splash');
-        if (!splash) return;
+        function initSplash() {
+            var splash = document.getElementById('rodagest-splash');
+            if (!splash) return;
+            var finished = false;
+            var safetyTimer;
 
-        var finished = false;
-        var failSafe;
+            function finish() {
+                if (finished) return;
+                finished = true;
+                splash.style.opacity = '0';
+                splash.style.transform = 'translateY(-8px)';
+                splash.style.pointerEvents = 'none';
+                window.setTimeout(function () {
+                    splash.style.display = 'none';
+                    splash.setAttribute('aria-hidden', 'true');
+                }, 320);
+                if (safetyTimer) window.clearTimeout(safetyTimer);
+            }
 
-        function finish() {
-            if (finished) return;
-            finished = true;
-            splash.style.opacity = '0';
-            splash.style.pointerEvents = 'none';
-            window.setTimeout(function () {
-                splash.style.display = 'none';
-                splash.setAttribute('aria-hidden', 'true');
-            }, 400);
-            if (failSafe) window.clearTimeout(failSafe);
-        }
-
-        function startSplash() {
             try {
-                var seenKey = 'rodagest-splash-seen-v1';
-                if (window.sessionStorage.getItem(seenKey) === '1') {
+                var key = 'rodagest-login-splash-seen-v2';
+                if (window.sessionStorage.getItem(key) === '1') {
                     finish();
                     return;
                 }
-                window.sessionStorage.setItem(seenKey, '1');
+                window.sessionStorage.setItem(key, '1');
             } catch (error) {
-                // WebView puede bloquear sessionStorage; el timeout sigue retirando el overlay.
+                // La salida temporizada sigue funcionando si WebView bloquea sessionStorage.
             }
-            window.setTimeout(finish, 1400);
+
+            safetyTimer = window.setTimeout(finish, 1600);
+            window.setTimeout(finish, 1300);
         }
 
-        failSafe = window.setTimeout(finish, 1800);
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', startSplash, { once: true });
+            document.addEventListener('DOMContentLoaded', initSplash, { once: true });
         } else {
-            startSplash();
+            initSplash();
         }
     })();
 </script>

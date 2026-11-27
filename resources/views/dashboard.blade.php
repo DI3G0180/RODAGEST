@@ -6,10 +6,10 @@
     <link rel="shortcut icon" href="/favicon.ico?v=4">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=4">
     <title>RODAGEST — Panel operativo</title>
+    @include('partials.mobile-menu-script')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen overflow-x-hidden bg-[#F8FAFC] text-[#083344] antialiased">
-@include('components.splash-screen')
 @php($user = $user ?? auth()->user())
 @php($userRole = $userRole ?? $user?->role ?? '')
 @php($alertas = $alertas ?? collect())
@@ -81,6 +81,7 @@
     @includeWhen($userRole === 'operador', 'dashboard.operador')
     @includeWhen($userRole === 'limpieza', 'dashboard.limpieza')
 </main>
+@include('partials.mobile-drawer')
 <style>h1,h2{color:#083344}thead{background:#083344!important;color:#fff!important}thead th{color:#fff!important}.field{width:100%;min-width:0;border:1px solid #0E7490;border-radius:.65rem;background:#fff;padding:.7rem .8rem;font-size:.9rem;outline:none}.field:focus{border-color:#0E7490;box-shadow:0 0 0 3px #0E749033}.metric{display:flex;height:100%;min-height:7rem;flex-direction:column;justify-content:space-between;border:1px solid rgb(14 116 144 / .35);border-top:4px solid #0E7490;border-radius:1rem;background:#fff;padding:.75rem;box-shadow:0 1px 2px rgb(8 51 68 / .08);transition:box-shadow .2s}.metric:hover{box-shadow:0 4px 12px rgb(8 51 68 / .12)}.metric>div:first-child>span{display:block;color:#083344;font-size:.65rem;font-weight:700;line-height:1.35;letter-spacing:.06em;text-transform:uppercase}.metric b{display:block;color:#083344;font-size:1.75rem;line-height:1.1;margin:.35rem 0}.metric-footer{display:flex;align-items:center;justify-content:space-between;gap:.5rem;border-top:1px solid rgb(14 116 144 / .2);padding-top:.45rem;font-size:.68rem}.metric-footer span{color:#083344}.metric-footer a{flex-shrink:0;font-weight:600;color:#0E7490}.metric-footer a:hover{color:#083344}@media(min-width:640px){.metric{min-height:9rem;padding:1.5rem}.metric>div:first-child>span{font-size:.75rem}.metric b{font-size:2.25rem;margin:.5rem 0}.metric-footer{padding-top:.75rem;font-size:.75rem}}</style>
 </body>
 </html>

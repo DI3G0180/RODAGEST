@@ -65,7 +65,7 @@
                 <form method="POST" action="{{ route('logout', [], false) }}">@csrf<button class="min-h-10 rounded-xl bg-[#083344] px-3 text-xs font-bold text-white transition hover:bg-[#0E7490] xl:px-4 xl:text-sm">Salir</button></form>
             </div>
 
-            <button type="button" onclick="window.toggleMobileMenu(true)" aria-label="Abrir menú de navegación" aria-controls="mobile-nav-drawer" aria-expanded="false" class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#083344] p-2.5 text-white transition hover:bg-[#0E7490] focus:outline-none focus:ring-2 focus:ring-[#0E7490] lg:hidden">
+            <button type="button" data-mobile-menu-open onclick="window.toggleMobileMenu(true)" aria-label="Abrir menú de navegación" aria-controls="mobile-nav-drawer" aria-expanded="false" class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#083344] p-2.5 text-white transition hover:bg-[#0E7490] focus:outline-none focus:ring-2 focus:ring-[#0E7490] lg:hidden">
                 <svg aria-hidden="true" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
         </header>

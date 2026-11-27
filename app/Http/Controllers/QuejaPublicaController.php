@@ -10,6 +10,14 @@ use Illuminate\Support\Str;
 
 class QuejaPublicaController extends Controller
 {
+    public function preview()
+    {
+        return view('quejas.publica', [
+            'eco' => null,
+            'preview' => true,
+        ]);
+    }
+
     public function create(Request $request)
     {
         abort_if($request->user()?->role === 'admin', 403, 'La cuenta administradora no puede crear reportes.');
@@ -29,6 +37,7 @@ class QuejaPublicaController extends Controller
 
         return view('quejas.publica', [
             'eco' => $eco,
+            'preview' => false,
         ]);
     }
 

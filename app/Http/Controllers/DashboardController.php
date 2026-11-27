@@ -31,7 +31,7 @@ class DashboardController extends Controller
         $inspeccionAprobadaHoy = (bool) ($unidadAsignada && Inspeccion::where('unidad_id', $unidadAsignada->id)
             ->whereDate('fecha_reporte', today())->exists());
         $aseoCompletadoHoy = (bool) ($unidadAsignada && Aseo::where('unidad_id', $unidadAsignada->id)
-            ->whereDate('fecha_hora', today())->exists());
+            ->whereDate('fecha_hora', today())->where('estado', 'completado')->exists());
         $unidadOperativa = (bool) ($unidadAsignada && in_array($unidadAsignada->estado, ['operativa', 'activo'], true));
         $estadoFlota = [
             'operativa' => Unidad::whereIn('estado', ['operativa', 'activo'])->count(),
@@ -53,6 +53,7 @@ class DashboardController extends Controller
         $alertas = [];
         $inspeccionesPendientes = Inspeccion::where('estado', 'pendiente')->count();
         $reportesAbiertos = Queja::whereIn('estado', ['pendiente', 'en_proceso'])->count();
+        $fallasCriticasAbiertas = Queja::where('urgencia', 'critica')->whereIn('estado', ['pendiente', 'en_proceso'])->count();
         $quejasLimpiezaPendientes = Queja::where('tipo_queja', 'Limpieza')
             ->whereIn('estado', ['pendiente', 'en_proceso'])
             ->count();
@@ -64,6 +65,10 @@ class DashboardController extends Controller
 
         if (in_array($user->role, ['admin', 'inspector'], true) && $reportesAbiertos > 0) {
             $alertas[] = ['nivel' => 'warning', 'titulo' => $reportesAbiertos . ' reportes están abiertos', 'detalle' => 'Da seguimiento a las incidencias reportadas en ruta.', 'ruta' => route('quejas.index', [], false)];
+        }
+
+        if ($user->role === 'admin' && $fallasCriticasAbiertas > 0) {
+            $alertas[] = ['nivel' => 'danger', 'titulo' => $fallasCriticasAbiertas.' fallas críticas requieren atención', 'detalle' => 'Revisa la bandeja de quejas y la unidad afectada.', 'ruta' => route('quejas.index', ['urgencia' => 'critica'], false)];
         }
 
         if ($user->role === 'limpieza' && $quejasLimpiezaPendientes > 0) {

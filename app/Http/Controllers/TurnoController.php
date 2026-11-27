@@ -44,27 +44,41 @@ class TurnoController extends Controller
             return back()->with('success', 'La inspección de hoy ya está registrada.');
         }
 
-        DB::transaction(function () use ($unidad, $operador, $checklist, $fallas, $nota, $hasFailure): void {
+        $safetyFailure = $hasFailure && collect(['luces', 'frenos', 'llantas', 'espejos_seguridad'])
+            ->contains(fn (string $key) => ! $checklist[$key]);
+
+        $generatedReport = DB::transaction(function () use ($unidad, $operador, $checklist, $fallas, $nota, $hasFailure, $safetyFailure): ?Queja {
             $descripcion = $hasFailure
                 ? 'Checklist rápido con hallazgo en: '.implode(', ', $fallas).'. '.$nota
                 : 'Checklist rápido diario: todo OK, sin novedad.';
             Inspeccion::create([
                 'unidad_id' => $unidad->id, 'operador_id' => $operador->id,
                 'inspector_responsable' => $operador->name, 'tipo_dano' => $hasFailure ? 'Inspección rápida con hallazgo' : 'Checklist diario sin novedad',
-                'prioridad' => $hasFailure ? 'media' : 'baja', 'estado' => $hasFailure ? 'pendiente' : 'resuelto',
+                'prioridad' => $safetyFailure ? 'critica' : ($hasFailure ? 'media' : 'baja'), 'estado' => $hasFailure ? 'pendiente' : 'resuelto',
                 'descripcion' => $descripcion, 'fecha_reporte' => now(), 'checklist' => $checklist,
-                'dictamen' => 'operativa',
+                'dictamen' => $safetyFailure ? 'fuera_servicio' : 'operativa',
             ]);
+            $report = null;
             if ($hasFailure) {
-                Queja::create([
+                $report = Queja::create([
                     'unidad_id' => $unidad->id, 'eco' => $unidad->economico, 'operador_id' => $operador->id,
-                    'tipo_queja' => 'Falla mecánica', 'estado' => 'pendiente', 'urgencia' => 'normal',
+                    'tipo_queja' => 'Falla mecánica', 'estado' => 'pendiente', 'urgencia' => $safetyFailure ? 'critica' : 'alta',
                     'descripcion' => $descripcion, 'comentarios' => $nota, 'medio_reporte' => 'interno',
                 ]);
             }
+
+            if ($safetyFailure) $unidad->update(['estado' => 'fuera_servicio']);
+
+            return $report;
         });
 
-        return back()->with('success', $hasFailure ? 'Checklist guardado; se generó un reporte de seguimiento.' : 'Checklist de hoy guardado: todo OK.');
+        if ($generatedReport?->urgencia === 'critica') {
+            app(\App\Support\OperationalMail::class)->criticalReport($generatedReport);
+        }
+
+        return back()->with('success', $safetyFailure
+            ? 'Checklist guardado: se generó una alerta crítica y la unidad quedó fuera de servicio.'
+            : ($hasFailure ? 'Checklist guardado; se generó un reporte de seguimiento.' : 'Checklist de hoy guardado: todo OK.'));
     }
 
     public function store(Request $request)

@@ -1,7 +1,7 @@
 <section class="grid grid-cols-2 gap-2.5 sm:gap-4 md:grid-cols-3">
-    <article class="metric"><div><span>Aseos completados hoy</span><b>{{ $kpis['aseosHoy'] }}</b></div><p class="metric-footer">Servicios completados</p></article>
-    <article class="metric"><div><span>Pendientes o en proceso</span><b>{{ $kpis['aseosPendientes'] }}</b></div><p class="metric-footer">Unidades por atender</p></article>
-    <article class="metric"><div><span>Reportes por atender</span><b>{{ $kpis['reportesLimpiezaPendientes'] }}</b></div><p class="metric-footer">Incidencias de limpieza</p></article>
+    <a href="#aseo-rapido" class="metric"><div><span>Aseos completados hoy</span><b>{{ $kpis['aseosHoy'] }}</b></div><div class="metric-footer"><span>Servicios completados</span><span class="font-bold text-[#0C7075]">Ver →</span></div></a>
+    <a href="{{ route('aseos.index', [], false) }}" class="metric"><div><span>Pendientes o en proceso</span><b>{{ $kpis['aseosPendientes'] }}</b></div><div class="metric-footer"><span>Unidades por atender</span><span class="font-bold text-[#0C7075]">Ver →</span></div></a>
+    <a href="{{ route('quejas.index', [], false) }}" class="metric"><div><span>Reportes por atender</span><b>{{ $kpis['reportesLimpiezaPendientes'] }}</b></div><div class="metric-footer"><span>Incidencias de limpieza</span><span class="font-bold text-[#0C7075]">Ver →</span></div></a>
 </section>
 
 <section id="aseo-rapido" class="rounded-2xl border border-[#6DA5C0]/50 bg-white p-3 sm:p-6">

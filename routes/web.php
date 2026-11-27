@@ -40,6 +40,7 @@ Route::middleware(['auth', 'active'])->group(function () {
 
     // Dashboard - Página principal (cada rol verá su contenido según el layout/views)
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/reportar/vista-previa', [QuejaPublicaController::class, 'preview'])->middleware('role:admin')->name('quejas.publica.preview');
     Route::get('/quejas/qr-publico', [QuejaPublicaController::class, 'qr'])->middleware('role:admin')->name('quejas.qr-publico');
     Route::get('/reportes', [ReporteController::class, 'index'])->middleware('role:admin')->name('reportes.index');
     Route::get('/reportes/exportar', [ReporteController::class, 'export'])->middleware('role:admin')->name('reportes.export');
@@ -63,7 +64,8 @@ Route::middleware(['auth', 'active'])->group(function () {
     ]);
 
     // 2. MÓDULO DE INSPECCIONES (Admin e Inspector)
-    Route::resource('inspecciones', InspeccionController::class)->only(['index', 'create', 'store', 'destroy'])->middleware('role:inspector')->parameters([
+    Route::get('inspecciones', [InspeccionController::class, 'index'])->middleware('role:admin,inspector')->name('inspecciones.index');
+    Route::resource('inspecciones', InspeccionController::class)->only(['create', 'store', 'destroy'])->middleware('role:inspector')->parameters([
         'inspecciones' => 'inspeccion'
     ]);
 
@@ -75,6 +77,8 @@ Route::middleware(['auth', 'active'])->group(function () {
 
     // 3. MÓDULO DE QUEJAS (Admin, Inspector, Operador)
     Route::get('quejas', [QuejaController::class, 'index'])->middleware('role:admin,inspector,operador,limpieza')->name('quejas.index');
+    Route::get('quejas/create', [QuejaController::class, 'create'])->middleware('role:inspector,operador,limpieza')->name('quejas.create');
+    Route::get('quejas/{queja}', [QuejaController::class, 'show'])->middleware('role:admin,inspector,operador,limpieza')->whereNumber('queja')->name('quejas.show');
     Route::post('quejas', [QuejaController::class, 'store'])->middleware('role:inspector,operador,limpieza')->name('quejas.store');
     Route::resource('quejas', QuejaController::class)->only(['destroy'])->middleware('role:operador')->parameters([
         'quejas' => 'queja'
@@ -90,7 +94,8 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::patch('/turnos/{turno}/cerrar', [TurnoController::class, 'close'])->middleware('role:operador')->name('turnos.close');
 
     // 4. MÓDULO DE ASEO / MANTENIMIENTO (Admin e Intendente)
-    Route::resource('aseos', AseoController::class)->only(['index', 'create', 'store', 'destroy'])->middleware('role:limpieza')->parameters([
+    Route::get('aseos', [AseoController::class, 'index'])->middleware('role:admin,limpieza')->name('aseos.index');
+    Route::resource('aseos', AseoController::class)->only(['create', 'store', 'destroy'])->middleware('role:limpieza')->parameters([
         'aseos' => 'aseo'
     ]);
     Route::post('/aseos/completar-rapido', [AseoController::class, 'quickComplete'])->middleware('role:limpieza')->name('aseos.completar-rapido');

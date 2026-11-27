@@ -2,6 +2,8 @@
     encode zstd gzip
     @viteAssets path /build/assets/*
     header @viteAssets Cache-Control "public, max-age=31536000, immutable"
+    @nonViteAssets not path /build/assets/*
+    header @nonViteAssets Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
     handle_path /storage/* {
         root * /app/storage/app/public
         file_server

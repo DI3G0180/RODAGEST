@@ -17,8 +17,7 @@ class AddSecurityHeaders
 
         // Dynamic HTML must not be reused by Android WebView after a deployment.
         // Hashed Vite assets are served directly by Caddy and keep their immutable cache policy.
-        if (in_array($request->method(), ['GET', 'HEAD'], true)
-            && str_starts_with((string) $response->headers->get('Content-Type'), 'text/html')) {
+        if (str_starts_with((string) $response->headers->get('Content-Type'), 'text/html')) {
             $response->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
             $response->headers->set('Pragma', 'no-cache');
             $response->headers->set('Expires', '0');

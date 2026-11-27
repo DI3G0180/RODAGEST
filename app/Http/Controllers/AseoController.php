@@ -51,6 +51,7 @@ class AseoController extends Controller
 
     public function index(Request $request)
     {
+        abort_unless(in_array($request->user()->role, ['admin', 'limpieza'], true), 403);
         $request->validate([
             'q' => ['nullable', 'string', 'max:150'],
             'desde' => ['nullable', 'date'],

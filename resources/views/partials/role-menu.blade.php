@@ -5,7 +5,7 @@
         $roleLabels = ['admin' => 'Administrador', 'inspector' => 'Inspector', 'operador' => 'Operador', 'limpieza' => 'Limpieza'];
         $groupsByRole = [
             'admin' => [
-                'Operación principal' => [['Panel principal', 'dashboard'], ['Unidades', 'unidades.index']],
+                'Operación principal' => [['Panel principal', 'dashboard'], ['Unidades', 'unidades.index'], ['Inspecciones', 'inspecciones.index'], ['Aseos / Limpieza', 'aseos.index']],
                 'Seguimiento y control' => [['Reportes operativos', 'reportes.index'], ['Quejas e incidencias', 'quejas.index'], ['Personal', 'empleados.index'], ['Papelera', 'papelera.index']],
             ],
             'inspector' => [
@@ -24,13 +24,6 @@
         $navigationGroups = $groupsByRole[$role] ?? ['Operación principal' => [['Panel principal', 'dashboard']]];
         $navigationGroups['Cuenta y seguridad'] = [['Mi perfil', 'profile.edit'], ['Seguridad 2FA', '2fa.setup']];
         $desktopItems = collect($navigationGroups)->flatten(1);
-        $mobileShortcuts = match ($role) {
-            'admin' => [['Inicio', 'dashboard', ''], ['Unidades', 'unidades.index', ''], ['Reportes', 'reportes.index', '']],
-            'inspector' => [['Inicio', 'dashboard', ''], ['Inspección', 'inspecciones.create', ''], ['Historial', 'inspecciones.index', '']],
-            'operador' => [['Inicio', 'dashboard', ''], ['Turno', 'dashboard', '#turno-operador'], ['Reportes', 'quejas.index', '']],
-            'limpieza' => [['Inicio', 'dashboard', ''], ['Aseo rápido', 'dashboard', '#aseo-rapido'], ['Aseos', 'aseos.index', '']],
-            default => [['Inicio', 'dashboard', '']],
-        };
         $desktopLabels = ['Panel principal' => 'Panel', 'Reportes operativos' => 'Reportes', 'Quejas e incidencias' => 'Quejas', 'Seguridad 2FA' => '2FA'];
         $menuIcons = [
             'dashboard' => 'M3 10.5 12 3l9 7.5M5 9v11h5v-6h4v6h5V9',
@@ -47,7 +40,6 @@
         ];
     @endphp
 
-    <div x-data="{ open: false, toggle() { this.open = !this.open }, close() { this.open = false } }" x-effect="document.body.style.overflow = open ? 'hidden' : ''" @keydown.escape.window="close()">
     <div class="sticky top-0 z-30 border-b border-[#6DA5C0]/50 bg-white shadow-sm">
         <header class="mx-auto flex h-16 max-w-[1600px] items-center justify-between gap-3 px-4">
             <a href="{{ route('dashboard', [], false) }}" aria-label="RODAGEST, panel principal" class="flex min-w-0 shrink-0 items-center gap-2 md:w-44">
@@ -69,55 +61,10 @@
                 <form method="POST" action="{{ route('logout', [], false) }}">@csrf<button class="min-h-10 rounded-xl bg-[#072E33] px-4 text-sm font-bold text-white transition hover:bg-[#05161A]">Salir</button></form>
             </div>
 
-            <button type="button" @click="toggle()" :aria-expanded="open.toString()" aria-label="Abrir menú de navegación" aria-controls="rodagest-mobile-drawer" class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#072E33] p-2.5 text-white transition hover:bg-[#05161A] focus:outline-none focus:ring-2 focus:ring-[#6DA5C0] md:hidden">
+            <button type="button" onclick="window.toggleMobileMenu(true)" aria-label="Abrir menú de navegación" aria-controls="mobile-nav-drawer" class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#072E33] p-2.5 text-white transition hover:bg-[#05161A] focus:outline-none focus:ring-2 focus:ring-[#6DA5C0] md:hidden">
                 <svg aria-hidden="true" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
         </header>
     </div>
 
-    <template x-teleport="body">
-    <div id="rodagest-mobile-drawer" x-show="open" x-cloak x-transition.opacity :aria-hidden="(!open).toString()" class="fixed inset-0 z-40 md:hidden">
-        <div @click="close()" class="absolute inset-0 bg-slate-900/60 transition-opacity" aria-hidden="true"></div>
-
-        <aside id="rodagest-mobile-panel" role="dialog" aria-modal="true" aria-labelledby="rodagest-drawer-title" tabindex="-1" class="fixed inset-y-0 right-0 z-50 flex h-[100dvh] w-72 max-w-[85vw] flex-col overflow-y-auto bg-white text-slate-800 shadow-2xl">
-            <div class="min-h-0 flex-1">
-                <div class="flex items-start justify-between gap-3 border-b border-slate-200 bg-white p-4">
-                    <div class="flex items-start gap-3">
-                        <img src="/images/logo-rodagest.png" alt="RODAGEST" class="h-9 w-auto object-contain [mix-blend-mode:multiply]">
-                        <div class="min-w-0"><p id="rodagest-drawer-title" class="break-words font-extrabold text-slate-900">Hola, {{ $user->name }}</p><span class="mt-1 inline-flex rounded-full bg-teal-100 px-2.5 py-0.5 text-xs font-bold uppercase text-teal-900">{{ $roleLabels[$role] ?? $role }}</span><p class="mt-2 text-xs font-medium text-slate-600">Explorar RODAGEST</p></div>
-                    </div>
-                    <button type="button" @click="close()" aria-label="Cerrar menú" class="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-slate-100 text-xl font-bold text-slate-800 hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-700">×</button>
-                </div>
-
-                <nav aria-label="Menú móvil" class="divide-y divide-slate-200 bg-white">
-                    @foreach($navigationGroups as $groupLabel => $items)
-                        <section class="py-2">
-                            <h2 class="px-4 py-2 text-xs font-extrabold uppercase tracking-wide text-slate-500">{{ $groupLabel }}</h2>
-                            @foreach($items as [$label, $routeName])
-                                @php($active = request()->routeIs($routeName) || request()->routeIs($routeName . '.*'))
-                                <a href="{{ route($routeName, [], false) }}" @if($active) aria-current="page" @endif @click="close()" class="flex min-h-12 items-center gap-3 border-l-4 px-4 py-3 text-sm {{ $active ? 'border-teal-700 bg-teal-50 font-bold text-teal-900' : 'border-transparent font-medium text-slate-800 hover:bg-teal-50' }}">
-                                    <svg aria-hidden="true" class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24"><path d="{{ $menuIcons[$routeName] ?? $menuIcons['dashboard'] }}"/></svg><span>{{ $label }}</span>
-                                </a>
-                            @endforeach
-                        </section>
-                    @endforeach
-                </nav>
-            </div>
-
-            <form method="POST" action="{{ route('logout', [], false) }}" class="shrink-0 border-t border-slate-200 bg-white p-4">@csrf<button class="w-full rounded-xl bg-[#072E33] py-3 font-bold text-white transition hover:bg-[#05161A]">Cerrar sesión</button></form>
-        </aside>
-    </div>
-    </template>
-
-    <nav aria-label="Accesos rápidos" class="fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgba(15,23,42,.08)] md:hidden">
-        @foreach($mobileShortcuts as [$label, $routeName, $anchor])
-            <a href="{{ route($routeName, [], false) }}{{ $anchor ?? '' }}" @click="close()" class="flex min-h-14 flex-col items-center justify-center gap-0.5 px-1 py-2 text-center text-[11px] font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-900">
-                <span class="max-w-full truncate">{{ $label }}</span>
-            </a>
-        @endforeach
-        <button type="button" @click="toggle()" :aria-expanded="open.toString()" aria-controls="rodagest-mobile-drawer" class="flex min-h-14 flex-col items-center justify-center gap-0.5 px-1 py-2 text-[11px] font-bold text-slate-800 hover:bg-teal-50">
-            <span aria-hidden="true" class="text-lg leading-none">☰</span><span>Menú</span>
-        </button>
-    </nav>
-    </div>
 @endauth

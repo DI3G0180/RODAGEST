@@ -1,12 +1,13 @@
 @extends('layouts.app')
-@section('title', 'Reportar queja')
+@section('title', !empty($preview) ? 'Vista previa del formulario público' : 'Reportar queja')
 @section('content')
 <div class="mx-auto w-full max-w-2xl px-4 py-6 sm:px-6 sm:py-10">
     <section class="overflow-hidden rounded-3xl border border-[#6DA5C0]/50 bg-white shadow-sm">
         <div class="bg-[#294D61] px-5 py-5 text-white sm:px-7 sm:py-7"><p class="text-xs font-bold uppercase tracking-[.16em] text-white/80">RODAGEST · Atención ciudadana</p><h1 class="mt-1 text-2xl font-extrabold sm:text-3xl">Reportar una queja</h1><p class="mt-2 text-sm text-white/90">Indica el ECO, la ruta y qué ocurrió. Puedes adjuntar una foto.</p></div>
         <div class="p-5 sm:p-7">
+            @if(!empty($preview))<div class="mb-4 rounded-xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-900" role="status"><b>Vista previa administrativa.</b> Puedes revisar el formulario tal como lo ve el público; el envío está deshabilitado.</div><a href="{{ route('quejas.index', [], false) }}" class="mb-4 inline-flex min-h-10 items-center font-semibold text-[#0C7075]">← Volver al seguimiento de quejas</a>@endif
             @if($errors->any())<div class="mb-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800"><ul class="list-disc space-y-1 pl-5">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
-            <form action="{{ route('quejas.publica.store', [], false) }}" method="POST" enctype="multipart/form-data" class="grid min-w-0 gap-4 sm:grid-cols-2">@csrf
+            @if(!empty($preview))<form action="#" method="GET" onsubmit="return false" class="grid min-w-0 gap-4 sm:grid-cols-2">@else<form action="{{ route('quejas.publica.store', [], false) }}" method="POST" enctype="multipart/form-data" class="grid min-w-0 gap-4 sm:grid-cols-2">@csrf @endif
                 <label class="form-label">Número económico (ECO)<input name="eco" required maxlength="30" value="{{ old('eco', $eco) }}" placeholder="Ej. ECO-104" class="public-field"></label>
                 <label class="form-label">Ruta<input id="ruta-reportada" name="ruta_reportada" required maxlength="120" value="{{ old('ruta_reportada') }}" placeholder="Ej. Pantitlán–Chimalhuacán" class="public-field"></label>
                 <label class="form-label sm:col-span-2">Área<input name="area" required maxlength="80" value="{{ old('area') }}" placeholder="Ej. carrocería, salón, terminal, ruta" class="public-field"></label>
@@ -16,7 +17,7 @@
                 <label class="form-label sm:col-span-2">Nombre (opcional)<input name="nombre_reportante" maxlength="120" value="{{ old('nombre_reportante') }}" class="public-field"></label>
                 <label class="honeypot" aria-hidden="true">Dejar vacío<input name="sitio_web" tabindex="-1" autocomplete="off"></label>
                 <p class="text-xs leading-5 text-[#294D61] sm:col-span-2">Tu reporte se enviará al equipo de RODAGEST. Al enviarlo recibirás un folio privado para consultar el avance.</p>
-                <button class="min-h-12 rounded-xl bg-[#0F969C] px-5 font-bold text-white shadow-sm transition hover:bg-[#072E33] sm:col-span-2">Enviar reporte</button>
+                <button @disabled(!empty($preview)) class="min-h-12 rounded-xl bg-[#0F969C] px-5 font-bold text-white shadow-sm transition hover:bg-[#072E33] disabled:cursor-not-allowed disabled:opacity-50 sm:col-span-2">{{ !empty($preview) ? 'Envío deshabilitado en vista previa' : 'Enviar reporte' }}</button>
             </form>
         </div>
     </section>

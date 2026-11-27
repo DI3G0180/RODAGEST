@@ -11,6 +11,13 @@ use Illuminate\Validation\Rule;
 
 class QuejaController extends Controller
 {
+    public function create(Request $request)
+    {
+        abort_if($request->user()->role === 'admin', 403, 'La cuenta administradora solo puede consultar y dar seguimiento a quejas.');
+
+        return redirect()->to(route('quejas.index', ['crear' => 1], false));
+    }
+
     public function index(Request $request)
     {
         $filters = $request->validate([
@@ -57,9 +64,21 @@ class QuejaController extends Controller
         return view('quejas.index', compact('quejas', 'unidades', 'filters'));
     }
 
+    public function show(Request $request, Queja $queja)
+    {
+        $user = $request->user();
+        abort_unless(in_array($user->role, ['admin', 'inspector', 'operador', 'limpieza'], true), 403);
+        abort_if($user->role === 'operador' && (int) $queja->operador_id !== (int) $user->id, 404);
+        abort_if($user->role === 'limpieza' && $queja->tipo_queja !== 'Limpieza', 404);
+
+        $queja->load(['unidad', 'operador']);
+
+        return view('quejas.show', compact('queja'));
+    }
+
     public function store(Request $request)
     {
-        abort_if($request->user()->role === 'admin', 403, 'La cuenta administradora solo puede dar seguimiento a reportes.');
+        abort_unless(in_array($request->user()->role, ['inspector', 'operador', 'limpieza'], true), 403, 'Este rol no puede crear quejas internas.');
 
         $data = $request->validate([
             'eco' => ['required', 'string', 'max:30', Rule::exists('unidades', 'economico')],
@@ -97,13 +116,19 @@ class QuejaController extends Controller
             throw $exception;
         }
 
-        if ($queja->urgencia === 'critica') app(OperationalMail::class)->criticalReport($queja);
+        if ($queja->urgencia === 'critica') {
+            if (in_array($queja->tipo_queja, ['Falla mecánica', 'Daño o seguridad'], true)) {
+                $unit->update(['estado' => 'fuera_servicio']);
+            }
+            app(OperationalMail::class)->criticalReport($queja);
+        }
 
         return redirect()->to(route('quejas.index', [], false))->with('success', 'Reporte guardado correctamente.');
     }
 
     public function updateEstado(Request $request, $id)
     {
+        abort_unless(in_array($request->user()->role, ['admin', 'inspector'], true), 403);
         $request->validate([
             'estado' => 'required|in:pendiente,en_proceso,resuelto',
         ]);
@@ -117,6 +142,7 @@ class QuejaController extends Controller
 
     public function accionLimpieza(Request $request, Queja $queja)
     {
+        abort_unless($request->user()->role === 'limpieza', 403);
         abort_unless($queja->tipo_queja === 'Limpieza', 404);
 
         $data = $request->validate([

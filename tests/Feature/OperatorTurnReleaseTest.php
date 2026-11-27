@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Notifications\TurnoIniciadoConRequisitosPendientes;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 class OperatorTurnReleaseTest extends TestCase
@@ -30,6 +31,10 @@ class OperatorTurnReleaseTest extends TestCase
         $this->assertSame(4, collect($aseo->etapas)->filter()->count());
         $this->assertNull($aseo->evidencia_foto);
         $this->assertDatabaseHas('unidades', ['id' => $unit->id, 'estado' => 'operativa']);
+
+        $admin = User::factory()->create(['role' => 'admin', 'activo' => true]);
+        $this->actingAs($admin)->get(route('dashboard', [], false))
+            ->assertOk()->assertSee('Aseos completados hoy');
     }
 
     public function test_operator_quick_checklist_registers_all_ok_and_updates_dashboard_indicator(): void
@@ -46,6 +51,28 @@ class OperatorTurnReleaseTest extends TestCase
         $this->assertSame('resuelto', $inspection->estado);
         $this->assertCount(5, collect($inspection->checklist)->filter());
         $this->get(route('dashboard', [], false))->assertOk()->assertSee('Checklist de hoy registrado.');
+    }
+
+    public function test_critical_quick_checklist_marks_unit_out_of_service_and_alerts_admin_queue(): void
+    {
+        Mail::fake();
+        $operator = User::factory()->create(['role' => 'operador', 'activo' => true]);
+        User::factory()->create(['role' => 'admin', 'activo' => true]);
+        $unit = Unidad::create(['economico' => 'ECO-CHECK-CRITICAL', 'estado' => 'operativa', 'operador_id' => $operator->id]);
+
+        $this->actingAs($operator)->post(route('turnos.checklist-rapido', [], false), [
+            'hay_falla' => '1',
+            'observaciones' => 'El pedal de freno no responde correctamente.',
+            'checklist' => ['luces' => '1', 'frenos' => '0', 'llantas' => '1', 'fluidos' => '1', 'espejos_seguridad' => '1'],
+        ])->assertRedirect()->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('unidades', ['id' => $unit->id, 'estado' => 'fuera_servicio']);
+        $this->assertDatabaseHas('inspecciones', ['unidad_id' => $unit->id, 'prioridad' => 'critica', 'dictamen' => 'fuera_servicio']);
+        $this->assertDatabaseHas('quejas', ['unidad_id' => $unit->id, 'urgencia' => 'critica', 'estado' => 'pendiente']);
+
+        $admin = User::where('role', 'admin')->firstOrFail();
+        $this->actingAs($admin)->get(route('dashboard', [], false))
+            ->assertOk()->assertSee('fallas críticas requieren atención')->assertSee('Centro de alertas');
     }
 
     public function test_dashboard_recognizes_today_records_by_unit_and_allows_turn_start(): void

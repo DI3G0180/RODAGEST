@@ -32,6 +32,29 @@
     'limpieza' => ['label' => 'Completar aseo 4/4 hoy', 'url' => '#aseo-rapido'],
     default => null,
 })
+@php($dashboardActions = match($userRole) {
+    'admin' => [
+        ['Unidades', route('unidades.index', [], false)], ['Personal y asignaciones', route('empleados.index', [], false)],
+        ['Quejas y seguimiento', route('quejas.index', [], false)], ['Inspecciones', route('inspecciones.index', [], false)],
+        ['Vista previa del formulario público', route('quejas.publica.preview', [], false)],
+        ['Limpieza', route('aseos.index', [], false)], ['Unidades en taller', route('unidades.index', ['estado' => 'en_taller'], false)],
+        ['Reportes operativos', route('reportes.index', [], false)],
+    ],
+    'operador' => array_values(array_filter([
+        ['Turno y liberación', '#turno-operador'],
+        $unidadAsignada ? ['Ficha de mi unidad', route('unidades.show', [$unidadAsignada->id], false)] : null,
+        ['Levantar falla / queja', route('quejas.create', [], false)], ['Historial de mis reportes', route('quejas.index', [], false)],
+    ])),
+    'limpieza' => [
+        ['Completar aseo rápido 4/4', '#aseo-rapido'], ['Registrar limpieza detallada', route('aseos.create', [], false)],
+        ['Incidencias de limpieza', route('quejas.index', [], false)], ['Bitácora de aseos', route('aseos.index', [], false)],
+    ],
+    'inspector' => [
+        ['Registrar inspección', route('inspecciones.create', [], false)], ['Historial de inspecciones', route('inspecciones.index', [], false)],
+        ['Quejas e incidencias', route('quejas.index', [], false)],
+    ],
+    default => [],
+})
 @include('partials.role-menu')
 <main class="mx-auto max-w-7xl space-y-4 overflow-x-hidden px-3 pb-20 pt-3 sm:space-y-6 sm:p-6 md:pb-8 lg:p-8">
     <header class="flex flex-col gap-4 border-b border-[#6DA5C0]/30 pb-5 sm:flex-row sm:items-end sm:justify-between">
@@ -48,8 +71,15 @@
             @endif
         @endif
     </header>
+    @if($dashboardActions)
+        <nav aria-label="Acciones del panel" class="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+            @foreach($dashboardActions as [$actionLabel, $actionUrl])
+                <a href="{{ $actionUrl }}" class="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#6DA5C0]/50 bg-white px-3 py-2 text-center text-xs font-bold text-[#0C7075] shadow-sm transition hover:border-[#0C7075] hover:bg-[#DBE7F3] focus:outline-none focus:ring-2 focus:ring-[#0F969C] sm:px-4 sm:text-sm">{{ $actionLabel }}</a>
+            @endforeach
+        </nav>
+    @endif
     @if($errors->any())<div class="rounded-xl border border-red-200 bg-red-50 p-4 text-red-800"><ul class="list-disc pl-5">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
-    @if($alertas && $userRole !== 'admin')<section class="rounded-2xl border border-[#6DA5C0]/50 bg-white p-4 shadow-sm sm:p-5"><div class="flex flex-wrap items-center justify-between gap-2"><div><p class="text-xs font-bold uppercase tracking-[.16em] text-[#0C7075]">Centro de alertas</p><h2 class="mt-1 text-lg font-extrabold">Pendientes operativos</h2></div><span class="rounded-full bg-[#F4F9FB] px-3 py-1 text-xs font-bold text-[#0C7075]">{{ count($alertas) }} {{ count($alertas) === 1 ? 'aviso' : 'avisos' }}</span></div><div class="mt-3 grid gap-2 sm:grid-cols-2">@foreach($alertas as $alerta)@php($alertaColor=['danger'=>'border-red-200 bg-red-50','warning'=>'border-amber-200 bg-amber-50','info'=>'border-[#6DA5C0]/50 bg-[#F4F9FB]'][$alerta['nivel']] ?? 'border-[#6DA5C0]/50 bg-white')<a href="{{ $alerta['ruta'] }}" class="block min-w-0 rounded-xl border p-3 transition hover:shadow-sm {{ $alertaColor }}"><span class="block break-words text-sm font-bold">{{ $alerta['titulo'] }}</span><span class="mt-1 block break-words text-xs text-[#294D61]">{{ $alerta['detalle'] }}</span></a>@endforeach</div></section>@endif
+    @if($alertas)<section class="rounded-2xl border border-[#6DA5C0]/50 bg-white p-4 shadow-sm sm:p-5"><div class="flex flex-wrap items-center justify-between gap-2"><div><p class="text-xs font-bold uppercase tracking-[.16em] text-[#0C7075]">Centro de alertas</p><h2 class="mt-1 text-lg font-extrabold">Pendientes operativos</h2></div><span class="rounded-full bg-[#F4F9FB] px-3 py-1 text-xs font-bold text-[#0C7075]">{{ count($alertas) }} {{ count($alertas) === 1 ? 'aviso' : 'avisos' }}</span></div><div class="mt-3 grid gap-2 sm:grid-cols-2">@foreach($alertas as $alerta)@php($alertaColor=['danger'=>'border-red-200 bg-red-50','warning'=>'border-amber-200 bg-amber-50','info'=>'border-[#6DA5C0]/50 bg-[#F4F9FB]'][$alerta['nivel']] ?? 'border-[#6DA5C0]/50 bg-white')<a href="{{ $alerta['ruta'] }}" class="block min-w-0 rounded-xl border p-3 transition hover:shadow-sm {{ $alertaColor }}"><span class="block break-words text-sm font-bold">{{ $alerta['titulo'] }}</span><span class="mt-1 block break-words text-xs text-[#294D61]">{{ $alerta['detalle'] }}</span></a>@endforeach</div></section>@endif
 
     @includeWhen($userRole === 'admin', 'dashboard.admin')
     @includeWhen($userRole === 'inspector', 'dashboard.inspector')

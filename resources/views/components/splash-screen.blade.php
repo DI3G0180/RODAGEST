@@ -1,8 +1,3 @@
-@php
-    $splashOnLogin = request()->routeIs('login');
-    $splashOnDashboard = request()->routeIs('dashboard');
-@endphp
-
 <div id="rodagest-splash" role="status" aria-live="polite" aria-label="Cargando RODAGEST" class="fixed inset-0 z-[999999] flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#083344] via-[#0E7490] to-[#155E75] text-white" style="position:fixed; inset:0; z-index:999999; opacity:1; transition:opacity .4s ease;">
     <div class="splash-orb splash-orb-one" aria-hidden="true"></div>
     <div class="splash-orb splash-orb-two" aria-hidden="true"></div>
@@ -14,7 +9,7 @@
             <img src="/images/logo-rodagest.png" alt="RODAGEST" class="h-full w-full object-contain" style="mix-blend-mode:multiply">
         </div>
         <h1 class="mt-7 text-3xl font-extrabold tracking-[.16em] text-white sm:text-4xl">RODAGEST</h1>
-        <p class="mt-2 text-sm font-medium tracking-wide text-white/90 sm:text-base">Gestión Inteligente de Flotas</p>
+        <p class="mt-2 max-w-xs text-sm font-medium tracking-wide text-white/90 sm:text-base">Sistema Integral de Gestión y Control de Flotas</p>
     </div>
     <div class="absolute bottom-8 left-1/2 h-1.5 w-52 -translate-x-1/2 overflow-hidden rounded-full bg-white/25" aria-hidden="true">
         <div class="splash-progress h-full rounded-full bg-white"></div>
@@ -22,6 +17,7 @@
 </div>
 
 <style>
+    #rodagest-splash::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 22% 18%,rgba(255,255,255,.12),transparent 28%),radial-gradient(circle at 82% 76%,rgba(34,211,238,.15),transparent 32%),linear-gradient(135deg,transparent 35%,rgba(255,255,255,.035) 50%,transparent 65%)}
     #rodagest-splash .splash-orb{position:absolute;border:1px solid rgba(255,255,255,.12);border-radius:9999px;background:rgba(255,255,255,.035);pointer-events:none}
     #rodagest-splash .splash-orb-one{width:min(76vw,520px);height:min(76vw,520px);top:-24%;right:-20%;animation:splash-float 7s ease-in-out infinite alternate}
     #rodagest-splash .splash-orb-two{width:min(90vw,680px);height:min(90vw,680px);bottom:-44%;left:-26%;animation:splash-float 9s ease-in-out infinite alternate-reverse}
@@ -43,7 +39,7 @@
         if (!splash) return;
 
         var finished = false;
-        var failSafe = window.setTimeout(finish, 1800);
+        var failSafe;
 
         function finish() {
             if (finished) return;
@@ -57,31 +53,25 @@
             if (failSafe) window.clearTimeout(failSafe);
         }
 
-        try {
-            var seenKey = 'rodagest-splash-seen-v1';
-            var loginPendingKey = 'rodagest-splash-login-pending-v1';
-            var isLogin = @js($splashOnLogin);
-            var isDashboard = @js($splashOnDashboard);
-            var seen = window.sessionStorage.getItem(seenKey) === '1';
-            var loginPending = window.sessionStorage.getItem(loginPendingKey) === '1';
-            var shouldShow = !seen;
-
-            if (isLogin) {
-                window.sessionStorage.setItem(loginPendingKey, '1');
-            } else if (isDashboard && loginPending) {
-                shouldShow = true;
-                window.sessionStorage.removeItem(loginPendingKey);
-            }
-
-            if (shouldShow) {
+        function startSplash() {
+            try {
+                var seenKey = 'rodagest-splash-seen-v1';
+                if (window.sessionStorage.getItem(seenKey) === '1') {
+                    finish();
+                    return;
+                }
                 window.sessionStorage.setItem(seenKey, '1');
-                window.setTimeout(finish, 1400);
-            } else {
-                finish();
+            } catch (error) {
+                // WebView puede bloquear sessionStorage; el timeout sigue retirando el overlay.
             }
-        } catch (error) {
-            // Si WebView bloquea sessionStorage, la pantalla se muestra una vez y el timeout la retira.
             window.setTimeout(finish, 1400);
+        }
+
+        failSafe = window.setTimeout(finish, 1800);
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', startSplash, { once: true });
+        } else {
+            startSplash();
         }
     })();
 </script>

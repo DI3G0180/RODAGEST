@@ -7,6 +7,9 @@
     <link rel="icon" type="image/png" href="/favicon.png?v=4">
     <link rel="shortcut icon" href="/favicon.ico?v=4">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=4">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -16,7 +19,7 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Figtree', 'sans-serif'],
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
                     },
                 }
             }
@@ -25,7 +28,7 @@
 
     @vite('resources/css/app.css')
 </head>
-<body class="bg-slate-100 antialiased">
+<body class="bg-[#F8FAFC] font-sans text-[#083344] antialiased">
     @include('components.splash-screen')
 
     <div class="min-h-screen flex items-center justify-center p-6">

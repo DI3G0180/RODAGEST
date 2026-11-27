@@ -3,16 +3,17 @@
 @tailwind utilities;
 
 :root {
-    --rodagest-abyss: #05161A;
-    --rodagest-petroleum: #072E33;
-    --rodagest-turquoise: #0C7075;
-    --rodagest-cyan: #0F969C;
-    --rodagest-sky: #6DA5C0;
-    --rodagest-steel: #294D61;
-    --rodagest-background: #F4F9FB;
+    --rodagest-abyss: #083344;
+    --rodagest-petroleum: #083344;
+    --rodagest-turquoise: #0E7490;
+    --rodagest-cyan: #0E7490;
+    --rodagest-sky: #BAE6FD;
+    --rodagest-steel: #334155;
+    --rodagest-background: #F8FAFC;
 }
 
 html, body { background-color: var(--rodagest-background); color: var(--rodagest-abyss); }
+html, body { font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif; }
 h1, h2 { color: var(--rodagest-abyss); }
 thead { background: var(--rodagest-petroleum); color: #fff; }
 thead th { color: #fff; }
@@ -22,6 +23,8 @@ thead th { color: #fff; }
 input:not([type="checkbox"]):not([type="radio"]), select, textarea {
     font-size: 16px;
 }
+
+.metric b, .kpi-value { font-variant-numeric: tabular-nums; }
 
 @media (min-width: 640px) {
     input:not([type="checkbox"]):not([type="radio"]), select, textarea {

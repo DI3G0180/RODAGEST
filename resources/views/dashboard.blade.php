@@ -51,7 +51,7 @@
     default => [],
 })
 @include('partials.role-menu')
-<main class="mx-auto max-w-7xl space-y-4 overflow-x-hidden px-3 pb-6 pt-3 sm:space-y-6 sm:p-6 lg:p-8">
+<main class="mx-auto max-w-7xl space-y-4 overflow-x-hidden px-3 pb-6 pt-[4.5rem] sm:space-y-6 sm:px-6 sm:pb-6 sm:pt-20 lg:px-8 lg:pb-8 lg:pt-20">
     <header class="flex flex-col gap-4 border-b border-[#6DA5C0]/30 pb-5 sm:flex-row sm:items-end sm:justify-between">
         <div class="min-w-0">
             <p class="text-xs font-bold uppercase tracking-widest text-[#0C7075]">{{ $roleLabels[$userRole] ?? 'Personal' }} · {{ now()->format('d/m/Y') }}</p>

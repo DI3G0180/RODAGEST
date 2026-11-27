@@ -9,7 +9,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>h1,h2{color:#05161A}thead{background:#072E33!important;color:#fff!important}thead th{color:#fff!important}</style>
 </head>
-<body class="min-h-screen overflow-x-hidden bg-[#F4F9FB] font-sans text-[#05161A] antialiased">
+<body class="min-h-screen overflow-x-hidden bg-[#F8FAFC] font-sans text-[#083344] antialiased">
     @include('partials.role-menu')
     @if(session('success') || session('error') || (session('status') && !in_array(session('status'), ['two-factor-enabled', 'two-factor-disabled', 'profile-updated', 'password-updated', 'verification-link-sent'], true)))
         <div class="mx-auto w-full max-w-7xl space-y-2 px-4 pt-3 sm:px-6" aria-live="polite">
@@ -18,7 +18,7 @@
             @if(session('error'))<div x-data="{ visible: true }" x-show="visible" x-transition.opacity x-init="setTimeout(() => visible = false, 6000)" class="flash-message rounded-xl border border-red-200 bg-red-50 p-3 text-sm font-medium text-red-800" role="alert">{{ session('error') }}</div>@endif
         </div>
     @endif
-    <main class="min-w-0 overflow-x-hidden pb-24 md:pb-8">@yield('content')</main>
+    <main class="min-w-0 overflow-x-hidden pb-8">@yield('content')</main>
     @auth
         @php
             $mobileUser = auth()->user();
@@ -32,41 +32,28 @@
             ];
             $mobileGroups = $mobileGroupsByRole[$mobileRole] ?? ['Operación principal' => [['Panel principal','dashboard']]];
             $mobileGroups['Cuenta y seguridad'] = [['Mi perfil','profile.edit'],['Seguridad 2FA','2fa.setup']];
-            $mobileShortcuts = match ($mobileRole) {
-                'admin' => [['Inicio','dashboard',null],['Unidades','unidades.index',null],['Reportes','reportes.index',null]],
-                'inspector' => [['Inicio','dashboard',null],['Inspección','inspecciones.create',null],['Quejas','quejas.index',null]],
-                'operador' => [['Inicio','dashboard',null],['Turno','dashboard','#turno-operador'],['Reportes','quejas.index',null]],
-                'limpieza' => [['Inicio','dashboard',null],['Aseo rápido','dashboard','#aseo-rapido'],['Quejas','quejas.index',null]],
-                default => [['Inicio','dashboard',null],['Módulo','dashboard',null],['Reportes','quejas.index',null]],
-            };
         @endphp
 
-        <div id="mobile-nav-drawer" x-data="{ open: false }" @mobile-menu-state.window="open = $event.detail.open" @keydown.escape.window="window.toggleMobileMenu(false)" class="hidden md:hidden" aria-hidden="true" style="display:none; position:fixed; inset:0; z-index:99999;">
+        <div id="mobile-nav-drawer" x-data="{ open: false }" @mobile-menu-state.window="open = $event.detail.open" @keydown.escape.window="window.toggleMobileMenu(false)" class="hidden lg:hidden" aria-hidden="true" style="display:none; position:fixed; inset:0; z-index:99999;">
             <div onclick="window.toggleMobileMenu(false)" aria-label="Cerrar menú" style="position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1;"></div>
             <aside role="dialog" aria-modal="true" aria-labelledby="mobile-nav-title" style="position:fixed; top:0; right:0; bottom:0; width:280px; max-width:85vw; background:#ffffff; z-index:2; overflow-y:auto; box-shadow:-12px 0 32px rgba(0,0,0,.28); display:flex; flex-direction:column;">
-                <div style="background:#8B1E32; color:#fff; padding:20px;">
-                    <div class="flex items-start justify-between gap-3"><div class="min-w-0"><h2 id="mobile-nav-title" class="break-words text-lg font-extrabold text-white">{{ $mobileUser->name }}</h2><span class="mt-1 inline-flex rounded-full bg-white/15 px-3 py-1 text-xs font-bold uppercase text-white">{{ $mobileRoleLabels[$mobileRole] ?? $mobileRole }}</span></div><button type="button" onclick="window.toggleMobileMenu(false)" class="inline-flex min-h-11 shrink-0 items-center rounded-lg bg-white px-3 text-sm font-bold text-[#8B1E32]">✕ Cerrar</button></div>
+                <div style="background:#083344; color:#fff; padding:20px;">
+                    <div class="flex items-start justify-between gap-3"><div class="min-w-0"><h2 id="mobile-nav-title" class="break-words text-lg font-extrabold text-white">{{ $mobileUser->name }}</h2><span class="mt-1 inline-flex rounded-full bg-[#0E7490] px-3 py-1 text-xs font-bold uppercase text-white">{{ $mobileRoleLabels[$mobileRole] ?? $mobileRole }}</span></div><button type="button" onclick="window.toggleMobileMenu(false)" class="inline-flex min-h-11 shrink-0 items-center rounded-lg bg-white px-3 text-sm font-bold text-[#083344]">✕ Cerrar</button></div>
                 </div>
                 <div style="flex:1 1 auto; overflow-y:auto; padding:12px 0;">
                     @foreach($mobileGroups as $groupLabel => $items)
                         <section class="border-b border-slate-100 py-2"><h3 class="px-4 py-2 text-xs font-extrabold uppercase tracking-wide text-slate-500">{{ $groupLabel }}</h3>
                             @foreach($items as [$label,$routeName])
                                 @php($mobileActive = request()->routeIs($routeName) || request()->routeIs($routeName.'.*'))
-                                <a href="{{ route($routeName, [], false) }}" @if($mobileActive) aria-current="page" @endif onclick="window.toggleMobileMenu(false)" class="block border-l-4 px-4 py-3 text-base font-medium {{ $mobileActive ? 'border-[#8B1E32] bg-rose-50 font-bold text-[#8B1E32]' : 'border-transparent text-slate-800 hover:bg-slate-50' }}">{{ $label }}</a>
+                                <a href="{{ route($routeName, [], false) }}" @if($mobileActive) aria-current="page" @endif onclick="window.toggleMobileMenu(false)" class="block border-l-4 px-4 py-3 text-base font-medium {{ $mobileActive ? 'border-[#0E7490] bg-cyan-50 font-bold text-[#0E7490]' : 'border-transparent text-[#083344] hover:bg-slate-100' }}">{{ $label }}</a>
                             @endforeach
                         </section>
                     @endforeach
                 </div>
-                <form method="POST" action="{{ route('logout', [], false) }}" class="shrink-0 border-t border-slate-200 bg-white p-4">@csrf<button class="min-h-12 w-full rounded-xl bg-[#072E33] px-4 py-3 text-base font-bold text-white">Cerrar sesión</button></form>
+                <form method="POST" action="{{ route('logout', [], false) }}" class="shrink-0 border-t border-slate-200 bg-white p-4">@csrf<button class="min-h-12 w-full rounded-xl bg-[#083344] px-4 py-3 text-base font-bold text-white">Cerrar sesión</button></form>
             </aside>
         </div>
 
-        <nav aria-label="Accesos rápidos" class="fixed inset-x-0 bottom-0 z-[9990] grid grid-cols-4 border-t border-slate-200 bg-white pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgba(15,23,42,.08)] md:hidden" style="position:fixed; bottom:0; left:0; right:0; z-index:9990;">
-            @foreach($mobileShortcuts as [$label,$routeName,$anchor])
-                <a href="{{ route($routeName, [], false) }}{{ $anchor ?? '' }}" class="flex min-h-14 flex-col items-center justify-center px-1 py-2 text-center text-xs font-semibold text-slate-700 hover:bg-slate-50"><span class="max-w-full truncate">{{ $label }}</span></a>
-            @endforeach
-            <button type="button" onclick="window.toggleMobileMenu(true)" aria-controls="mobile-nav-drawer" class="flex min-h-14 flex-col items-center justify-center px-1 py-2 text-xs font-bold text-slate-800 hover:bg-slate-50"><span aria-hidden="true" class="text-lg leading-none">☰</span><span>Menú</span></button>
-        </nav>
     @endauth
     <script>
         window.toggleMobileMenu = function (forceState) {

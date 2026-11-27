@@ -24,7 +24,11 @@
         $navigationGroups = $groupsByRole[$role] ?? ['Operación principal' => [['Panel principal', 'dashboard']]];
         $navigationGroups['Cuenta y seguridad'] = [['Mi perfil', 'profile.edit'], ['Seguridad 2FA', '2fa.setup']];
         $desktopItems = collect($navigationGroups)->flatten(1);
-        $desktopLabels = ['Panel principal' => 'Panel', 'Reportes operativos' => 'Reportes', 'Quejas e incidencias' => 'Quejas', 'Seguridad 2FA' => '2FA'];
+        $desktopLabels = [
+            'Panel principal' => 'Panel', 'Aseos / Limpieza' => 'Limpieza', 'Reportes operativos' => 'Reportes',
+            'Quejas e incidencias' => 'Quejas', 'Personal' => 'Personal', 'Papelera' => 'Papelera',
+            'Mi perfil' => 'Perfil', 'Seguridad 2FA' => 'Seguridad',
+        ];
         $menuIcons = [
             'dashboard' => 'M3 10.5 12 3l9 7.5M5 9v11h5v-6h4v6h5V9',
             'unidades.index' => 'M3 16V6a2 2 0 0 1 2-2h11l5 5v7h-2m-14 0H3m4 0h8m-8 4a2 2 0 1 0 0-4 2 2 0 0 0 0 4m10 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4M16 4v5h5',
@@ -40,28 +44,28 @@
         ];
     @endphp
 
-    <div class="sticky top-0 z-30 border-b border-[#6DA5C0]/50 bg-white shadow-sm">
-        <header class="mx-auto flex h-16 max-w-[1600px] items-center justify-between gap-3 px-4">
-            <a href="{{ route('dashboard', [], false) }}" aria-label="RODAGEST, panel principal" class="flex min-w-0 shrink-0 items-center gap-2 md:w-44">
+    <div class="sticky top-0 z-40 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
+        <header class="mx-auto flex h-16 max-w-[1600px] items-center justify-between gap-2 px-3 sm:px-4">
+            <a href="{{ route('dashboard', [], false) }}" aria-label="RODAGEST, panel principal" class="flex min-w-0 shrink-0 items-center gap-2 lg:w-auto 2xl:w-44">
                 <img src="/images/logo-rodagest.png" alt="RODAGEST" class="h-9 w-auto max-w-40 object-contain [mix-blend-mode:multiply]">
-                <span class="hidden truncate text-sm font-semibold text-[#294D61] lg:inline">Gestión de Flotas</span>
+                <span class="hidden truncate text-sm font-semibold text-[#083344] 2xl:inline">Gestión de Flotas</span>
             </a>
 
-            <nav aria-label="Navegación principal" class="hidden min-w-0 flex-1 items-center justify-center gap-1 overflow-x-auto whitespace-nowrap px-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:flex">
+            <nav aria-label="Navegación principal" class="hidden min-w-0 flex-1 items-center justify-center gap-0.5 whitespace-nowrap px-1 lg:flex">
                 @foreach($desktopItems as [$label, $routeName])
                     @php($active = request()->routeIs($routeName) || request()->routeIs($routeName . '.*'))
-                    <a href="{{ route($routeName, [], false) }}" title="{{ $label }}" @if($active) aria-current="page" @endif class="shrink-0 rounded-full px-2.5 py-2 text-xs font-semibold transition lg:px-3 lg:text-sm {{ $active ? 'bg-[#0C7075] text-white' : 'text-[#05161A] hover:bg-[#6DA5C0]/20' }}">
-                        <span class="lg:hidden">{{ $desktopLabels[$label] ?? $label }}</span><span class="hidden lg:inline">{{ $label }}</span>
+                    <a href="{{ route($routeName, [], false) }}" title="{{ $label }}" @if($active) aria-current="page" @endif class="shrink-0 rounded-full px-1.5 py-1.5 text-[11px] font-semibold transition xl:px-2 xl:text-xs 2xl:px-2.5 2xl:text-sm {{ $active ? 'bg-[#0E7490] text-white' : 'text-[#083344] hover:bg-cyan-50' }}">
+                        <span>{{ $desktopLabels[$label] ?? $label }}</span>
                     </a>
                 @endforeach
             </nav>
 
-            <div class="hidden shrink-0 items-center gap-3 md:flex">
-                <div class="max-w-40 text-right"><b class="block truncate text-sm text-[#05161A]">{{ $user->name }}</b><span class="text-[10px] font-bold uppercase tracking-wide text-[#0C7075]">{{ $roleLabels[$role] ?? $role }}</span></div>
-                <form method="POST" action="{{ route('logout', [], false) }}">@csrf<button class="min-h-10 rounded-xl bg-[#072E33] px-4 text-sm font-bold text-white transition hover:bg-[#05161A]">Salir</button></form>
+            <div class="hidden shrink-0 items-center gap-2 lg:flex xl:gap-3">
+                <div class="max-w-40 text-right"><b class="block truncate text-sm text-[#083344]">{{ $user->name }}</b><span class="text-[10px] font-bold uppercase tracking-wide text-[#0E7490]">{{ $roleLabels[$role] ?? $role }}</span></div>
+                <form method="POST" action="{{ route('logout', [], false) }}">@csrf<button class="min-h-10 rounded-xl bg-[#083344] px-3 text-xs font-bold text-white transition hover:bg-[#0E7490] xl:px-4 xl:text-sm">Salir</button></form>
             </div>
 
-            <button type="button" onclick="window.toggleMobileMenu(true)" aria-label="Abrir menú de navegación" aria-controls="mobile-nav-drawer" class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#072E33] p-2.5 text-white transition hover:bg-[#05161A] focus:outline-none focus:ring-2 focus:ring-[#6DA5C0] md:hidden">
+            <button type="button" onclick="window.toggleMobileMenu(true)" aria-label="Abrir menú de navegación" aria-controls="mobile-nav-drawer" class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#083344] p-2.5 text-white transition hover:bg-[#0E7490] focus:outline-none focus:ring-2 focus:ring-[#0E7490] lg:hidden">
                 <svg aria-hidden="true" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
         </header>

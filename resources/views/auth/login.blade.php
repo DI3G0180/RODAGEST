@@ -21,6 +21,7 @@
     </style>
 </head>
 <body>
+@include('components.splash-screen')
 <main class="card">
     <img class="logo" src="/images/logo-rodagest.png" alt="Logotipo RODAGEST">
     <h1>Bienvenido a RODAGEST</h1>

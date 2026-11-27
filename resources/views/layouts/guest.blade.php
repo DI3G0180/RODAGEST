@@ -26,6 +26,7 @@
     @vite('resources/css/app.css')
 </head>
 <body class="bg-slate-100 antialiased">
+    @include('components.splash-screen')
 
     <div class="min-h-screen flex items-center justify-center p-6">
         <div class="bg-white rounded-xl border border-slate-200 w-full max-w-md p-8 shadow-xl animate-fade-in-up">

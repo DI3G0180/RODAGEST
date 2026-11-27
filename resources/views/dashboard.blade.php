@@ -9,6 +9,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen overflow-x-hidden bg-[#F8FAFC] text-[#083344] antialiased">
+@include('components.splash-screen')
 @php($user = $user ?? auth()->user())
 @php($userRole = $userRole ?? $user?->role ?? '')
 @php($alertas = $alertas ?? collect())

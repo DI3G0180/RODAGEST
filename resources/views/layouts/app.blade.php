@@ -10,6 +10,7 @@
     <style>h1,h2{color:#05161A}thead{background:#072E33!important;color:#fff!important}thead th{color:#fff!important}</style>
 </head>
 <body class="min-h-screen overflow-x-hidden bg-[#F8FAFC] font-sans text-[#083344] antialiased">
+    @include('components.splash-screen')
     @include('partials.role-menu')
     @if(session('success') || session('error') || (session('status') && !in_array(session('status'), ['two-factor-enabled', 'two-factor-disabled', 'profile-updated', 'password-updated', 'verification-link-sent'], true)))
         <div class="mx-auto w-full max-w-7xl space-y-2 px-4 pt-3 sm:px-6" aria-live="polite">

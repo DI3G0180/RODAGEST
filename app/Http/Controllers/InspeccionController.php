@@ -6,6 +6,7 @@ use App\Http\Requests\InspeccionStoreRequest;
 use App\Models\Inspeccion;
 use App\Models\Unidad;
 use App\Models\User;
+use App\Support\ProgressiveStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -106,6 +107,7 @@ class InspeccionController extends Controller
     public function update(Request $request, Inspeccion $inspeccion)
     {
         $data = $request->validate(['estado' => ['required', 'in:pendiente,en_proceso,resuelto']]);
+        abort_unless(ProgressiveStatus::next('inspeccion', $inspeccion->estado) === $data['estado'], 422, 'El estado solo puede avanzar a la siguiente etapa; los estados finales están bloqueados.');
         $inspeccion->update($data);
         if ($data['estado'] === 'resuelto' && $inspeccion->dictamen === 'operativa') {
             $inspeccion->unidad()->update(['estado' => 'operativa']);

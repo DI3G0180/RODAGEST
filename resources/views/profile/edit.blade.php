@@ -87,7 +87,7 @@
             </div>
 
             <div class="pt-2">
-                <button type="submit" class="px-5 py-2.5 bg-primary hover:bg-secondary text-white font-semibold text-sm rounded-xl shadow-md shadow-primary/30 transition">
+                <button type="submit" class="w-full rounded-xl bg-[#0E7490] px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-[#083344] sm:w-auto">
                     Guardar Cambios
                 </button>
             </div>

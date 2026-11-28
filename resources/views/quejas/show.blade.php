@@ -3,6 +3,7 @@
 @section('content')
 <div class="mx-auto w-full max-w-4xl space-y-5 px-4 py-5 sm:px-6 sm:py-8">
     @php($role = auth()->user()->role)
+    @php($nextState = \App\Support\ProgressiveStatus::next('queja', $queja->estado))
     <header class="flex flex-wrap items-end justify-between gap-3">
         <div><p class="text-xs font-bold uppercase tracking-[.16em] text-[#0C7075]">{{ $role === 'admin' ? 'Consulta y seguimiento' : 'Seguimiento operativo' }}</p><h1 class="mt-1 text-2xl font-extrabold sm:text-3xl">Queja · {{ $queja->eco ?: ($queja->unidad?->economico ?? 'Unidad no disponible') }}</h1><p class="mt-1 text-sm text-[#294D61]">Detalle del reporte y formulario utilizado para registrarlo.</p></div>
         <a href="{{ route('quejas.index', [], false) }}" class="inline-flex min-h-11 items-center rounded-xl border border-[#6DA5C0]/50 bg-white px-4 font-semibold text-[#0C7075] hover:bg-[#F4F9FB]">← Bandeja de quejas</a>
@@ -25,7 +26,7 @@
     @endif
 
     @if(in_array($role, ['admin', 'inspector']))
-        <section class="rounded-2xl border border-[#6DA5C0]/50 bg-white p-4 sm:p-6"><h2 class="font-extrabold">Actualizar seguimiento</h2><form action="{{ route('quejas.actualizar-estado', [$queja->id], false) }}" method="POST" class="mt-3 flex flex-wrap items-end gap-3">@csrf @method('PUT')<label class="min-w-48 flex-1 text-sm font-semibold">Estado<select name="estado" class="mt-1 min-h-11 w-full rounded-xl border border-[#6DA5C0]/50 bg-white px-3"><option value="pendiente" @selected($queja->estado === 'pendiente')>Pendiente</option><option value="en_proceso" @selected($queja->estado === 'en_proceso')>En proceso</option><option value="resuelto" @selected($queja->estado === 'resuelto')>Resuelta</option></select></label><button class="min-h-11 rounded-xl bg-[#0F969C] px-5 font-bold text-white hover:bg-[#0C7075]">Guardar seguimiento</button></form></section>
+        <section class="rounded-2xl border border-[#6DA5C0]/50 bg-white p-4 sm:p-6"><h2 class="font-extrabold">Actualizar seguimiento</h2>@if($nextState)<form action="{{ route('quejas.actualizar-estado', [$queja->id], false) }}" method="POST" class="mt-3 flex flex-wrap items-end gap-3">@csrf @method('PUT')<input type="hidden" name="estado" value="{{ $nextState }}"><p class="text-sm text-[#294D61]">Siguiente estado: <b>{{ ['en_proceso'=>'En proceso','resuelto'=>'Resuelta'][$nextState] }}</b></p><button class="min-h-11 rounded-xl bg-[#0E7490] px-5 font-bold text-white hover:bg-[#083344]">Avanzar seguimiento</button></form>@else<p class="mt-2 inline-flex rounded-full bg-emerald-100 px-3 py-2 text-sm font-bold text-emerald-800">Estado final · {{ ucfirst(str_replace('_',' ',$queja->estado)) }}. Registro de solo lectura.</p>@endif</section>
     @endif
 </div>
 @endsection

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Queja;
 use App\Models\Unidad;
 use App\Support\OperationalMail;
+use App\Support\ProgressiveStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -128,13 +129,13 @@ class QuejaController extends Controller
 
     public function updateEstado(Request $request, $id)
     {
-        abort_unless(in_array($request->user()->role, ['admin', 'inspector'], true), 403);
-        $request->validate([
-            'estado' => 'required|in:pendiente,en_proceso,resuelto',
-        ]);
+        abort_unless(in_array($request->user()->role, ['admin', 'inspector', 'limpieza'], true), 403);
+        $data = $request->validate(['estado' => ['required', 'in:pendiente,en_proceso,resuelto']]);
 
         $queja = Queja::findOrFail($id);
-        $queja->update(['estado' => $request->estado]);
+        abort_unless(ProgressiveStatus::next('queja', $queja->estado) === $data['estado'], 422, 'El estado solo puede avanzar a la siguiente etapa; los estados finales están bloqueados.');
+        abort_if($request->user()->role === 'limpieza' && $data['estado'] !== 'en_proceso', 422, 'El personal de limpieza debe adjuntar la evidencia de atención para resolver el reporte.');
+        $queja->update(['estado' => $data['estado']]);
         app(OperationalMail::class)->reportStatusChanged($queja);
 
         return redirect()->to(route('quejas.index', [], false))->with('success', 'Estado de queja actualizado correctamente.');
@@ -144,6 +145,7 @@ class QuejaController extends Controller
     {
         abort_unless($request->user()->role === 'limpieza', 403);
         abort_unless($queja->tipo_queja === 'Limpieza', 404);
+        abort_unless(ProgressiveStatus::next('queja', $queja->estado) === 'resuelto', 422, 'El reporte debe estar en proceso antes de registrar la atención final.');
 
         $data = $request->validate([
             'accion_atencion' => ['required', 'string', 'max:1000'],

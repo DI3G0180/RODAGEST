@@ -13,10 +13,10 @@
     @if(session('success'))<div class="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800" role="status">{{ session('success') }}</div>@endif
     @if($errors->any())<div class="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800" role="alert">@foreach($errors->all() as $error)<p>{{ $error }}</p>@endforeach</div>@endif
 
-    <nav aria-label="Secciones del expediente" class="flex gap-2 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-2">
-        <button type="button" @click="tab='expediente'" :aria-current="tab==='expediente' ? 'page' : null" :class="tab==='expediente' ? 'bg-[#0C7075] text-white' : 'text-slate-700 hover:bg-[#DBE7F3]'" class="min-h-11 shrink-0 rounded-xl px-4 text-sm font-bold">Expediente / hoja de vida</button>
-        <button type="button" @click="tab='cuenta'" :aria-current="tab==='cuenta' ? 'page' : null" :class="tab==='cuenta' ? 'bg-[#0C7075] text-white' : 'text-slate-700 hover:bg-[#DBE7F3]'" class="min-h-11 shrink-0 rounded-xl px-4 text-sm font-bold">Editar accesos y cuenta</button>
-        @if($empleado->role !== 'admin' && $empleado->id !== auth()->id())<button type="button" @click="tab='baja'" :aria-current="tab==='baja' ? 'page' : null" :class="tab==='baja' ? 'bg-red-700 text-white' : 'text-red-700 hover:bg-red-50'" class="min-h-11 shrink-0 rounded-xl px-4 text-sm font-bold">Zona de baja</button>@endif
+    <nav aria-label="Secciones del expediente" class="grid min-w-0 grid-cols-2 gap-2 rounded-2xl border border-slate-200 bg-white p-2">
+        <button type="button" @click="tab='expediente'" :aria-current="tab==='expediente' ? 'page' : null" :class="tab==='expediente' ? 'bg-[#0C7075] text-white' : 'text-slate-700 hover:bg-[#DBE7F3]'" class="min-h-11 min-w-0 whitespace-normal rounded-xl px-2 py-2.5 text-center text-xs font-bold sm:px-3 sm:text-sm">Expediente / hoja de vida</button>
+        <button type="button" @click="tab='cuenta'" :aria-current="tab==='cuenta' ? 'page' : null" :class="tab==='cuenta' ? 'bg-[#0C7075] text-white' : 'text-slate-700 hover:bg-[#DBE7F3]'" class="min-h-11 min-w-0 whitespace-normal rounded-xl px-2 py-2.5 text-center text-xs font-bold sm:px-3 sm:text-sm">Editar accesos y cuenta</button>
+        @if($empleado->role !== 'admin' && $empleado->id !== auth()->id())<button type="button" @click="tab='baja'" :aria-current="tab==='baja' ? 'page' : null" :class="tab==='baja' ? 'bg-red-700 text-white' : 'text-red-700 hover:bg-red-50'" class="min-h-11 min-w-0 whitespace-normal rounded-xl px-2 py-2.5 text-center text-xs font-bold sm:px-3 sm:text-sm">Zona de baja</button>@endif
     </nav>
 
     <section x-show="tab==='cuenta'" x-cloak class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">

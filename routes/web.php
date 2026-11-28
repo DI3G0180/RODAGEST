@@ -85,7 +85,7 @@ Route::middleware(['auth', 'active'])->group(function () {
     ]);
 
     Route::put('quejas/{queja}/actualizar-estado', [QuejaController::class, 'updateEstado'])
-        ->middleware('role:admin,inspector')->name('quejas.actualizar-estado');
+        ->middleware('role:admin,inspector,limpieza')->name('quejas.actualizar-estado');
     Route::post('quejas/{queja}/accion-limpieza', [QuejaController::class, 'accionLimpieza'])
         ->middleware('role:limpieza')->name('quejas.accion-limpieza');
 

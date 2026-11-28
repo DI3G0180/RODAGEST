@@ -7,6 +7,7 @@ use App\Models\Unidad;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use App\Support\ProgressiveStatus;
 
 class AseoController extends Controller
 {
@@ -147,6 +148,7 @@ class AseoController extends Controller
     public function updateEstado(Request $request, Aseo $aseo)
     {
         $data = $request->validate(['estado' => ['required', 'in:pendiente,en_proceso,completado']]);
+        abort_unless(ProgressiveStatus::next('aseo', $aseo->estado) === $data['estado'], 422, 'El estado solo puede avanzar a la siguiente etapa; los aseos completados están bloqueados.');
         if ($data['estado'] === 'completado' && !collect($aseo->etapas ?? [])->every(fn ($done) => (bool) $done)) {
             return back()->withErrors(['estado' => 'Completa las cuatro etapas de limpieza antes de liberar la unidad.']);
         }

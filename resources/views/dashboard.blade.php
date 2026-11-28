@@ -51,12 +51,12 @@
     default => [],
 })
 @include('partials.role-menu')
-<main class="mx-auto max-w-7xl space-y-4 overflow-x-hidden px-3 pb-6 pt-[4.5rem] sm:space-y-6 sm:px-6 sm:pb-6 sm:pt-20 lg:px-8 lg:pb-8 lg:pt-20">
+<main class="mx-auto max-w-7xl space-y-4 overflow-x-hidden px-3 pb-6 pt-[4.5rem] sm:space-y-5 sm:px-6 sm:pb-6 sm:pt-20 lg:px-8 lg:pb-8 lg:pt-20">
     <header class="flex flex-col gap-4 border-b border-[#6DA5C0]/30 pb-5 sm:flex-row sm:items-end sm:justify-between">
         <div class="min-w-0">
             <p class="text-xs font-bold uppercase tracking-widest text-[#0C7075]">{{ $roleLabels[$userRole] ?? 'Personal' }} · {{ now()->format('d/m/Y') }}</p>
-            <h1 class="mt-1 text-2xl font-extrabold text-[#05161A] sm:text-3xl">{{ $dashboardTitles[$userRole] ?? 'Panel RODAGEST' }}</h1>
-            <p class="mt-1 text-sm text-[#294D61]">{{ $dashboardSubtitles[$userRole] ?? 'Operación Línea 3 Mexibús.' }}</p>
+            <h1 class="mt-1 text-xl font-bold tracking-tight text-[#083344] sm:text-2xl">{{ $dashboardTitles[$userRole] ?? 'Panel RODAGEST' }}</h1>
+            <p class="mt-1 text-xs text-slate-500 sm:text-sm">{{ $dashboardSubtitles[$userRole] ?? 'Operación Línea 3 Mexibús.' }}</p>
         </div>
         @if($primaryAction)
             @if(isset($primaryAction['target']))
@@ -82,6 +82,6 @@
     @includeWhen($userRole === 'limpieza', 'dashboard.limpieza')
 </main>
 @include('partials.mobile-drawer')
-<style>h1,h2{color:#083344}thead{background:#083344!important;color:#fff!important}thead th{color:#fff!important}.field{width:100%;min-width:0;border:1px solid #0E7490;border-radius:.65rem;background:#fff;padding:.7rem .8rem;font-size:.9rem;outline:none}.field:focus{border-color:#0E7490;box-shadow:0 0 0 3px #0E749033}.metric{display:flex;height:100%;min-height:7rem;flex-direction:column;justify-content:space-between;border:1px solid rgb(14 116 144 / .35);border-top:4px solid #0E7490;border-radius:1rem;background:#fff;padding:.75rem;box-shadow:0 1px 2px rgb(8 51 68 / .08);transition:box-shadow .2s}.metric:hover{box-shadow:0 4px 12px rgb(8 51 68 / .12)}.metric>div:first-child>span{display:block;color:#083344;font-size:.65rem;font-weight:700;line-height:1.35;letter-spacing:.06em;text-transform:uppercase}.metric b{display:block;color:#083344;font-size:1.75rem;line-height:1.1;margin:.35rem 0}.metric-footer{display:flex;align-items:center;justify-content:space-between;gap:.5rem;border-top:1px solid rgb(14 116 144 / .2);padding-top:.45rem;font-size:.68rem}.metric-footer span{color:#083344}.metric-footer a{flex-shrink:0;font-weight:600;color:#0E7490}.metric-footer a:hover{color:#083344}@media(min-width:640px){.metric{min-height:9rem;padding:1.5rem}.metric>div:first-child>span{font-size:.75rem}.metric b{font-size:2.25rem;margin:.5rem 0}.metric-footer{padding-top:.75rem;font-size:.75rem}}</style>
+<style>h1,h2{color:#083344}thead{background:#083344!important;color:#fff!important}thead th{color:#fff!important}.field{width:100%;min-width:0;border:1px solid #0E7490;border-radius:.65rem;background:#fff;padding:.7rem .8rem;font-size:.9rem;outline:none}.field:focus{border-color:#0E7490;box-shadow:0 0 0 3px #0E749033}.metric{display:flex;height:100%;min-height:7rem;flex-direction:column;justify-content:space-between;border:1px solid rgb(14 116 144 / .35);border-top:4px solid #0E7490;border-radius:1rem;background:#fff;padding:.75rem;box-shadow:0 1px 2px rgb(8 51 68 / .08);transition:box-shadow .2s}.metric:hover{box-shadow:0 4px 12px rgb(8 51 68 / .12)}.metric>div:first-child{position:relative;min-height:2.4rem;padding-right:2.5rem}.metric>div:first-child:after{position:absolute;top:0;right:0;display:grid;width:2rem;height:2rem;place-items:center;border-radius:.75rem;background:rgb(14 116 144 / .1);color:#0E7490;content:'↗';font-size:.95rem;font-weight:800}.metric>div:first-child>span{display:block;color:#083344;font-size:.65rem;font-weight:700;line-height:1.35;letter-spacing:.06em;text-transform:uppercase}.metric b{display:block;color:#083344;font-size:1.75rem;line-height:1.1;margin:.35rem 0;font-variant-numeric:tabular-nums}.metric-footer{display:flex;align-items:center;justify-content:space-between;gap:.5rem;border-top:1px solid rgb(14 116 144 / .2);padding-top:.45rem;font-size:.68rem}.metric-footer span{color:#083344}.metric-footer a{flex-shrink:0;font-weight:600;color:#0E7490}.metric-footer a:hover{color:#083344}@media(min-width:640px){.metric{min-height:9rem;padding:1.25rem}.metric>div:first-child>span{font-size:.75rem}.metric b{font-size:2.25rem;margin:.5rem 0}.metric-footer{padding-top:.75rem;font-size:.75rem}}</style>
 </body>
 </html>

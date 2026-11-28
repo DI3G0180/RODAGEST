@@ -1,15 +1,22 @@
 @extends('layouts.app')
 @section('title', 'Gestión de personal')
 @section('content')
-<div class="mx-auto max-w-7xl space-y-5 p-4 sm:p-6">
-    <header class="flex flex-wrap items-end justify-between gap-3">
-        <div><p class="text-xs font-extrabold uppercase tracking-widest text-[#0C7075]">Administración</p><h1 class="mt-1 text-2xl font-extrabold">Personal y accesos</h1><p class="mt-1 text-sm text-[#294D61]">Busca al personal y gestiona cada cuenta desde su expediente.</p></div>
-        <a href="{{ route('dashboard', [], false) }}" class="inline-flex min-h-11 items-center rounded-xl border border-[#6DA5C0]/50 bg-white px-4 text-sm font-bold text-[#0C7075]">Volver al panel</a>
+<div class="mx-auto max-w-7xl space-y-4 p-3 sm:space-y-5 sm:p-6">
+    <header class="flex flex-wrap items-center justify-between gap-2">
+        <div class="min-w-0"><p class="text-xs font-extrabold uppercase tracking-widest text-[#0C7075]">Administración</p><h1 class="mt-1 text-xl font-bold tracking-tight text-[#083344] sm:text-2xl">Personal y accesos</h1><p class="mt-1 text-xs text-slate-500 sm:text-sm">Busca al personal y gestiona cada cuenta desde su expediente.</p></div>
+        <div class="flex shrink-0 flex-wrap gap-2"><button type="button" onclick="const form=document.getElementById('employee-create');form?.setAttribute('open','open');form?.scrollIntoView({behavior:'smooth',block:'start'})" class="inline-flex min-h-10 items-center rounded-xl bg-[#0E7490] px-3 text-xs font-bold text-white sm:text-sm">+ Nuevo empleado</button><a href="{{ route('dashboard', [], false) }}" class="inline-flex min-h-10 items-center rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold text-[#0E7490] sm:text-sm">Volver</a></div>
     </header>
     @if($errors->any())<div class="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">@foreach($errors->all() as $error)<p>{{ $error }}</p>@endforeach</div>@endif
 
-    <section class="rounded-2xl border border-[#6DA5C0]/50 bg-white p-4 shadow-sm sm:p-5">
-        <details class="group"><summary class="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 font-bold marker:hidden"><span>Alta de personal</span><span class="rounded-xl bg-[#0F969C] px-4 py-2.5 text-sm font-bold text-white group-open:hidden">+ Nuevo empleado</span><span class="hidden rounded-xl border border-[#6DA5C0]/50 px-4 py-2 text-sm font-semibold text-[#0C7075] group-open:inline-flex">Cerrar</span></summary>
+    <form id="employee-filter-form" action="{{ route('empleados.index', [], false) }}" method="GET" class="grid min-w-0 grid-cols-2 gap-2 rounded-2xl border border-slate-200/80 bg-white p-3 shadow-sm sm:p-4 lg:grid-cols-[minmax(0,1fr)_190px_190px_auto_auto]">
+        <div class="col-span-2 flex min-w-0 gap-2 lg:col-span-1"><label class="sr-only" for="employee-search">Buscar empleado</label><div class="relative min-w-0 flex-1"><span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true">⌕</span><input id="employee-search" name="q" value="{{ request('q') }}" placeholder="Buscar personal..." class="field h-10 pl-9 text-sm"></div><button aria-label="Buscar empleado" class="h-10 shrink-0 rounded-xl bg-[#0E7490] px-3 text-sm font-bold text-white">Buscar</button></div>
+        <label class="sr-only" for="employee-role">Filtrar por rol</label><select id="employee-role" name="role" class="field h-10 text-sm"><option value="">Todos los roles</option>@foreach(['admin'=>'Administrador','inspector'=>'Inspector','operador'=>'Operador','limpieza'=>'Limpieza'] as $key=>$label)<option value="{{ $key }}" @selected(request('role')===$key)>{{ $label }}</option>@endforeach</select>
+        <label class="sr-only" for="employee-status">Filtrar por estado</label><select id="employee-status" name="activo" class="field h-10 text-sm"><option value="">Todos los estados</option><option value="1" @selected(request('activo')==='1')>Activos</option><option value="0" @selected(request('activo')==='0')>Inactivos</option></select>
+        <button class="h-10 rounded-xl bg-[#0E7490] px-3 text-sm font-bold text-white">Filtrar</button><a href="{{ route('empleados.index', [], false) }}" class="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 px-3 text-sm font-semibold text-[#0E7490]">Limpiar</a>
+    </form>
+
+    <section class="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm sm:p-5">
+        <details id="employee-create" class="group"><summary class="flex min-h-10 cursor-pointer list-none items-center justify-between gap-3 font-bold marker:hidden"><span>Alta de personal</span><span class="rounded-xl bg-[#0E7490] px-4 py-2 text-sm font-bold text-white group-open:hidden">+ Nuevo empleado</span><span class="hidden rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-[#0E7490] group-open:inline-flex">Cerrar</span></summary>
             <form action="{{ route('empleados.store', [], false) }}" method="POST" enctype="multipart/form-data" class="mt-4 grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3">@csrf
                 <label class="form-label">Nombre completo<input class="field mt-1" name="name" required value="{{ old('name') }}" placeholder="Nombre completo"></label>
                 <label class="form-label">Correo electrónico<input class="field mt-1" name="email" type="email" required value="{{ old('email') }}" placeholder="correo@empresa.com"></label>
@@ -23,13 +30,6 @@
             </form>
         </details>
     </section>
-
-    <form id="employee-filter-form" action="{{ route('empleados.index', [], false) }}" method="GET" class="grid min-w-0 gap-2 rounded-2xl border border-[#6DA5C0]/50 bg-white p-4 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_190px_190px_auto_auto]">
-        <label class="sr-only" for="employee-search">Buscar empleado</label><input id="employee-search" name="q" value="{{ request('q') }}" placeholder="Buscar por nombre, correo o puesto" class="field">
-        <label class="sr-only" for="employee-role">Filtrar por rol</label><select id="employee-role" name="role" class="field"><option value="">Todos los roles</option>@foreach(['admin'=>'Administrador','inspector'=>'Inspector','operador'=>'Operador','limpieza'=>'Limpieza'] as $key=>$label)<option value="{{ $key }}" @selected(request('role')===$key)>{{ $label }}</option>@endforeach</select>
-        <label class="sr-only" for="employee-status">Filtrar por estado</label><select id="employee-status" name="activo" class="field"><option value="">Activos e inactivos</option><option value="1" @selected(request('activo')==='1')>Activos</option><option value="0" @selected(request('activo')==='0')>Inactivos</option></select>
-        <button class="min-h-11 rounded-xl bg-[#0F969C] px-4 text-sm font-bold text-white">Filtrar</button><a href="{{ route('empleados.index', [], false) }}" class="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#6DA5C0]/50 px-4 text-sm font-semibold text-[#0C7075]">Limpiar</a>
-    </form>
 
     <section aria-label="Directorio de personal" class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         @forelse($empleados as $empleado)

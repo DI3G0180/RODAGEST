@@ -1,9 +1,17 @@
 @extends('layouts.app')
 @section('title', 'Aseo de unidades')
 @section('content')
-<div class="mx-auto w-full max-w-7xl space-y-5 px-4 py-5 sm:px-6 sm:py-8">
-    <header class="flex flex-wrap items-end justify-between gap-3"><div><p class="text-xs font-bold uppercase tracking-[.16em] text-[#0C7075]">{{ auth()->user()->role === 'admin' ? 'Supervisión · Administración' : 'Operación · Limpieza' }}</p><h1 class="mt-1 text-2xl font-extrabold sm:text-3xl">Aseo de unidades</h1><p class="mt-1 text-sm text-[#294D61]">{{ auth()->user()->role === 'admin' ? 'Consulta los registros de limpieza y abre el historial de cada unidad.' : 'Registra lavados, desinfecciones, etapas y evidencia.' }}</p></div><a href="{{ route('dashboard', [], false) }}" class="inline-flex min-h-11 items-center rounded-xl border border-[#6DA5C0]/50 bg-white px-4 font-semibold text-[#0C7075]">Volver al panel</a></header>
+<div class="mx-auto w-full max-w-7xl space-y-4 px-3 py-4 sm:space-y-5 sm:px-6 sm:py-8">
+    <header class="flex flex-wrap items-center justify-between gap-2"><div class="min-w-0"><p class="text-xs font-bold uppercase tracking-[.16em] text-[#0C7075]">{{ auth()->user()->role === 'admin' ? 'Supervisión · Administración' : 'Operación · Limpieza' }}</p><h1 class="mt-1 text-xl font-bold tracking-tight text-[#083344] sm:text-2xl">Aseo de unidades</h1><p class="text-xs text-slate-500 sm:text-sm">{{ auth()->user()->role === 'admin' ? 'Consulta los registros de limpieza y abre el historial de cada unidad.' : 'Registra lavados, desinfecciones, etapas y evidencia.' }}</p></div><a href="{{ route('dashboard', [], false) }}" class="inline-flex min-h-10 shrink-0 items-center rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-[#0E7490]">Volver</a></header>
     @if($errors->any())<div class="rounded-xl border border-red-200 bg-red-50 p-4 text-red-800"><ul class="list-disc pl-5">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
+
+    <section class="space-y-2"><div><h2 class="text-base font-bold text-[#083344]">Bitácora de aseos</h2><p class="text-xs text-slate-500 sm:text-sm">Busca por ECO, responsable, área o rango de fechas.</p></div>
+        <form action="{{ route('aseos.index', [], false) }}" method="GET" class="grid min-w-0 grid-cols-2 gap-2 rounded-2xl border border-slate-200/80 bg-white p-3 shadow-sm sm:p-4 lg:grid-cols-[minmax(0,1fr)_170px_170px_auto_auto]">
+            <div class="col-span-2 flex min-w-0 gap-2 lg:col-span-1"><label class="sr-only" for="aseo-search">Buscar aseo</label><div class="relative min-w-0 flex-1"><span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true">⌕</span><input id="aseo-search" name="q" value="{{ request('q') }}" placeholder="ECO o responsable..." class="aseo-field h-10 pl-9 text-sm"></div><button aria-label="Buscar aseos" class="h-10 shrink-0 rounded-xl bg-[#0E7490] px-3 text-sm font-bold text-white">Buscar</button></div>
+            <label class="form-label text-xs">Desde<input type="date" name="desde" value="{{ request('desde') }}" class="aseo-field h-10 text-sm"></label><label class="form-label text-xs">Hasta<input type="date" name="hasta" value="{{ request('hasta') }}" class="aseo-field h-10 text-sm"></label>
+            <button class="h-10 rounded-xl bg-[#0E7490] px-3 text-sm font-bold text-white">Filtrar</button><a href="{{ route('aseos.index', [], false) }}" class="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 px-3 text-sm font-semibold text-[#0E7490]">Limpiar</a>
+        </form>
+    </section>
 
     @if(auth()->user()->role === 'limpieza')
     <section class="rounded-2xl border border-[#6DA5C0]/50 bg-white p-5 shadow-sm sm:p-6"><details @if(($abrirModal ?? false) || $errors->any()) open @endif class="group"><summary class="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-lg font-bold marker:hidden"><span>Bitácora de limpieza</span><span class="rounded-lg bg-[#0F969C] px-4 py-2 text-sm font-bold text-white group-open:hidden">+ Registrar aseo</span><span class="hidden rounded-lg border border-[#6DA5C0]/50 px-4 py-2 text-sm font-bold text-[#0C7075] group-open:inline-flex">Cerrar formulario</span></summary><form action="{{ route('aseos.store', [], false) }}" method="POST" enctype="multipart/form-data" class="mt-4 grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3">@csrf
@@ -21,12 +29,7 @@
     </form></details></section>
     @endif
 
-    <section class="space-y-4"><div><h2 class="text-xl font-extrabold">Bitácora de aseos</h2><p class="text-sm text-[#294D61]">Busca por ECO, responsable, área o rango de fechas.</p></div>
-        <form action="{{ route('aseos.index', [], false) }}" method="GET" class="grid min-w-0 gap-2 rounded-2xl border border-[#6DA5C0]/50 bg-white p-4 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_170px_170px_auto_auto]">
-            <input name="q" value="{{ request('q') }}" placeholder="ECO, responsable o área" class="aseo-field">
-            <label class="form-label">Desde<input type="date" name="desde" value="{{ request('desde') }}" class="aseo-field"></label><label class="form-label">Hasta<input type="date" name="hasta" value="{{ request('hasta') }}" class="aseo-field"></label>
-            <button class="min-h-11 rounded-xl bg-[#0F969C] px-4 font-bold text-white">Buscar</button><a href="{{ route('aseos.index', [], false) }}" class="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#6DA5C0]/50 px-4 font-semibold text-[#0C7075]">Limpiar</a>
-        </form>
+    <section class="space-y-4">
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         @forelse($aseos as $aseo)
             @php($nextState = \App\Support\ProgressiveStatus::next('aseo', $aseo->estado))
